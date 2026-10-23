@@ -6183,7 +6183,7 @@ links.forEach(function(a){a.addEventListener('click',function(e){e.preventDefaul
 document.querySelectorAll('.pgx-show').forEach(function(s){
  var imgs=s.querySelectorAll('.pgx-stage img'),th=s.querySelectorAll('.pgx-thumbs button'),i=0,timer;
  function go(n){i=(n+imgs.length)%imgs.length;imgs.forEach(function(m,k){m.classList.toggle('on',k===i)});th.forEach(function(b,k){b.classList.toggle('on',k===i)});
-  if(th[i])th[i].scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});}
+  if(th[i]){var strip=th[i].parentElement,b=th[i];var l=b.offsetLeft-strip.offsetLeft,r=l+b.offsetWidth;if(l<strip.scrollLeft)strip.scrollTo({left:l,behavior:'smooth'});else if(r>strip.scrollLeft+strip.clientWidth)strip.scrollTo({left:r-strip.clientWidth,behavior:'smooth'});}}
  function play(){clearInterval(timer);timer=setInterval(function(){go(i+1)},(+s.dataset.ms||3000));}
  th.forEach(function(b,k){b.addEventListener('click',function(){go(k);play();})});
  s.querySelector('.pgx-stage').addEventListener('click',function(){go(i+1);play();});
