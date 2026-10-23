@@ -6411,15 +6411,23 @@ document.querySelectorAll('.pgx-show').forEach(function(s){
 })();</script><script id="pgx-parallax-js">(function(){
 if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 var els=[].slice.call(document.querySelectorAll('.section-background-content[data-controller*="Parallax"]'));
-if(!els.length)return;var ticking=false;
-function update(){ticking=false;var vh=window.innerHeight;
- els.forEach(function(el){var r=el.getBoundingClientRect();if(r.bottom<-200||r.top>vh+200)return;
-  var img=el.querySelector('img');if(!img)return;
-  var progress=(r.top+r.height/2)-vh/2;           /* 0 when the banner is centred */
-  var maxShift=r.height*0.2;                        /* image is 40% taller than its frame */
-  var f=Math.min(0.3,maxShift/((vh+r.height)/2));   /* image travels slower than the page */
-  var t=Math.max(-maxShift,Math.min(maxShift,-progress*f));
-  img.style.setProperty('--pgx-py',t.toFixed(1)+'px');});}
-function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(update);}}
-addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll);update();
+if(!els.length)return;
+var items=els.map(function(el){return {el:el,img:el.querySelector('img'),cur:null,target:0};}).filter(function(o){return o.img;});
+var EASE=0.075;   /* how quickly the photo catches up: lower = more float */
+var running=false;
+function targets(){var vh=window.innerHeight;
+ items.forEach(function(o){var r=o.el.getBoundingClientRect();
+  var progress=(r.top+r.height/2)-vh/2;          /* 0 when the banner is centred */
+  var maxShift=r.height*0.2;                       /* photo is 40% taller than its frame */
+  var f=Math.min(0.35,maxShift/((vh+r.height)/2));
+  o.target=Math.max(-maxShift,Math.min(maxShift,-progress*f));
+  if(o.cur===null)o.cur=o.target;});}
+function frame(){running=false;targets();var moving=false;
+ items.forEach(function(o){var d=o.target-o.cur;
+  if(Math.abs(d)>0.15){o.cur+=d*EASE;moving=true;}else o.cur=o.target;
+  o.img.style.setProperty('--pgx-py',o.cur.toFixed(2)+'px');});
+ if(moving)kick();}
+function kick(){if(!running){running=true;requestAnimationFrame(frame);}}
+addEventListener('scroll',kick,{passive:true});addEventListener('resize',kick);
+targets();items.forEach(function(o){o.img.style.setProperty('--pgx-py',o.cur.toFixed(2)+'px');});
 })();</script></body></html>
