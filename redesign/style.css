@@ -58,11 +58,12 @@ section{padding-top:clamp(72px,10vw,140px)}
 .filters button{padding:10px 14px;border:1px solid var(--line);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);min-height:44px}
 .filters button.on,.filters button:hover{color:var(--fg);border-color:var(--fg)}
 
-.grid.films{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,1.6vw,24px) clamp(12px,1.4vw,20px)}
+.grid.films{display:grid;align-items:start;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,1.6vw,24px) clamp(12px,1.4vw,20px)}
 @media(max-width:1000px){.grid.films{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:640px){.grid.films{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .card{display:block}
-.card .frame{aspect-ratio:4/5;overflow:hidden;background:#151515;position:relative}
+.card .frame{overflow:hidden;background:#151515;position:relative}
+.card .frame img{height:auto;object-fit:contain}
 .card .frame img{transition:transform .7s cubic-bezier(.2,.7,.2,1)}
 .card:hover .frame img{transform:scale(1.045)}
 .card .logline{position:absolute;inset:auto 0 0 0;padding:16px;font-size:14px;line-height:1.4;background:linear-gradient(to top,rgba(0,0,0,.92),rgba(0,0,0,0));opacity:0;transform:translateY(8px);transition:.35s}
@@ -122,7 +123,7 @@ section{padding-top:clamp(72px,10vw,140px)}
 .pull cite{display:block;margin-top:10px;font-style:normal;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
 .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
 .btns .cta{margin-top:0}
-.poster img{height:auto;aspect-ratio:4/5}
+.poster img{height:auto;object-fit:contain}
 .facts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;border-top:1px solid var(--line);padding-top:18px}
 .facts p{margin-top:6px;line-height:1.35}
 .stills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
