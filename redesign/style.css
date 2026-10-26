@@ -1,7 +1,7 @@
 :root{--bg:#0a0a0a;--fg:#f2efe9;--mute:#9a968e;--line:#2a2927;--accent:#e8d23a}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--fg);font-family:"Bricolage Grotesque","Helvetica Neue",Helvetica,Arial,sans-serif;font-optical-sizing:auto;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{background:var(--bg);color:var(--fg);font-family:"Darker Grotesque","Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 img{display:block;width:100%;height:100%;object-fit:cover}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -211,3 +211,9 @@ footer a:hover{text-decoration:underline}
 .mcard:hover .frame img{transform:scale(1.04)}
 .mcard h3{margin-top:12px;font-size:20px;font-weight:500;letter-spacing:-.02em}
 .mcard span{font-size:14px}
+
+/* darker grotesque sizing: it sets small, so nudge text sizes up for legibility */
+body{font-size:18px}
+.card .logline,.ig p,.vmeta,footer p,footer a,.clients .what{font-size:17px}
+.dtext p{font-size:clamp(20px,1.7vw,23px)}
+.label{font-size:12px}
