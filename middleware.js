@@ -73,8 +73,14 @@ function signInPage(wrong, status) {
   label{position:absolute;left:-9999px}
   input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--fg);font:inherit;font-size:18px;letter-spacing:.06em;text-align:center;padding:12px 4px;outline:none;transition:border-color .2s}
   input:focus{border-bottom-color:var(--accent)}
-  button{margin-top:34px;background:transparent;color:var(--fg);border:1px solid var(--fg);font:inherit;font-size:11px;letter-spacing:.3em;text-transform:uppercase;padding:15px 38px;cursor:pointer;transition:background .2s,color .2s}
-  button:hover,button:focus-visible{background:var(--fg);color:#000}
+  .enter{margin-top:34px;background:transparent;color:var(--fg);border:1px solid var(--fg);font:inherit;font-size:11px;letter-spacing:.3em;text-transform:uppercase;padding:15px 38px;cursor:pointer;transition:background .2s,color .2s}
+  .enter:hover,.enter:focus-visible{background:var(--fg);color:#000}
+  .field{position:relative}
+  .field input{padding-left:44px;padding-right:44px}
+  .eye{position:absolute;right:0;top:50%;transform:translateY(-50%);width:44px;height:44px;display:grid;place-items:center;background:none;border:0;color:var(--muted);cursor:pointer;transition:color .2s}
+  .eye:hover,.eye:focus-visible{color:var(--fg);outline:none}
+  .eye svg{width:20px;height:20px}
+  .eye .off{display:none}.eye[aria-pressed="true"] .on{display:none}.eye[aria-pressed="true"] .off{display:block}
   .error{color:var(--error);font-size:13px;letter-spacing:.04em;margin-top:16px;min-height:18px}
   .back{display:inline-block;margin-top:44px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);text-decoration:none}
   .back:hover{color:var(--fg)}
@@ -90,12 +96,23 @@ function signInPage(wrong, status) {
     <div class="label">Archive</div>
     <h1>This collection is <em>private.</em><br>Enter the password to continue.</h1>
     <label for="password">Password</label>
-    <input id="password" name="password" type="password" placeholder="Password" autocomplete="current-password" autofocus required>
+    <div class="field">
+      <input id="password" name="password" type="password" placeholder="Password" autocomplete="current-password" autofocus required>
+      <button type="button" class="eye" aria-label="Show password" aria-pressed="false" aria-controls="password">
+        <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.9 9.9 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+      </button>
+    </div>
     <div class="error" role="alert">${wrong ? 'That password isn’t right. Please try again.' : ''}</div>
-    <button type="submit">Enter</button>
+    <button type="submit" class="enter">Enter</button>
     <div><a class="back" href="/">← Back to Paragraph</a></div>
   </form>
 </main>
+<script>
+  (function(){var b=document.querySelector('.eye'),i=document.getElementById('password');
+   b.addEventListener('click',function(){var show=i.type==='password';i.type=show?'text':'password';
+    b.setAttribute('aria-pressed',show?'true':'false');b.setAttribute('aria-label',show?'Hide password':'Show password');i.focus();});})();
+</script>
 </body></html>`;
   return new Response(html, {
     status,
