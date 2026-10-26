@@ -568,6 +568,9 @@ function page(body, status, cookies = []) {
   .linkbox input{flex:1 1 320px;text-align:left;padding:10px 4px;font-size:14px;letter-spacing:.02em}
   .linkbox .enter{margin-top:0;padding:12px 26px}
   .muted{color:var(--muted);font-size:13px;letter-spacing:.04em}
+  .grid.dense{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .grid.dense .tile span{left:12px;right:10px;bottom:10px;font-size:13px}
+  .grid.dense .tile span small{font-size:11px}
   .group{margin-bottom:40px}
   .group h2{font-size:12px;font-weight:400;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
   .tile span i{font-style:normal;color:var(--muted);font-size:12px;margin-left:6px;letter-spacing:.06em}
@@ -667,11 +670,8 @@ function builderBody(selected, link) {
     ? `<div class="linkbox"><label class="sr" for="share">Share link</label><input id="share" type="text" readonly value="${esc(link)}">
        <button type="button" class="enter" id="copy">Copy link</button><a class="enter" href="${esc(link)}" target="_blank" rel="noopener">Preview</a><span class="muted" id="copied" role="status"></span></div>`
     : '';
-  const groups = PROJECTS.filter((p) => (p.videos || []).length).map((p) => {
-    const vids = VIDEOS.filter((v) => v.slug === p.slug);
-    return `<section class="group"><h2>${esc(p.title)}</h2><div class="grid">${vids.map((v) =>
-      `<label class="pick"><input type="checkbox" name="pick" value="${v.id}"${selected.includes(v.id) ? ' checked' : ''}><span class="tile"><img src="${esc(v.thumb)}" alt="" loading="lazy"><span>${esc(v.title || p.title)}${v.dur ? ` <i>${mmss(v.dur)}</i>` : ''}</span></span></label>`).join('')}</div></section>`;
-  }).join('');
+  const groups = `<div class="grid dense">${VIDEOS.map((v) =>
+      `<label class="pick"><input type="checkbox" name="pick" value="${v.id}"${selected.includes(v.id) ? ' checked' : ''}><span class="tile"><img src="${esc(v.thumb)}" alt="" loading="lazy"><span>${esc(v.project)}${v.dur ? ` <i>${mmss(v.dur)}</i>` : ''}<small>${esc(v.title && v.title !== v.project ? v.title : '')}</small></span></span></label>`).join('')}</div>`;
   return `<form class="card wide" method="get">
     <div class="rule" aria-hidden="true"></div><div class="label">Custom reel</div>
     <h1>Pick the videos. <em>Send the link.</em></h1>
