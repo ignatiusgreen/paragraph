@@ -124,7 +124,7 @@ section{padding-top:clamp(72px,10vw,140px)}
 .pull cite{display:block;margin-top:10px;font-style:normal;font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
 .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
 .btns .cta{margin-top:0}
-.poster img{height:auto;object-fit:contain}
+.poster img{height:auto;object-fit:contain;width:auto;max-width:min(300px,100%);max-height:440px}
 .facts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;border-top:1px solid var(--line);padding-top:18px}
 .facts p{margin-top:6px;line-height:1.35}
 .stills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
