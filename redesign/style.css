@@ -220,3 +220,12 @@ body{font-size:18px}
 
 /* section titles in caps */
 .sec-head h2{text-transform:uppercase;letter-spacing:.01em;font-weight:800}
+
+/* brand pages: white page, black "Discover more" band (A24 style) */
+main.brand{--bg:#fff;--fg:#0a0a0a;--mute:#6b675f;--line:#dcd9d3;--accent:#c9ad00;background:var(--bg);color:var(--fg)}
+main.brand .bhero{--bg:#0a0a0a;--fg:#f2efe9;--mute:#c9c5bd;--line:#2a2927;color:var(--fg)}
+main.brand .bhero::after{background:linear-gradient(to top,rgba(0,0,0,.78) 0%,rgba(0,0,0,.4) 40%,rgba(0,0,0,0) 72%),linear-gradient(to bottom,rgba(0,0,0,.45),rgba(0,0,0,0) 20%)}
+main.brand .more-dark{--bg:#0a0a0a;--fg:#f2efe9;--mute:#9a968e;--line:#2a2927;background:var(--bg);color:var(--fg);margin-top:clamp(64px,8vw,120px);padding-top:clamp(32px,4vw,56px);padding-bottom:clamp(24px,3vw,40px)}
+main.brand + .letter{margin-top:0}
+main.brand .dtext p,main.brand .pull p{color:#1f1e1c}
+main.brand .vthumb{background:#ececea}
