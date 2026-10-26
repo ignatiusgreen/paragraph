@@ -23,10 +23,20 @@ export default async function middleware(request) {
   if (!password) {
     return new Response('The archive is locked until a password is set.', { status: 503 });
   }
+  const url = new URL(request.url);
+  if (url.pathname === '/archive-logout') {
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location: '/archive',
+        'Set-Cookie': `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`,
+        'Cache-Control': 'no-store',
+      },
+    });
+  }
   const token = await tokenFor(password);
   if (readCookie(request, COOKIE) === token) return; // already signed in: show the page
 
-  const url = new URL(request.url);
   if (request.method === 'POST') {
     let given = '';
     try { given = String((await request.formData()).get('password') || ''); } catch (e) {}
