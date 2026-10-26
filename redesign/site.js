@@ -76,4 +76,14 @@
       a.addEventListener('mousemove', function (e) { peek.style.left = e.clientX + 'px'; peek.style.top = e.clientY + 'px'; });
     });
   }
+
+  // Trailer players: our own play button; clicking swaps in the Vimeo player and starts it with sound
+  document.querySelectorAll('.play-cover').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var f = document.createElement('iframe');
+      f.src = b.dataset.src; f.title = b.dataset.title || 'Trailer';
+      f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media'; f.setAttribute('allowfullscreen', '');
+      b.replaceWith(f); f.focus();
+    });
+  });
 })();
