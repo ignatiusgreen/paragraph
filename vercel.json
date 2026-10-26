@@ -1,3 +1,202 @@
 {
-  "cleanUrls": false
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/entertainment",
+      "destination": "/film-tv.html"
+    },
+    {
+      "source": "/brand",
+      "destination": "/branded.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/nike-case-study",
+      "destination": "/nike-case-study.html"
+    },
+    {
+      "source": "/archive",
+      "destination": "/archive.html"
+    },
+    {
+      "source": "/entertainment/birth-camera-phone",
+      "destination": "/film-birth-camera-phone.html"
+    },
+    {
+      "source": "/entertainment/bitconned",
+      "destination": "/film-bitconned.html"
+    },
+    {
+      "source": "/entertainment/bookseller",
+      "destination": "/film-bookseller.html"
+    },
+    {
+      "source": "/entertainment/cashman",
+      "destination": "/film-cashman.html"
+    },
+    {
+      "source": "/entertainment/dickweed",
+      "destination": "/film-dickweed.html"
+    },
+    {
+      "source": "/entertainment/lottery",
+      "destination": "/film-lottery.html"
+    },
+    {
+      "source": "/entertainment/mississippi",
+      "destination": "/film-mississippi.html"
+    },
+    {
+      "source": "/entertainment/mr-ingram",
+      "destination": "/film-mr-ingram.html"
+    },
+    {
+      "source": "/entertainment/pez",
+      "destination": "/film-pez.html"
+    },
+    {
+      "source": "/entertainment/relay",
+      "destination": "/film-relay.html"
+    },
+    {
+      "source": "/entertainment/social-animals",
+      "destination": "/film-social-animals.html"
+    },
+    {
+      "source": "/brand/fsc",
+      "destination": "/brand-fsc.html"
+    },
+    {
+      "source": "/brand/google",
+      "destination": "/brand-google.html"
+    },
+    {
+      "source": "/brand/nike-dream",
+      "destination": "/brand-nike-dream.html"
+    },
+    {
+      "source": "/brand/purina",
+      "destination": "/brand-purina.html"
+    },
+    {
+      "source": "/brand/uber-grammys",
+      "destination": "/brand-uber-grammys.html"
+    },
+    {
+      "source": "/brand/warp",
+      "destination": "/brand-warp.html"
+    },
+    {
+      "source": "/archive/3m",
+      "destination": "/archive-3m.html"
+    },
+    {
+      "source": "/archive/aarp",
+      "destination": "/archive-aarp.html"
+    },
+    {
+      "source": "/archive/airtable",
+      "destination": "/archive-airtable.html"
+    },
+    {
+      "source": "/archive/assassins",
+      "destination": "/archive-assassins.html"
+    },
+    {
+      "source": "/archive/banfield",
+      "destination": "/archive-banfield.html"
+    },
+    {
+      "source": "/archive/brightcove",
+      "destination": "/archive-brightcove.html"
+    },
+    {
+      "source": "/archive/fsc",
+      "destination": "/archive-fsc.html"
+    },
+    {
+      "source": "/archive/goal-zero",
+      "destination": "/archive-goal-zero.html"
+    },
+    {
+      "source": "/archive/google",
+      "destination": "/archive-google.html"
+    },
+    {
+      "source": "/archive/hancock",
+      "destination": "/archive-hancock.html"
+    },
+    {
+      "source": "/archive/nike",
+      "destination": "/archive-nike.html"
+    },
+    {
+      "source": "/archive/panini",
+      "destination": "/archive-panini.html"
+    },
+    {
+      "source": "/archive/paypal",
+      "destination": "/archive-paypal.html"
+    },
+    {
+      "source": "/archive/power-bar",
+      "destination": "/archive-power-bar.html"
+    },
+    {
+      "source": "/archive/progresso",
+      "destination": "/archive-progresso.html"
+    },
+    {
+      "source": "/archive/purina-b",
+      "destination": "/archive-purina-b.html"
+    },
+    {
+      "source": "/archive/purina",
+      "destination": "/archive-purina.html"
+    },
+    {
+      "source": "/archive/purina2",
+      "destination": "/archive-purina2.html"
+    },
+    {
+      "source": "/archive/purina3",
+      "destination": "/archive-purina3.html"
+    },
+    {
+      "source": "/archive/redbull",
+      "destination": "/archive-redbull.html"
+    },
+    {
+      "source": "/archive/ride",
+      "destination": "/archive-ride.html"
+    },
+    {
+      "source": "/archive/royal-caribbean",
+      "destination": "/archive-royal-caribbean.html"
+    },
+    {
+      "source": "/archive/stanton",
+      "destination": "/archive-stanton.html"
+    },
+    {
+      "source": "/archive/toyota",
+      "destination": "/archive-toyota.html"
+    },
+    {
+      "source": "/archive/trifexis",
+      "destination": "/archive-trifexis.html"
+    },
+    {
+      "source": "/archive/uber",
+      "destination": "/archive-uber.html"
+    },
+    {
+      "source": "/archive/uberville",
+      "destination": "/archive-uberville.html"
+    }
+  ]
 }
