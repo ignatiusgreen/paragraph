@@ -504,9 +504,10 @@ function page(body, status, cookies = []) {
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{min-height:100%}
   body{background:var(--bg);color:var(--fg);font-family:"Chivo",system-ui,sans-serif;font-weight:300;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
-  header{display:flex;justify-content:space-between;align-items:center;padding:28px clamp(20px,4vw,56px)}
+  header{display:flex;justify-content:space-between;align-items:center;padding:19px 4vw}
   header a{color:var(--fg);text-decoration:none}
-  .mark{font-family:"Source Serif 4",serif;font-size:30px;line-height:1}
+  .mark{display:block;line-height:0}
+  .mark img{height:21px;width:auto;display:block}
   nav{display:flex;gap:clamp(18px,3vw,40px)}
   nav a{font-size:11px;letter-spacing:.28em;text-transform:uppercase;opacity:.85}
   nav a:hover{opacity:1}
@@ -565,7 +566,7 @@ function page(body, status, cookies = []) {
 </style></head>
 <body>
 <header>
-  <a class="mark" href="/" aria-label="Paragraph home">¶</a>
+  <a class="mark" href="/"><img src="https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w" alt="Paragraph"></a>
   <nav><a href="/entertainment">Film &amp; TV</a><a href="/brand">Branded</a><a href="/about">About</a></nav>
 </header>
 <main>${body}</main>
