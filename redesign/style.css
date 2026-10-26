@@ -149,3 +149,8 @@ footer h4{color:var(--mute);margin-bottom:10px}
 footer p,footer a{font-size:14px;line-height:1.6}
 footer a:hover{text-decoration:underline}
 .fine{border-top:1px solid var(--line);padding-top:18px;padding-bottom:28px;display:flex;justify-content:space-between;color:var(--mute);font-size:12px;flex-wrap:wrap;gap:8px}
+
+/* home: a single row of posters */
+.seeall:hover{color:var(--fg)}
+@media(max-width:1000px){.grid.films.row .card:nth-child(n+4){display:none}}
+@media(max-width:640px){.grid.films.row .card:nth-child(n+3){display:none}}
