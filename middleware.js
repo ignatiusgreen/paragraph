@@ -576,6 +576,14 @@ function page(body, status, cookies = []) {
   .tile span i{font-style:normal;color:var(--muted);font-size:12px;margin-left:6px;letter-spacing:.06em}
   .tile span small{display:block;margin-top:4px;font-size:12px;letter-spacing:.04em;color:#cfcac0}
   .tile span{right:14px;line-height:1.3}
+  .play-cover{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#000;cursor:pointer;display:block}
+  .play-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+  .play-cover::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.12);transition:background .3s}
+  .play-icon{position:absolute;left:50%;top:50%;z-index:1;width:clamp(36px,3.6vw,56px);transform:translate(-40%,-50%);color:#fff;transition:transform .35s ease;filter:drop-shadow(0 1px 8px rgba(0,0,0,.35))}
+  .play-icon svg{display:block;width:100%;height:auto;overflow:visible}
+  .play-cover:hover img{transform:scale(1.02)}.play-cover:hover::after{background:rgba(0,0,0,.25)}
+  .play-cover:hover .play-icon{transform:translate(-40%,-50%) scale(1.08)}
+  .play-cover:focus-visible{outline:2px solid #fff;outline-offset:-6px}
   .player{position:relative;width:100%;aspect-ratio:16/9;background:#0b0b0b;margin-bottom:18px}
   .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
   .nowbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:44px}
@@ -704,15 +712,18 @@ function reelBody(ids) {
     `<button type="button" class="tile" data-i="${i}" aria-pressed="${i === 0}" aria-label="Play ${esc(v.title || v.project)}"><img src="${esc(v.thumb)}" alt="" loading="lazy"><span>${esc(v.project)}<small>${esc(v.title && v.title !== v.project ? v.title : '')}</small></span></button>`).join('')}</div>` : '';
   return `<div class="card wide"><div class="rule" aria-hidden="true"></div><div class="label">Selected work</div>
     <h1>${list.length > 1 ? 'A few projects, <em>picked for you.</em>' : 'A project, <em>picked for you.</em>'}</h1>
-    <div class="player" id="player"><iframe id="frame" src="${esc(first.src)}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen title="${esc(first.title || first.project)}"></iframe></div>
+    <div class="player" id="player"><button type="button" class="play-cover" id="cover" aria-label="Play ${esc(first.title || first.project)}"><img src="${esc(first.thumb)}" alt=""><span class="play-icon" aria-hidden="true"><svg viewBox="0 0 66 98"><polygon points="1.5,1.5 64.5,49 1.5,96.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button></div>
     <div class="nowbar"><div class="now" id="now">${esc(first.project)}${first.title && first.title !== first.project ? `<small>${esc(first.title)}</small>` : ''}</div></div>
     ${tiles}
     <a class="back" href="/">← Back to Paragraph</a></div>
   <script>(function(){
-    var V=${data},frame=document.getElementById('frame'),now=document.getElementById('now');
+    var V=${data},player=document.getElementById('player'),now=document.getElementById('now');
     function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
+    function play(v){var f=document.createElement('iframe');f.src=v.src+(v.src.indexOf('?')<0?'?':'&')+'autoplay=1';f.title=v.title||v.project;
+      f.allow='autoplay; fullscreen; picture-in-picture; encrypted-media';f.setAttribute('allowfullscreen','');player.innerHTML='';player.appendChild(f);}
+    document.getElementById('cover').addEventListener('click',function(){play(V[0]);});
     [].forEach.call(document.querySelectorAll('button.tile'),function(t){t.addEventListener('click',function(){
-      var i=+t.dataset.i,v=V[i];frame.src=v.src+(v.src.indexOf('?')<0?'?':'&')+'autoplay=1';frame.title=v.title||v.project;
+      var i=+t.dataset.i,v=V[i];play(v);
       now.innerHTML=esc(v.project)+(v.title&&v.title!==v.project?'<small>'+esc(v.title)+'</small>':'');
       [].forEach.call(document.querySelectorAll('button.tile'),function(x){x.setAttribute('aria-pressed',String(x===t));});
       document.getElementById('player').scrollIntoView({behavior:'smooth',block:'start'});});});
