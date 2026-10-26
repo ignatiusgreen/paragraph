@@ -165,3 +165,12 @@ footer a:hover{text-decoration:underline}
 .play-cover:hover::after{background:rgba(0,0,0,.25)}
 .play-cover:hover .play-icon{transform:translate(-40%,-50%) scale(1.08)}
 .play-cover:focus-visible{outline:2px solid #fff;outline-offset:-6px}
+
+/* footnotes: four Instagram posts */
+.feed.ig4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,1.6vw,24px)}
+@media(max-width:800px){.feed.ig4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ig{display:block}
+.ig .frame{aspect-ratio:1/1;overflow:hidden;background:#151515}
+.ig .frame img{transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.ig:hover .frame img{transform:scale(1.04)}
+.ig p{margin-top:12px;font-size:15px;line-height:1.35;color:#cfcac0}
