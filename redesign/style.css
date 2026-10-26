@@ -44,8 +44,9 @@ nav a:hover{opacity:1}
 .cta.solid:hover{background:transparent;color:var(--fg)}
 .hero-ctrl{position:absolute;right:0;bottom:clamp(28px,6vh,56px);z-index:3;display:flex;align-items:center;gap:16px}
 .count{font-variant-numeric:tabular-nums;font-size:14px;font-weight:500}
-.arrow{width:44px;height:44px;border:1px solid rgba(255,255,255,.4);border-radius:50%;display:grid;place-items:center}
-.arrow:hover{border-color:#fff}
+.arrow{width:44px;height:44px;display:grid;place-items:center;opacity:.75;transition:opacity .2s,transform .2s}
+.arrow:hover,.arrow:focus-visible{opacity:1}
+.arrow[data-go="-1"]:hover{transform:translateX(-3px)}.arrow[data-go="1"]:hover{transform:translateX(3px)}
 .progress{position:absolute;left:0;bottom:0;height:3px;background:var(--fg);z-index:3;width:0}
 
 /* sections */
