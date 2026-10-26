@@ -15,11 +15,31 @@
   var slides = [].slice.call(document.querySelectorAll('.hero .slide'));
   if (slides.length) {
     var cur = 0, timer, DUR = 8000, prog = document.querySelector('.hero .progress'), count = document.querySelector('.hero .count');
+    // Each slide loops only its chosen stretch of the trailer (data-start → data-end, in seconds),
+    // and the video fades in only once it is inside that stretch, so no title cards flash up.
+    var players = [];
+    function post(f, method, value) {
+      var msg = { method: method }; if (value !== undefined) msg.value = value;
+      f.contentWindow && f.contentWindow.postMessage(JSON.stringify(msg), 'https://player.vimeo.com');
+    }
+    addEventListener('message', function (ev) {
+      if (!/^https:\/\/player\.vimeo\.com$/.test(ev.origin)) return;
+      var d; try { d = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data; } catch (e) { return; }
+      var p = players.filter(function (x) { return x.f.contentWindow === ev.source; })[0]; if (!p) return;
+      if (d.event === 'ready') { post(p.f, 'addEventListener', 'timeupdate'); post(p.f, 'setVolume', 0); post(p.f, 'setCurrentTime', p.start); post(p.f, 'play'); }
+      if (d.event === 'timeupdate' && d.data) {
+        var t = d.data.seconds;
+        if (t >= p.end || t < p.start - 0.5) { post(p.f, 'setCurrentTime', p.start); return; }
+        if (!p.shown && t >= p.start) { p.shown = true; p.box.classList.add('ready'); }
+      }
+    });
     function loadVideo(s) {
       if (reduce || s.dataset.loaded) return; s.dataset.loaded = 1;
       var box = s.querySelector('.vid'), f = document.createElement('iframe');
       f.src = s.dataset.v; f.allow = 'autoplay; fullscreen'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
-      f.onload = function () { setTimeout(function () { box.classList.add('ready'); }, 900); };
+      var p = { f: f, box: box, start: +s.dataset.start || 0, end: +s.dataset.end || 1e9, shown: false };
+      players.push(p);
+      f.onload = function () { post(f, 'addEventListener', 'timeupdate'); post(f, 'setCurrentTime', p.start); post(f, 'play'); };
       box.appendChild(f);
     }
     function show(i) {
