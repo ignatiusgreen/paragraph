@@ -219,4 +219,4 @@ body{font-size:18px}
 .label{font-size:12px}
 
 /* section titles in caps */
-.sec-head h2{text-transform:uppercase;letter-spacing:.01em}
+.sec-head h2{text-transform:uppercase;letter-spacing:.01em;font-weight:800}
