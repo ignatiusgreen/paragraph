@@ -86,4 +86,28 @@
       b.replaceWith(f); f.focus();
     });
   });
+  // Brand pages: video cards load into the main player; Play film; Share
+  var bplayer = document.getElementById('bplayer');
+  if (bplayer) {
+    var cardsEls = [].slice.call(document.querySelectorAll('.vcard'));
+    function playIn(src, title) {
+      var f = document.createElement('iframe'); f.src = src; f.title = title || 'Video';
+      f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media'; f.setAttribute('allowfullscreen', '');
+      bplayer.innerHTML = ''; bplayer.appendChild(f);
+    }
+    cardsEls.forEach(function (c) {
+      c.addEventListener('click', function () {
+        cardsEls.forEach(function (x) { x.classList.toggle('on', x === c); x.setAttribute('aria-pressed', x === c); });
+        playIn(c.dataset.src, c.dataset.title); bplayer.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      });
+    });
+    var pf = document.getElementById('playfirst'), cov = document.getElementById('bcover');
+    if (pf && cov) pf.addEventListener('click', function () { var c = document.getElementById('bcover'); if (c) c.click(); bplayer.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' }); });
+    var sh = document.getElementById('share');
+    if (sh) sh.addEventListener('click', function () {
+      var out = document.querySelector('.shared');
+      if (navigator.share) { navigator.share({ title: document.title, url: location.href }).catch(function () {}); }
+      else if (navigator.clipboard) { navigator.clipboard.writeText(location.href).then(function () { out.textContent = 'Link copied'; }); }
+    });
+  }
 })();
