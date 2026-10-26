@@ -393,6 +393,16 @@ const PROJECTS = [
  }
 ];
 const BY_SLUG = Object.fromEntries(PROJECTS.map((p) => [p.slug, p]));
+const THUMBS = {"41106764": {"t": "https://i.vimeocdn.com/video/284546136-88fbcceeb3974fea871019083b264cb8121f5dc8abd00fb1926a0293161a6205-d_640?region=us", "d": 61}, "72383349": {"t": "https://i.vimeocdn.com/video/1949664072-367af1229aac31378021a4d36c4aed44957d2ba955ff1833af1bc1f9c49331a9-d_640?region=us", "d": 30}, "75517408": {"t": "https://i.vimeocdn.com/video/453114042-e9edeb8b7db58b02bc3d1980be91f24f937b1a659ee651065458f820024f7d54-d_640?region=us", "d": 56}, "77801760": {"t": "https://i.vimeocdn.com/video/453113844-261deb4e4493322612a4525da8ec614b4da53858ce831aaa1a557870f0bf8124-d_640?region=us", "d": 120}, "77843261": {"t": "https://i.vimeocdn.com/video/453132570-06c41555a48ca10e24f4ff57baa322845e4e48904a6b8e3f71feefa75983b5d7-d_640?region=us", "d": 60}, "81649466": {"t": "https://i.vimeocdn.com/video/457828602-38b2af6c21f8171a1944ccf7767a8c9d70303392b3a6362fd3f3a5f39ce4f1a3-d_640?region=us", "d": 159}, "149922867": {"t": "https://i.vimeocdn.com/video/1949671967-6e45cbca537d12cd5743d3100cc7d78bfd16ff90ba5a7bbbb716058529419ab5-d_640?region=us", "d": 30}, "755576988": {"t": "https://i.vimeocdn.com/video/1517896748-5cc9eb8f1ae10153e84e3ad8cfb02ea4c633ebe97b012a7322235a15a20edc12-d_640?region=us", "d": 123}, "756435121": null, "756437594": {"t": "https://i.vimeocdn.com/video/1949770609-09c11fbea6ea7007bccccf56bb83881526982c25157f61c92217be2cd40ce1c0-d_640?region=us", "d": 36}, "756437888": {"t": "https://i.vimeocdn.com/video/1519556494-38c0f33fbe4d42945297b71fd2795885bc909ace72fe2dfb54df4718f4f978f2-d_640?region=us", "d": 30}, "756437973": {"t": "https://i.vimeocdn.com/video/1519556216-2281aba874cc0bc70cc5c4bef510bb6ba08a6676691de8f02f2b91924dca8311-d_640?region=us", "d": 30}, "756450173": {"t": "https://i.vimeocdn.com/video/1949650908-6b1ddda4ce183739e5695f16ee98bfddf5c30cde57f4c2c37e1c4a3dd7097cb5-d_640?region=us", "d": 92}, "756460066": {"t": "https://i.vimeocdn.com/video/1810264467-22e03584b52e61314dfbbb61b8a053742c6450f47635e9a1fbeeb41a1b508e63-d_640?region=us", "d": 74}, "756471529": {"t": "https://i.vimeocdn.com/video/1810283472-36e7335829b07f718fcc1673eac2c83e67c4a18d0d011f2aa279aea95bf5ec9d-d_640?region=us", "d": 128}, "756476179": {"t": "https://i.vimeocdn.com/video/1949744195-bdaf72eb8585d1f170cd5d75a7864b2eae54b5beb35471cb8bb0d8aedbd679ba-d_640?region=us", "d": 70}, "756476332": {"t": "https://i.vimeocdn.com/video/1949745815-c838d8b53e118dabf179a09b2080f0e8680dd7d92795ed932c001d7d1565e9c4-d_640?region=us", "d": 117}, "756476489": {"t": "https://i.vimeocdn.com/video/1519619326-2b51aa6f4cdfc6d661b7e6b225d05163508ec6ea1535e8498c5f09df9170828e-d_640?region=us", "d": 85}, "756499538": null, "756499635": {"t": "https://i.vimeocdn.com/video/1949643727-74be15a6968ec658162e6d358add82182e4d518147da6112c7e5e41b03b3077f-d_640?region=us", "d": 106}, "756503866": {"t": "https://i.vimeocdn.com/video/1936673623-b9194f2bfe8db690152733e790aa941736a667f1abf96981b4329fcf9d12931c-d_640?region=us", "d": 60}, "756506004": {"t": "https://i.vimeocdn.com/video/1810268613-682acc7147786398f4934f8639053ee13c9d863a013a8eb038d6732e9def631c-d_640?region=us", "d": 118}, "756506134": {"t": "https://i.vimeocdn.com/video/1949705425-bec11ffe165e0409e3f02a7c995f735d938426b60ea922f22002ddc6884e6aac-d_640?region=us", "d": 106}, "756507833": {"t": "https://i.vimeocdn.com/video/1949625878-3f3c0b430c2678878a734b1e3886bb9d6a942437a5a61b96d796b00720943c20-d_640?region=us", "d": 14}, "756508623": {"t": "https://i.vimeocdn.com/video/1949767709-67905d8240b78ef927d3d32b871f4f6fa61347ce1f3acd07bd271673eb13b1fb-d_640?region=us", "d": 14}, "756513931": {"t": "https://i.vimeocdn.com/video/1949624403-47aa833aef702ed360269a863a3b9795ad448a39f9ed50431e1c62a9f6a8345d-d_640?region=us", "d": 39}, "756514007": {"t": "https://i.vimeocdn.com/video/1949623548-48b6fd620ca5a0ce54b5d4ffa015c58eb78ad9feddde58bd6ce47bcc84c9f494-d_640?region=us", "d": 50}, "756514677": null, "756515017": {"t": "https://i.vimeocdn.com/video/1519686886-dfd89307ab4e44ac62c0576d0652b9016532f26f258e6c459d0f00b903da3007-d_640?region=us", "d": 65}, "756515469": {"t": "https://i.vimeocdn.com/video/1949666303-dd4650a39420be875484c2448bd91edae0016a5fc4550871d1efd1ae5758eb84-d_640?region=us", "d": 75}, "756515491": {"t": "https://i.vimeocdn.com/video/1949702738-a8fe6ad4133d33459147b41907625863dc5c306501a71a406754175fd19824d0-d_640?region=us", "d": 6}, "756515532": {"t": "https://i.vimeocdn.com/video/1949702109-cdad1be09319fb7a857433e500b0a3983604fe358bc5744901cb045fefc5a91c-d_640?region=us", "d": 6}, "756516382": {"t": "https://i.vimeocdn.com/video/1519687917-8545b4cc0a82733d3cd3d0d61563806143fa4cc86c0bbde5eef1ef178fff2b6c-d_640?region=us", "d": 22}, "756516463": {"t": "https://i.vimeocdn.com/video/1949695298-9a11be03df0b2a3e420379102d506bc638f2cc8321a732cc4e311ca195bc47b3-d_640?region=us", "d": 29}, "756516488": {"t": "https://i.vimeocdn.com/video/1810263325-cb548b2bb72ce3e34cd47a002ded603651a5ed968712b5131d69168be5518be5-d_640?region=us", "d": 30}, "756516594": {"t": "https://i.vimeocdn.com/video/1810250516-7bebda03eb703df84d4f1762b9a9d469aac4bd884adf39b0d6f0143ff9a60668-d_640?region=us", "d": 60}, "756964338": {"t": "https://i.vimeocdn.com/video/1520510369-d5ecdd161dd9468f7aab5b084fcbc0934f2c38790dae7afc18ec1e760bf38b5e-d_640?region=us", "d": 14}, "802890453": {"t": "https://i.vimeocdn.com/video/1949681198-fd5edcdb0b1e707c63c4d74c675f7d29ba23df371bbafb5bcd9cb92707eb6b30-d_640?region=us", "d": 15}, "802890501": {"t": "https://i.vimeocdn.com/video/1949682499-52ddc7e97aab974c68fe6f35c1976700e0b408992be1683fa9157ebc2079d1f0-d_640?region=us", "d": 15}, "802890593": {"t": "https://i.vimeocdn.com/video/2048058728-8dcb6465950c9a9f8b6439b2b662fef13ae0b47d7f6df1246dd388294e32301e-d_640?region=us", "d": 15}, "803251278": {"t": "https://i.vimeocdn.com/video/1949740887-fbf543ea8952c7dc0a5e3ba3643cd0a8a536d3fc7bac78ab8724710d0339fe5b-d_640?region=us", "d": 301}, "803252869": {"t": "https://i.vimeocdn.com/video/1621413535-66b348dd64388ba96c7c4ddd4e00cf1ce402ac57a2976db0a5c899604ee3eabf-d_640?region=us", "d": 15}, "803253074": {"t": "https://i.vimeocdn.com/video/1949634327-e52a3eb6c3a7fd33ebf05b5f8bd1bde6f9336452faebd0f13a4bed974b23b37f-d_640?region=us", "d": 31}, "803256201": {"t": "https://i.vimeocdn.com/video/1949655228-99065a13eeddbd8eb2503822da5e1e1f7fab76c69f98c94fbe4805f1f365ed9d-d_640?region=us", "d": 30}, "803261256": {"t": "https://i.vimeocdn.com/video/1621437181-8c0746513e23ed8dd8d2c527ddcc7156ff3ef75576f2c788d784796e6639c18f-d_640?region=us", "d": 30}, "998756130": {"t": "https://i.vimeocdn.com/video/1949636576-6e8e2d54ddc14b26a85e4b0f8767bea22d51974cb185ede9da734697fcdacbf7-d_640?region=us", "d": 30}, "998808760": {"t": "https://i.vimeocdn.com/video/1936669205-4d84118aef00d725b450059a32832c78439c700baf4686b51fb3b3843910d897-d_640?region=us", "d": 67}, "998835219": {"t": "https://i.vimeocdn.com/video/1949640841-5e11ee83507fdc5d3e05a33ca80c122c17dd956d2e15fce9faaf9269a6805b17-d_640?region=us", "d": 29}};
+// Every archive video, in archive order: { id, slug, project, title, src, thumb, dur }
+const VIDEOS = PROJECTS.flatMap((p) => (p.videos || []).map((v) => {
+  const id = (v.src.match(/\/video\/(\d+)/) || [])[1];
+  const t = THUMBS[id];
+  return { id, slug: p.slug, project: p.title, title: v.title, src: v.src, thumb: t ? t.t : p.img + '?format=750w', dur: t ? t.d : 0 };
+})).filter((v) => v.id);
+const BY_VIDEO = Object.fromEntries(VIDEOS.map((v) => [v.id, v]));
+const ORDER = Object.fromEntries(VIDEOS.map((v, i) => [v.id, i]));
+const cleanVideos = (s) => [...new Set(String(s || '').split(',').map((x) => x.trim()).filter((x) => BY_VIDEO[x]))].sort((a, b) => ORDER[a] - ORDER[b]);
 
 const enc = new TextEncoder();
 const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -430,6 +440,13 @@ export default async function middleware(request) {
   }
 
   // Shared link: /archive/share?p=nike,panini&k=SIGNATURE
+  if (path === '/archive/share' && url.searchParams.has('v')) {
+    const ids = cleanVideos(url.searchParams.get('v'));
+    const k = url.searchParams.get('k') || '';
+    const expected = (await sign(password, 'reel:' + ids.join(','))).slice(0, 20);
+    if (!ids.length || k !== expected) return page(messageBody('This link isn’t valid', 'It may have been mistyped or switched off. Please ask Paragraph for a new link.'), 404);
+    return page(reelBody(ids), 200);
+  }
   if (path === '/archive/share') {
     const slugs = cleanList(url.searchParams.get('p'));
     const k = url.searchParams.get('k') || '';
@@ -446,13 +463,13 @@ export default async function middleware(request) {
   // Link builder (owner only)
   if (path === '/archive/links') {
     if (!isFull) return signInOr(request, url, password, fullToken);
-    const slugs = cleanList(url.searchParams.get('p'));
+    const ids = cleanVideos(url.searchParams.get('v'));
     let link = '';
-    if (slugs.length) {
-      const k = (await sign(password, 'share:' + slugs.join(','))).slice(0, 20);
-      link = `${url.origin}/archive/share?p=${slugs.join(',')}&k=${k}`;
+    if (ids.length) {
+      const k = (await sign(password, 'reel:' + ids.join(','))).slice(0, 20);
+      link = `${url.origin}/archive/share?v=${ids.join(',')}&k=${k}`;
     }
-    return page(builderBody(slugs, link), 200);
+    return page(builderBody(ids, link), 200);
   }
 
   // Signed in with the password: everything is open
@@ -551,6 +568,11 @@ function page(body, status, cookies = []) {
   .linkbox input{flex:1 1 320px;text-align:left;padding:10px 4px;font-size:14px;letter-spacing:.02em}
   .linkbox .enter{margin-top:0;padding:12px 26px}
   .muted{color:var(--muted);font-size:13px;letter-spacing:.04em}
+  .group{margin-bottom:40px}
+  .group h2{font-size:12px;font-weight:400;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+  .tile span i{font-style:normal;color:var(--muted);font-size:12px;margin-left:6px;letter-spacing:.06em}
+  .tile span small{display:block;margin-top:4px;font-size:12px;letter-spacing:.04em;color:#cfcac0}
+  .tile span{right:14px;line-height:1.3}
   .player{position:relative;width:100%;aspect-ratio:16/9;background:#0b0b0b;margin-bottom:18px}
   .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
   .nowbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:44px}
@@ -638,29 +660,61 @@ function collectionBody(slugs) {
   })();</script>`;
 }
 
+const mmss = (d) => (d ? Math.floor(d / 60) + ':' + String(d % 60).padStart(2, '0') : '');
+
 function builderBody(selected, link) {
   const box = link
     ? `<div class="linkbox"><label class="sr" for="share">Share link</label><input id="share" type="text" readonly value="${esc(link)}">
-       <button type="button" class="enter" id="copy">Copy link</button><span class="muted" id="copied" role="status"></span></div>`
+       <button type="button" class="enter" id="copy">Copy link</button><a class="enter" href="${esc(link)}" target="_blank" rel="noopener">Preview</a><span class="muted" id="copied" role="status"></span></div>`
     : '';
+  const groups = PROJECTS.filter((p) => (p.videos || []).length).map((p) => {
+    const vids = VIDEOS.filter((v) => v.slug === p.slug);
+    return `<section class="group"><h2>${esc(p.title)}</h2><div class="grid">${vids.map((v) =>
+      `<label class="pick"><input type="checkbox" name="pick" value="${v.id}"${selected.includes(v.id) ? ' checked' : ''}><span class="tile"><img src="${esc(v.thumb)}" alt="" loading="lazy"><span>${esc(v.title || p.title)}${v.dur ? ` <i>${mmss(v.dur)}</i>` : ''}</span></span></label>`).join('')}</div></section>`;
+  }).join('');
   return `<form class="card wide" method="get">
-    <div class="rule" aria-hidden="true"></div><div class="label">Share projects</div>
-    <h1>Pick projects to share. <em>Send the link.</em></h1>
-    <p class="note">One project opens straight to its page. Two or more get their own selection page. Clients can only open the projects you pick.</p>
+    <div class="rule" aria-hidden="true"></div><div class="label">Custom reel</div>
+    <h1>Pick the videos. <em>Send the link.</em></h1>
+    <p class="note">Choose any videos from the archive. Your client gets a private reel page with just those videos, nothing else.</p>
     ${box}
-    <div class="grid">${PROJECTS.map((p) => `<label class="pick"><input type="checkbox" name="pick" value="${p.slug}"${selected.includes(p.slug) ? ' checked' : ''}>${tile(p, '#').replace('<a class="tile" href="#"', '<span class="tile"').replace(/<\/a>$/, '</span>')}</label>`).join('')}</div>
-    <input type="hidden" name="p" id="p">
-    <div class="bar"><button type="submit" class="enter">Make link</button><span class="muted" id="count"></span>
+    ${groups}
+    <input type="hidden" name="v" id="v">
+    <div class="bar"><button type="submit" class="enter">Make link</button><button type="button" class="enter" id="clear">Clear</button><span class="muted" id="count"></span>
       <a class="back" style="margin:0 0 0 auto" href="/archive">Full archive</a><a class="back" style="margin:0" href="/archive-logout">Sign out</a></div>
   </form>
   <script>(function(){
-    var f=document.querySelector('form'),p=document.getElementById('p'),c=document.getElementById('count');
-    function n(){var k=f.querySelectorAll('input[name=pick]:checked').length;c.textContent=k?k+' selected':'';}
+    var f=document.querySelector('form'),v=document.getElementById('v'),c=document.getElementById('count');
+    function picks(){return f.querySelectorAll('input[name=pick]:checked');}
+    function n(){var k=picks().length;c.textContent=k?k+' video'+(k>1?'s':'')+' selected':'';}
     f.addEventListener('change',n);n();
-    f.addEventListener('submit',function(e){var v=[].map.call(f.querySelectorAll('input[name=pick]:checked'),function(x){return x.value});
-      if(!v.length){e.preventDefault();c.textContent='Pick at least one project';return;}
-      p.value=v.join(',');f.querySelectorAll('input[name=pick]').forEach(function(x){x.disabled=true;});});
+    document.getElementById('clear').addEventListener('click',function(){[].forEach.call(picks(),function(x){x.checked=false;});n();});
+    f.addEventListener('submit',function(e){var ids=[].map.call(picks(),function(x){return x.value});
+      if(!ids.length){e.preventDefault();c.textContent='Pick at least one video';return;}
+      v.value=ids.join(',');f.querySelectorAll('input[name=pick]').forEach(function(x){x.disabled=true;});});
     var b=document.getElementById('copy');if(b)b.addEventListener('click',function(){var i=document.getElementById('share');i.select();
       (navigator.clipboard?navigator.clipboard.writeText(i.value):Promise.resolve(document.execCommand('copy'))).then(function(){document.getElementById('copied').textContent='Copied';});});
+  })();</script>`;
+}
+
+function reelBody(ids) {
+  const list = ids.map((id) => BY_VIDEO[id]);
+  const data = JSON.stringify(list.map((v) => ({ project: v.project, title: v.title, src: v.src }))).replace(/</g, '\\u003c');
+  const first = list[0];
+  const tiles = list.length > 1 ? `<div class="grid">${list.map((v, i) =>
+    `<button type="button" class="tile" data-i="${i}" aria-pressed="${i === 0}" aria-label="Play ${esc(v.title || v.project)}"><img src="${esc(v.thumb)}" alt="" loading="lazy"><span>${esc(v.project)}<small>${esc(v.title && v.title !== v.project ? v.title : '')}</small></span></button>`).join('')}</div>` : '';
+  return `<div class="card wide"><div class="rule" aria-hidden="true"></div><div class="label">Selected work</div>
+    <h1>${list.length > 1 ? 'A few projects, <em>picked for you.</em>' : 'A project, <em>picked for you.</em>'}</h1>
+    <div class="player" id="player"><iframe id="frame" src="${esc(first.src)}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen title="${esc(first.title || first.project)}"></iframe></div>
+    <div class="nowbar"><div class="now" id="now">${esc(first.project)}${first.title && first.title !== first.project ? `<small>${esc(first.title)}</small>` : ''}</div></div>
+    ${tiles}
+    <a class="back" href="/">← Back to Paragraph</a></div>
+  <script>(function(){
+    var V=${data},frame=document.getElementById('frame'),now=document.getElementById('now');
+    function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
+    [].forEach.call(document.querySelectorAll('button.tile'),function(t){t.addEventListener('click',function(){
+      var i=+t.dataset.i,v=V[i];frame.src=v.src+(v.src.indexOf('?')<0?'?':'&')+'autoplay=1';frame.title=v.title||v.project;
+      now.innerHTML=esc(v.project)+(v.title&&v.title!==v.project?'<small>'+esc(v.title)+'</small>':'');
+      [].forEach.call(document.querySelectorAll('button.tile'),function(x){x.setAttribute('aria-pressed',String(x===t));});
+      document.getElementById('player').scrollIntoView({behavior:'smooth',block:'start'});});});
   })();</script>`;
 }
