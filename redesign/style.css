@@ -91,7 +91,7 @@ section{padding-top:clamp(72px,10vw,140px)}
 .clients .what{color:var(--mute);text-align:right;max-width:28ch;font-size:14px}
 .clients:hover .name{color:#3a3936}
 .clients li a:hover .name{color:var(--fg);transform:translateX(12px)}
-.peek{position:fixed;width:300px;aspect-ratio:16/10;pointer-events:none;z-index:40;opacity:0;transform:translate(-50%,-50%) scale(.92);transition:opacity .2s,transform .25s;overflow:hidden}
+.peek{position:fixed;width:min(600px,45vw);aspect-ratio:16/10;pointer-events:none;z-index:40;opacity:0;transform:translate(-50%,-50%) scale(.92);transition:opacity .2s,transform .25s;overflow:hidden}
 .peek.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
 @media(hover:none){.peek{display:none}}
 .feature{display:grid;grid-template-columns:1.3fr 1fr;gap:clamp(20px,3vw,48px);align-items:end;margin-top:56px}
