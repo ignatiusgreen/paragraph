@@ -229,3 +229,5 @@ main.brand .more-dark{--bg:#0a0a0a;--fg:#f2efe9;--mute:#9a968e;--line:#2a2927;ba
 main.brand + .letter{margin-top:0}
 main.brand .dtext p,main.brand .pull p{color:#1f1e1c}
 main.brand .vthumb{background:#ececea}
+/* pages without the newsletter banner */
+.no-letter{margin-top:clamp(80px,10vw,140px);border-top:1px solid var(--line)}
