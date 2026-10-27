@@ -300,3 +300,26 @@ img[src*="/img/the-chosen.jpg"]{object-position:28% 50%}
 .ni img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.16,1,.3,1);pointer-events:none}
 .nt:hover .ni img{transform:scale(1.05)}
 .nt .ms{margin-top:12px;font-size:17px}
+
+/* ALT home v2: black page, white Branded band, faster slides, clickable carousel */
+body.home-alt{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
+.home-alt .hm{padding-top:96px}
+.home-alt .hs{transition:opacity .7s ease}
+.home-alt .hs.novid>img:first-child{animation:kb 14s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(var(--zoom,1.15))}to{transform:scale(calc(var(--zoom,1.15) + .06)) translateX(-1.5%)}}
+.home-alt .hframe{display:block;color:inherit}
+@media(hover:hover) and (pointer:fine){.home-alt .hframe{cursor:none}}
+.home-alt .hs img[src*="/img/the-chosen.jpg"]{object-position:40% 50%}
+.home-alt .hh{min-height:auto;padding-top:22vh;padding-bottom:6vh}
+.home-alt .hh .statement-h{margin-top:0;max-width:28ch}
+.home-alt .hh .go{display:inline-block;margin-top:36px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:4px}
+.home-alt .pi,.home-alt .ni{background:#1a1a1a}
+.home-alt .hprog{background:#2a2927}
+.home-alt .hq{padding:22vh 16px}
+/* brand list on the white band: style.css colours re-pointed to the page theme */
+.a-brandlist{padding-top:20vh;padding-bottom:20vh;--fg:var(--pfg);--mute:var(--pmute);--line:#dcd9d3}
+.a-brandlist .clients li a{border-color:#dcd9d3}
+.a-brandlist .clients:hover .name{color:#cfccc6}
+.a-brandlist .clients li a:hover .name{color:var(--pfg)}
+.a-brandlist .clients .name{font-weight:500}
+.home-alt .hframe{aspect-ratio:auto;height:min(56.25vw,calc(100vh - 260px));min-height:320px}
