@@ -59,7 +59,7 @@
 
   // Scroll-linked motion: hero frame widens to full bleed; stills drift at different speeds
   var frame = document.getElementById('aframe');
-  var gals = [].slice.call(document.querySelectorAll('.g[data-speed]'));
+  var gals = [].slice.call(document.querySelectorAll('[data-speed]'));
   function tick() {
     var vh = innerHeight;
     if (frame) {
