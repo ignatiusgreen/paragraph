@@ -8,6 +8,7 @@ export const config = { matcher: ['/archive(.*)'] };
 const FULL = 'pg_archive';      // cookie: signed in with the password
 const GRANT = 'pg_share';       // cookie: projects opened from shared links
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
+const SITE = '/redesign/';   // where the public site lives (change to '/' when the redesign goes live)
 
 const PROJECTS = [
  {
@@ -515,84 +516,13 @@ function page(body, status, cookies = []) {
 <meta name="robots" content="noindex, nofollow">
 <title>Archive — Paragraph</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@300;400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;1,8..60,300&display=swap" rel="stylesheet">
-<style>
-  :root{--bg:#000;--fg:#f4f1ea;--muted:#8d8a83;--accent:#a99a6b;--line:#3a3833;--error:#d98c7a}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{min-height:100%}
-  body{background:var(--bg);color:var(--fg);font-family:"Chivo",system-ui,sans-serif;font-weight:300;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
-  header{display:flex;justify-content:space-between;align-items:center;padding:19px 4vw}
-  header a{color:var(--fg);text-decoration:none}
-  .mark{display:block;line-height:0}
-  .mark img{height:21px;width:auto;display:block}
-  nav{display:flex;gap:clamp(18px,3vw,40px)}
-  nav a{font-size:11px;letter-spacing:.28em;text-transform:uppercase;opacity:.85}
-  nav a:hover{opacity:1}
-  main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 20px 80px}
-  .card{width:100%;max-width:440px;text-align:center}
-  .wide{max-width:1180px;text-align:left}
-  .rule{width:64px;height:2px;margin:0 auto 34px;background:linear-gradient(90deg,#3f8f8f,#a99a6b,#c4523d,#3f6fa8)}
-  .wide .rule{margin-left:0}
-  .label{font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--accent)}
-  h1{font-family:"Source Serif 4",serif;font-weight:300;font-size:clamp(26px,3.4vw,34px);line-height:1.3;margin:18px 0 40px}
-  h1 em{font-style:italic}
-  p.note{color:var(--muted);line-height:1.6;margin:-20px 0 32px}
-  .sr{position:absolute;left:-9999px}
-  input[type=password],input[type=text]{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--fg);font:inherit;font-size:18px;letter-spacing:.06em;text-align:center;padding:12px 44px;outline:none;transition:border-color .2s}
-  input:focus{border-bottom-color:var(--accent)}
-  .enter{display:inline-block;margin-top:34px;background:transparent;color:var(--fg);border:1px solid var(--fg);font:inherit;font-size:11px;letter-spacing:.3em;text-transform:uppercase;padding:15px 38px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
-  .enter:hover,.enter:focus-visible{background:var(--fg);color:#000}
-  .field{position:relative}
-  .eye{position:absolute;right:0;top:50%;transform:translateY(-50%);width:44px;height:44px;display:grid;place-items:center;background:none;border:0;color:var(--muted);cursor:pointer;transition:color .2s}
-  .eye:hover,.eye:focus-visible{color:var(--fg);outline:none}
-  .eye svg{width:20px;height:20px}
-  .eye .off{display:none}.eye[aria-pressed="true"] .on{display:none}.eye[aria-pressed="true"] .off{display:block}
-  .error{color:var(--error);font-size:13px;letter-spacing:.04em;margin-top:16px;min-height:18px}
-  .back{display:inline-block;margin-top:44px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);text-decoration:none}
-  .back:hover{color:var(--fg)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
-  .tile{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;background:#111;color:var(--fg);text-decoration:none}
-  .tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease,opacity .3s}
-  .tile::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.65),rgba(0,0,0,0) 55%)}
-  .tile span{position:absolute;left:18px;bottom:14px;z-index:1;font-size:15px;letter-spacing:.12em}
-  .tile:hover img{transform:scale(1.03)}
-  label.pick{cursor:pointer}
-  label.pick input{position:absolute;opacity:0}
-  label.pick .tile img{opacity:.45}
-  label.pick input:checked + .tile img{opacity:1}
-  label.pick input:checked + .tile{outline:2px solid var(--accent);outline-offset:3px}
-  label.pick input:focus-visible + .tile{outline:2px solid var(--fg);outline-offset:3px}
-  .bar{position:sticky;bottom:0;margin-top:32px;padding:18px 0;background:linear-gradient(to top,#000 70%,rgba(0,0,0,0));display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-  .bar .enter{margin-top:0}
-  .linkbox{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:34px;padding:18px;border:1px solid var(--line)}
-  .linkbox input{flex:1 1 320px;text-align:left;padding:10px 4px;font-size:14px;letter-spacing:.02em}
-  .linkbox .enter{margin-top:0;padding:12px 26px}
-  .muted{color:var(--muted);font-size:13px;letter-spacing:.04em}
-  .grid.dense{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-  .grid.dense .tile span{left:12px;right:10px;bottom:10px;font-size:13px}
-  .grid.dense .tile span small{font-size:11px}
-  .group{margin-bottom:40px}
-  .group h2{font-size:12px;font-weight:400;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
-  .tile span i{font-style:normal;color:var(--muted);font-size:12px;margin-left:6px;letter-spacing:.06em}
-  .tile span small{display:block;margin-top:4px;font-size:12px;letter-spacing:.04em;color:#cfcac0}
-  .tile span{right:14px;line-height:1.3}
-  .player{position:relative;width:100%;aspect-ratio:16/9;background:#0b0b0b;margin-bottom:18px}
-  .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-  .nowbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:44px}
-  .now{font-size:15px;letter-spacing:.12em}
-  .now small{display:block;margin-top:6px;font-size:12px;letter-spacing:.06em;color:var(--muted)}
-  .vids{display:flex;gap:8px;flex-wrap:wrap}
-  .vids button{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:11px;letter-spacing:.2em;min-width:40px;height:40px;padding:0 12px;cursor:pointer;transition:border-color .2s,color .2s}
-  .vids button:hover,.vids button[aria-pressed="true"]{border-color:var(--fg);color:var(--fg)}
-  button.tile{border:0;padding:0;cursor:pointer;font:inherit;text-align:left;width:100%}
-  button.tile[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:3px}
-  button.tile[aria-pressed="true"] img{opacity:1}
-  button.tile:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
-</style></head>
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@400;500;600;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/redesign/archive.css">
+</head>
 <body>
 <header>
-  <a class="mark" href="/"><img src="https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w" alt="Paragraph"></a>
-  <nav><a href="/entertainment">Film &amp; TV</a><a href="/brand">Branded</a><a href="/about">About</a></nav>
+  <a class="mark" href="${SITE}index.html" aria-label="Paragraph home"><img src="https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w" alt=""><span>PARAGRAPH</span></a>
+  <nav><a href="${SITE}film-tv.html">Film &amp; TV</a><a href="${SITE}branded.html">Branded</a><a href="${SITE}about.html">About</a></nav>
 </header>
 <main>${body}</main>
 </body></html>`;
@@ -616,7 +546,7 @@ function signInBody(wrong) {
     </div>
     <div class="error" role="alert">${wrong ? 'That password isn’t right. Please try again.' : ''}</div>
     <button type="submit" class="enter">Enter</button>
-    <div><a class="back" href="/">← Back to Paragraph</a></div>
+    <div><a class="back" href="${SITE}index.html">← Back to Paragraph</a></div>
   </form>
   <script>(function(){var b=document.querySelector('.eye'),i=document.getElementById('password');
    b.addEventListener('click',function(){var s=i.type==='password';i.type=s?'text':'password';
@@ -625,7 +555,7 @@ function signInBody(wrong) {
 
 function messageBody(title, text) {
   return `<div class="card"><div class="rule" aria-hidden="true"></div><div class="label">Archive</div>
-    <h1>${esc(title)}</h1><p class="note">${esc(text)}</p><a class="back" href="/">← Back to Paragraph</a></div>`;
+    <h1>${esc(title)}</h1><p class="note">${esc(text)}</p><a class="back" href="${SITE}index.html">← Back to Paragraph</a></div>`;
 }
 
 function tile(p, href) {
@@ -645,7 +575,7 @@ function collectionBody(slugs) {
     ${first ? `<div class="player" id="player"><iframe id="frame" src="${esc(first.videos[0].src)}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen title="${esc(first.videos[0].title || first.title)}"></iframe></div>
     <div class="nowbar"><div class="now" id="now"></div><div class="vids" id="vids" role="group" aria-label="Videos in this project"></div></div>` : ''}
     <div class="grid">${tiles}</div>
-    <a class="back" href="/">← Back to Paragraph</a></div>
+    <a class="back" href="${SITE}index.html">← Back to Paragraph</a></div>
   <script>(function(){
     var P=${data},frame=document.getElementById('frame'),now=document.getElementById('now'),vids=document.getElementById('vids'),cur=0,curV=0;
     if(!frame)return;
@@ -679,7 +609,7 @@ function builderBody(selected, link) {
     ${box}
     ${groups}
     <input type="hidden" name="v" id="v">
-    <div class="bar"><button type="submit" class="enter">Make link</button><button type="button" class="enter" id="clear">Clear</button><span class="muted" id="count"></span>
+    <div class="bar"><button type="submit" class="enter">Make link</button><button type="button" class="enter ghost" id="clear">Clear</button><span class="muted" id="count"></span>
       <a class="back" style="margin:0 0 0 auto" href="/archive">Full archive</a><a class="back" style="margin:0" href="/archive-logout">Sign out</a></div>
   </form>
   <script>(function(){
@@ -707,7 +637,7 @@ function reelBody(ids) {
     <div class="player" id="player"><iframe id="frame" src="${esc(first.src)}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen title="${esc(first.title || first.project)}"></iframe></div>
     <div class="nowbar"><div class="now" id="now">${esc(first.project)}${first.title && first.title !== first.project ? `<small>${esc(first.title)}</small>` : ''}</div></div>
     ${tiles}
-    <a class="back" href="/">← Back to Paragraph</a></div>
+    <a class="back" href="${SITE}index.html">← Back to Paragraph</a></div>
   <script>(function(){
     var V=${data},frame=document.getElementById('frame'),now=document.getElementById('now');
     function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
