@@ -203,3 +203,9 @@ body.alt .no-letter{margin-top:0;border-top:0}
 /* Full-width still between the intro and the films */
 .a-still{padding-top:0;padding-bottom:22vh}
 .a-still .gi{margin:0;aspect-ratio:16/9}
+
+/* Custom episode thumbnails: series lockup over the frame */
+.film-row .thumb .lockup{position:absolute;left:clamp(14px,1.6vw,24px);top:clamp(12px,1.4vw,20px);display:flex;flex-direction:column;gap:2px;color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.45);pointer-events:none}
+.film-row .thumb .lockup span:first-child{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#7fd3cc}
+.film-row .thumb .lockup span:last-child{font-family:"Instrument Serif",Georgia,serif;font-size:clamp(18px,1.7vw,28px);line-height:1}
+.film-row .thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.35),rgba(0,0,0,0) 38%);pointer-events:none}
