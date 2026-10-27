@@ -216,3 +216,32 @@ body.alt .no-letter{margin-top:0;border-top:0}
 
 /* The Chosen still: keep her face centred when cropped to a vertical frame */
 img[src*="/img/the-chosen.jpg"]{object-position:28% 50%}
+
+/* About page */
+.a-bio{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;padding-top:6vh;padding-bottom:22vh;align-items:start}
+.a-bio .portrait{grid-column:1/6;margin:0;position:sticky;top:110px}
+.a-bio .portrait img{width:100%;height:auto;display:block}
+.a-bio .bio{grid-column:7/13}
+.a-bio h2{display:flex;flex-direction:column;gap:6px;margin-bottom:40px}
+.a-bio .nm{font-size:clamp(28px,2.8vw,44px);font-weight:800;text-transform:uppercase;letter-spacing:.01em;line-height:1}
+.a-bio .rl{font-family:"Instrument Serif",Georgia,serif;font-size:clamp(24px,2.2vw,34px);line-height:1.1}
+.a-bio p{font-size:clamp(19px,1.5vw,23px);line-height:1.5;max-width:56ch}
+.a-bio p+p{margin-top:1em}
+.a-bio p a{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.a-bio p a:hover{color:#0e9fae}
+.a-bio em,.a-bio p a em{font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-size:1.12em}
+@media(max-width:800px){.a-bio .portrait,.a-bio .bio{grid-column:1/-1;position:static}}
+.a-rec{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(24px,4vw,64px);padding-top:20vh;padding-bottom:20vh}
+.a-rec .lbl{display:block;margin-bottom:18px}
+.a-rec p{font-family:"Instrument Serif",Georgia,serif;font-size:clamp(24px,2.2vw,34px);line-height:1.15}
+@media(max-width:800px){.a-rec{grid-template-columns:1fr}}
+.a-bts{padding-top:20vh;padding-bottom:16vh}
+.bts-row{margin-bottom:36px}
+.bts{flex:0 0 auto;height:clamp(260px,34vw,480px);scroll-snap-align:start;overflow:hidden;background:#eee}
+.bts img{height:100%;width:auto;display:block;pointer-events:none}
+.a-contacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
+.a-contacts .lbl{display:block;margin-bottom:14px;margin-bottom:14px}
+.a-contacts p,.a-contacts a{font-size:clamp(20px,1.8vw,28px);line-height:1.3}
+.a-contacts a:hover{text-decoration:underline}
+@media(max-width:800px){.a-contacts{grid-template-columns:1fr}}
+.about-page .a-hero h1.statement-h{margin-top:.7em}

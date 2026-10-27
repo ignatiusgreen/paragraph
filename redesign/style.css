@@ -260,3 +260,8 @@ main.film .sec-head h2,main.page:not(.brand) .sec-head h2{font-size:clamp(17px,2
 .vcursor.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
 @media(hover:hover) and (pointer:fine){.card[data-cursor] .frame{cursor:none}}
 img[src*="/img/the-chosen.jpg"]{object-position:28% 50%}
+
+/* Home: About statement leads, no title */
+.about-top{padding-top:clamp(72px,10vw,140px)}
+.about-top .statement{margin-top:0}
+.about-top .cta{margin-top:32px}
