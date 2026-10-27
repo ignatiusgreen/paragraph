@@ -213,3 +213,6 @@ body.alt .no-letter{margin-top:0;border-top:0}
 /* Branded: statement as the page headline */
 .a-hero h1.statement-h{font-size:clamp(34px,4.4vw,72px);line-height:1.06;letter-spacing:-.015em;max-width:24ch;margin-top:0}
 .a-hero h1.statement-h + *{margin-top:0}
+
+/* The Chosen still: keep her face centred when cropped to a vertical frame */
+img[src*="/img/the-chosen.jpg"]{object-position:28% 50%}
