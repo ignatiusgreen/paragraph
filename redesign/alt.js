@@ -101,7 +101,7 @@
     setTimeout(function () { lb.hidden = true; lbf.innerHTML = ''; }, 450);
     if (lastFocus) lastFocus.focus();
   }
-  document.querySelectorAll('.film-row').forEach(function (b) { b.addEventListener('click', function () { openLB(b.dataset.src, b.dataset.title); }); });
+  document.querySelectorAll('.film-row, [data-lb]').forEach(function (b) { b.addEventListener('click', function () { openLB(b.dataset.src, b.dataset.title); }); });
   if (lb) {
     lb.querySelector('.lb-x').addEventListener('click', closeLB);
     lb.addEventListener('click', function (ev) { if (ev.target === lb) closeLB(); });
