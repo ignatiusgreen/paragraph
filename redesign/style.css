@@ -265,3 +265,5 @@ img[src*="/img/the-chosen.jpg"]{object-position:28% 50%}
 .about-top{padding-top:clamp(72px,10vw,140px)}
 .about-top .statement{margin-top:0}
 .about-top .cta{margin-top:32px}
+/* Home: posters only, no title/year underneath */
+#film .card .meta{display:none}
