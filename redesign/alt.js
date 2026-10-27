@@ -137,3 +137,18 @@
     img.addEventListener('mouseleave', function () { c.classList.remove('on'); });
   });
 })();
+
+// Film index filters
+(function () {
+  var bar = document.querySelector('.fbar'); if (!bar) return;
+  var cards = [].slice.call(document.querySelectorAll('.pgrid.ix .pf'));
+  bar.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    bar.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
+    cards.forEach(function (c) {
+      var show = b.dataset.f === 'all' || c.dataset.s === b.dataset.f;
+      c.classList.toggle('hide', !show);
+      if (show) c.querySelectorAll('[data-reveal]').forEach(function (r) { r.classList.add('in'); });
+    });
+  });
+})();
