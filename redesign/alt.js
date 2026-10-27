@@ -80,7 +80,7 @@
   }
 
   // Hero video plays in place
-  var cover = frame && frame.querySelector('.cover');
+  var cover = frame && frame.querySelector('button.cover');
   if (cover) cover.addEventListener('click', function () {
     var f = document.createElement('iframe'); f.src = cover.dataset.src; f.title = cover.dataset.title;
     f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media'; f.setAttribute('allowfullscreen', '');
