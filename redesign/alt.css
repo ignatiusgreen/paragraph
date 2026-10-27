@@ -323,3 +323,4 @@ body.home-alt{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
 .a-brandlist .clients li a:hover .name{color:var(--pfg)}
 .a-brandlist .clients .name{font-weight:500}
 .home-alt .hframe{aspect-ratio:auto;height:min(56.25vw,calc(100vh - 260px));min-height:320px}
+.home-alt .pf1,.home-alt .pf3{margin-top:0}
