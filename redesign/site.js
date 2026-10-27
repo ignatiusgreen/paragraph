@@ -121,3 +121,23 @@
   }, { rootMargin: '-50% 0px -50% 0px' });
   secs.forEach(function (s) { io.observe(s); });
 })();
+
+// "View film" label follows the mouse over film posters (alt pages run their own version in alt.js)
+(function () {
+  if (document.body.classList.contains('alt')) return;
+  if (!(window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches)) return;
+  var targets = document.querySelectorAll('.card[data-cursor]'); if (!targets.length) return;
+  var c = document.createElement('div'); c.className = 'vcursor'; c.setAttribute('aria-hidden', 'true'); document.body.appendChild(c);
+  var x = 0, y = 0, cx = 0, cy = 0, raf = null;
+  function loop() { cx += (x - cx) * 0.25; cy += (y - cy) * 0.25; c.style.left = cx + 'px'; c.style.top = cy + 'px'; raf = Math.abs(x - cx) + Math.abs(y - cy) > 0.3 ? requestAnimationFrame(loop) : null; }
+  addEventListener('mousemove', function (ev) { x = ev.clientX; y = ev.clientY; if (!raf) raf = requestAnimationFrame(loop); }, { passive: true });
+  targets.forEach(function (a) {
+    var fr = a.querySelector('.frame') || a;
+    fr.addEventListener('mouseenter', function (ev) {
+      c.textContent = a.dataset.cursor;
+      if (!c.classList.contains('on')) { cx = x = ev.clientX; cy = y = ev.clientY; c.style.left = cx + 'px'; c.style.top = cy + 'px'; }
+      c.classList.add('on');
+    });
+    fr.addEventListener('mouseleave', function () { c.classList.remove('on'); });
+  });
+})();

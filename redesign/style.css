@@ -254,3 +254,8 @@ main.film .sec-head h2,main.page:not(.brand) .sec-head h2{font-size:clamp(17px,2
 /* Home hero: festival/award graphics twice as big */
 .hero .kicker img{height:68px}
 @media(max-width:760px){.hero .kicker img{height:52px}}
+
+/* "View film" cursor over film posters (same style as View project) */
+.vcursor{position:fixed;left:0;top:0;z-index:120;pointer-events:none;color:#0e9fae;font-size:clamp(15px,1.6vw,26px);font-weight:800;letter-spacing:.02em;line-height:1;text-transform:uppercase;white-space:nowrap;transform:translate(-50%,-50%) scale(.4);opacity:0;transition:opacity .25s ease,transform .35s cubic-bezier(.16,1,.3,1)}
+.vcursor.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+@media(hover:hover) and (pointer:fine){.card[data-cursor] .frame{cursor:none}}
