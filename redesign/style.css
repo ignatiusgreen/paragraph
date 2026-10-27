@@ -248,3 +248,5 @@ body.has-hero header .logo img{transition:filter .9s}
 /* Home: section titles at half size */
 body.has-hero .sec-head h2{font-size:clamp(17px,2.5vw,32px)}
 body.has-hero .sec-head h2 a:hover{text-underline-offset:5px;text-decoration-thickness:2px}
+/* Film pages (and Film & TV index): section titles at the same half size */
+main.film .sec-head h2,main.page:not(.brand) .sec-head h2{font-size:clamp(17px,2.5vw,32px)}
