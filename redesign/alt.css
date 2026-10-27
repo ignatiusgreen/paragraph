@@ -174,5 +174,5 @@ body.alt .letter{margin-top:0}
 @media(hover:hover) and (pointer:fine){body.alt [data-cursor] .wi,body.alt [data-cursor] .mi{cursor:none}}
 
 /* View project: large teal text only */
-.vcursor,.a-more .vcursor,.vcursor.light{padding:0;border-radius:0;background:none;color:#0e9fae;font-size:clamp(30px,3.2vw,52px);font-weight:800;letter-spacing:.02em;line-height:1}
+.vcursor,.a-more .vcursor,.vcursor.light{padding:0;border-radius:0;background:none;color:#0e9fae;font-size:clamp(15px,1.6vw,26px);font-weight:800;letter-spacing:.02em;line-height:1}
 body.alt .no-letter{margin-top:0;border-top:0}
