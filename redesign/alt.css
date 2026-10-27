@@ -333,3 +333,8 @@ body.home-alt{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
 .sv{font-family:"Instrument Serif",Georgia,serif;font-size:clamp(64px,8vw,140px);line-height:.9;letter-spacing:-.02em}
 .sk{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pmute)}
 @media(max-width:700px){.sgrid{grid-template-columns:1fr;gap:40px}}
+/* Project pages: films three across, aligned */
+.a-films.many .film-row:nth-child(3n+2),.a-films.many .film-row:nth-child(3n+2).in{transform:none}
+.a-films.many .film-row[data-reveal]:not(.in){transform:translateY(48px)}
+.a-films.many .thumb .lockup span:last-child{font-size:clamp(15px,1.2vw,20px)}
+.a-films.many .play-icon{width:clamp(26px,2.4vw,40px)}
