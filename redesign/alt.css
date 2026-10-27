@@ -186,3 +186,20 @@ body.alt .no-letter{margin-top:0;border-top:0}
 .reel-play:hover .play-icon{transform:translate(-50%,-50%) scale(1.12)}
 .reel-play:focus-visible{outline:2px solid #fff;outline-offset:-6px}
 .a-media .cover.still{cursor:default}
+
+/* Long series (5+ videos): compact three-up grid instead of alternating rows */
+.a-films.many .fl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px 24px}
+.a-films.many .film-row,.a-films.many .film-row.r1{display:flex;flex-direction:column;align-items:stretch;gap:0}
+.a-films.many .film-row+.film-row{margin-top:0}
+.a-films.many .film-row .thumb{order:1}
+.a-films.many .film-row .idx{order:2;margin-top:14px}
+.a-films.many .film-row .ft{order:3;text-align:left;margin-top:4px}
+.a-films.many .film-row .t{font-size:clamp(19px,1.5vw,24px)}
+.a-films.many .film-row:nth-child(3n+2){transform:translateY(8vh)}
+.a-films.many .film-row:nth-child(3n+2).in{transform:translateY(8vh)}
+@media(max-width:900px){.a-films.many .fl{grid-template-columns:repeat(2,minmax(0,1fr))}.a-films.many .film-row:nth-child(3n+2),.a-films.many .film-row:nth-child(3n+2).in{transform:none}}
+@media(max-width:560px){.a-films.many .fl{grid-template-columns:1fr}}
+
+/* Full-width still between the intro and the films */
+.a-still{padding-top:0;padding-bottom:22vh}
+.a-still .gi{margin:0;aspect-ratio:16/9}
