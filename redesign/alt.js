@@ -128,7 +128,7 @@
   function loop() { cx += (x - cx) * 0.25; cy += (y - cy) * 0.25; c.style.left = cx + 'px'; c.style.top = cy + 'px'; raf = Math.abs(x - cx) + Math.abs(y - cy) > 0.3 ? requestAnimationFrame(loop) : null; }
   addEventListener('mousemove', function (ev) { x = ev.clientX; y = ev.clientY; if (!raf) raf = requestAnimationFrame(loop); }, { passive: true });
   document.querySelectorAll('[data-cursor]').forEach(function (a) {
-    var img = a.querySelector('.wi, .mi') || a;
+    var img = a.querySelector('.wi, .mi, .pi') || a;
     img.addEventListener('mouseenter', function (ev) {
       c.textContent = a.dataset.cursor; c.classList.toggle('light', !!a.closest('.a-more'));
       if (!c.classList.contains('on')) { cx = x = ev.clientX; cy = y = ev.clientY; c.style.left = cx + 'px'; c.style.top = cy + 'px'; }
