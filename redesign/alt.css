@@ -163,3 +163,12 @@ body.alt .letter{margin-top:0}
 .a-talk .lbl{display:block;margin-bottom:24px}
 .a-talk .big{font-size:clamp(48px,8vw,140px);font-weight:800;text-transform:uppercase;line-height:.92;letter-spacing:-.005em;max-width:12ch}
 .a-talk .mail{font-size:clamp(15px,1.3vw,18px)}
+
+.a-intro.solo .lede{grid-column:3/11}
+@media(max-width:800px){.a-intro.solo .lede{grid-column:1/-1}}
+
+/* "View project" cursor */
+.vcursor{position:fixed;left:0;top:0;z-index:120;pointer-events:none;padding:12px 16px;border-radius:999px;background:#0d0d0c;color:#fff;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;transform:translate(-50%,-50%) scale(.4);opacity:0;transition:opacity .25s ease,transform .35s cubic-bezier(.16,1,.3,1)}
+.vcursor.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.a-more .vcursor,.vcursor.light{background:#f2efe9;color:#0d0d0c}
+@media(hover:hover) and (pointer:fine){body.alt [data-cursor] .wi,body.alt [data-cursor] .mi{cursor:none}}
