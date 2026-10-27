@@ -325,3 +325,11 @@ body.home-alt{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
 .home-alt .hframe{aspect-ratio:auto;height:min(56.25vw,calc(100vh - 260px));min-height:320px}
 .home-alt .pf1,.home-alt .pf3{margin-top:0}
 .home-alt .pf .pt{display:none}
+
+/* Results numbers */
+.a-stats{padding-top:4vh;padding-bottom:22vh}
+.sgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;border-top:1px solid #dcd9d3;padding-top:32px}
+.sgrid div{display:flex;flex-direction:column;gap:10px}
+.sv{font-family:"Instrument Serif",Georgia,serif;font-size:clamp(64px,8vw,140px);line-height:.9;letter-spacing:-.02em}
+.sk{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pmute)}
+@media(max-width:700px){.sgrid{grid-template-columns:1fr;gap:40px}}
