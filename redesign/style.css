@@ -231,3 +231,16 @@ main.brand .dtext p,main.brand .pull p{color:#1f1e1c}
 main.brand .vthumb{background:#ececea}
 /* pages without the newsletter banner */
 .no-letter{margin-top:clamp(80px,10vw,140px);border-top:1px solid var(--line)}
+
+/* Home: page fades to white while the Branded section is in view */
+body.has-hero{transition:background-color .9s cubic-bezier(.4,0,.2,1),color .9s cubic-bezier(.4,0,.2,1)}
+body.has-hero .sec-head,body.has-hero .clients li a,body.has-hero .clients .what,body.has-hero .label,body.has-hero .muted,body.has-hero .feature .cta{transition:color .9s,border-color .9s,background-color .9s}
+body.lightzone{--bg:#ffffff;--fg:#0a0a0a;--mute:#6b675f;--line:#dcd9d3}
+body.lightzone .clients:hover .name{color:#cfccc6}
+body.lightzone .clients li a:hover .name{color:var(--fg)}
+body.lightzone .cta.solid:hover{color:var(--fg)}
+body.lightzone .cta:hover,body.lightzone .cta.solid{color:#fff}
+body.has-hero header{transition:background .9s,color .9s}
+body.lightzone header.solid{background:rgba(255,255,255,.92)}
+body.lightzone header .logo img{filter:invert(1)}
+body.has-hero header .logo img{transition:filter .9s}

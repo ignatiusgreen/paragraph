@@ -111,3 +111,13 @@
     });
   }
 })();
+
+// Home: fade the page to white while the Branded section sits in the middle of the screen
+(function () {
+  var br = document.getElementById('branded'); if (!br || !('IntersectionObserver' in window)) return;
+  var secs = [].slice.call(document.querySelectorAll('main#top > section'));
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (en) { if (en.isIntersecting) document.body.classList.toggle('lightzone', en.target === br); });
+  }, { rootMargin: '-50% 0px -50% 0px' });
+  secs.forEach(function (s) { io.observe(s); });
+})();
