@@ -595,3 +595,8 @@ html.screening .lb-x{cursor:pointer}
 
 /* no thin horizontal divider lines */
 .sgrid,.a-films-ix .mh,.a-ent{border-top:0!important}
+
+/* home: NOW STREAMING / FEATURED BRAND PROJECTS as small labels */
+.home-alt .pf-stage,.home-alt .pf-stage:not(.bs),.home-alt .pf-stage.bs{padding-top:0!important}
+.home-alt .pf-stage .pf-word,.home-alt .pf-stage:not(.bs) .pf-word,.home-alt .pf-stage.bs .bs-word{position:static!important;transform:none!important;left:auto;top:auto;display:block;margin:0 0 8vh;font-family:inherit;font-size:13px!important;font-weight:700;letter-spacing:.16em;line-height:1.2;text-transform:uppercase;text-align:left;white-space:normal}
+.home-alt .pf-stage .pf-word span,.home-alt .pf-stage.scrolled .pf-word span,.home-alt .pf-stage.bs .bs-word span{color:var(--pmute)!important;filter:none!important;-webkit-text-stroke:0!important;opacity:1!important;transform:none!important;clip-path:none!important;animation:none!important}
