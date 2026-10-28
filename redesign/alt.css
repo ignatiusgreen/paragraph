@@ -515,3 +515,4 @@ html.screening .lb-x{cursor:pointer}
 .pf-stage:not(.bs) .pf-word{top:clamp(80px,13.5vw,260px);transform:translate(-50%,-112%)}
 .pf-stage.bs{padding-top:clamp(60px,10vw,190px)}
 .bs-word{top:clamp(60px,10vw,190px);transform:translate(-50%,-112%)}
+.harrows{align-self:start;align-items:center;margin-top:-6px}.harrows button{height:44px;line-height:1}
