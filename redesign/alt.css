@@ -527,3 +527,12 @@ html.screening .lb-x{cursor:pointer}
 .pf-stage:not(.bs) .pf-word{top:clamp(48px,7vw,136px);left:0;transform:translate(0,-112%);font-size:clamp(32px,6.4vw,120px);text-align:left}
 .pf-stage.bs{padding-top:clamp(36px,5.2vw,100px)}
 .pf-stage.bs .bs-word{top:clamp(36px,5.2vw,100px);left:0;transform:translate(0,-112%);font-size:clamp(24px,4.6vw,88px);text-align:left}
+
+/* Screening room player: no chrome; click to play/pause with a label that follows the mouse */
+.lb-frame{position:relative}
+.lb-hit{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0;padding:0;cursor:none;z-index:2}
+.lb-hit:focus-visible{outline:1px solid rgba(255,255,255,.5);outline-offset:4px}
+.lb-label{position:fixed;left:0;top:0;z-index:5;pointer-events:none;color:#fff;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;transform:translate(-50%,-50%);opacity:0;transition:opacity .2s;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.lb-label.on{opacity:1}
+.lb-snd{position:absolute;left:50%;bottom:clamp(14px,2.4vw,28px);transform:translateX(-50%);background:none;border:0;color:#f2efe9;opacity:.75;font:inherit;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;min-height:44px;padding:0 12px}
+.lb-snd:hover{opacity:1}
