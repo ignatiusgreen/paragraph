@@ -521,7 +521,7 @@ function page(body, status, cookies = []) {
 </head>
 <body>
 <header>
-  <a class="mark" href="${SITE}index.html" aria-label="Paragraph home"><img src="https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w" alt=""><span>PARAGRAPH</span></a>
+  <a class="mark" href="${SITE}index.html" aria-label="Paragraph home"><img src="https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w" alt=""></a>
   <nav><a href="${SITE}film-tv.html">Film &amp; TV</a><a href="${SITE}branded.html">Branded</a><a href="${SITE}about.html">About</a></nav>
 </header>
 <main>${body}</main>
