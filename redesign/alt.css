@@ -549,3 +549,4 @@ html.screening .lb-x{cursor:pointer}
 .soon-go{color:var(--pmute);border-bottom-color:transparent!important}
 .home-alt .a-brandlist{padding-top:46vh}
 .home-alt .a-brandlist{padding-top:18vh}
+.pf-stage.bs .bs-word span{color:#0d0d0c;filter:url(#bs-outline)}
