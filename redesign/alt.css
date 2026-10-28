@@ -440,3 +440,11 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 .pgrid.ix .pt,.pgrid.ix .ps{opacity:0;transition:opacity .6s ease;transition-delay:calc(var(--d,0s) + .45s)}
 .pgrid.ix .pf.on .pt,.pgrid.ix .pf.on .ps{opacity:1}
 @media(prefers-reduced-motion:reduce){.pgrid.ix .pi{clip-path:none}.pgrid.ix .pt,.pgrid.ix .ps{opacity:1}}
+
+/* Branded: statement in white over the reel */
+.frame.reel{aspect-ratio:auto;height:max(41.8vw,min(72vh,560px));container-type:size}
+.a-media .frame.reel .reel-bg{inset:auto;left:50%;top:50%;width:max(100cqw,239.3cqh);height:max(41.79cqw,100cqh);transform:translate(-50%,-50%) scale(var(--zoom,1.15))}
+.reel-copy{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;padding:0 clamp(16px,6vw,96px);text-align:center;color:#fff;
+  background:radial-gradient(ellipse at center,rgba(0,0,0,.42) 0%,rgba(0,0,0,.18) 55%,rgba(0,0,0,.05) 100%);pointer-events:none}
+.reel-copy h1.statement-h{margin:0;max-width:26ch;font-size:clamp(28px,3.6vw,62px);line-height:1.06;color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+.reel-copy h1.statement-h{font-family:"Instrument Serif",Georgia,serif;font-weight:400;letter-spacing:-.015em}
