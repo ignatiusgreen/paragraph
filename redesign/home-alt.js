@@ -87,3 +87,24 @@
   }
   requestAnimationFrame(frame);
 })();
+
+// FOLLOW: Instagram photos wipe in tied to scroll, like the NOW STREAMING posters
+(function () {
+  var stage = document.querySelector('.a-notes'); if (!stage) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var nis = [].slice.call(stage.querySelectorAll('.ni')); if (!nis.length) return;
+  stage.classList.add('scrolled');
+  var clamp = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x; };
+  var ease = function (x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+  var last = -1;
+  function frame() {
+    var r = stage.getBoundingClientRect(), vh = innerHeight;
+    var p = clamp((vh * 0.95 - r.top) / (vh * 1.05));
+    if (p !== last) {
+      last = p;
+      nis.forEach(function (el, i) { el.style.setProperty('--q', ease(clamp((p - (0.12 + i * 0.1)) / 0.28)).toFixed(3)); });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
