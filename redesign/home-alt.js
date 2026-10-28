@@ -62,3 +62,28 @@
   }
   requestAnimationFrame(frame);
 })();
+
+// BRAND STORYTELLING: same idea over the brand list — words in, then out as the rows wipe in, all tied to scroll
+(function () {
+  var stage = document.querySelector('.pf-stage.bs'); if (!stage) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var word = stage.querySelector('.pf-word span'), rows = [].slice.call(stage.querySelectorAll('.clients li'));
+  stage.classList.add('scrolled');
+  var clamp = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x; };
+  var ease = function (x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+  var n = rows.length, last = -1;
+  function frame() {
+    var r = stage.getBoundingClientRect(), vh = innerHeight;
+    var p = clamp((vh * 0.95 - r.top) / (vh * 0.9));
+    if (p !== last) {
+      last = p;
+      var wi = ease(clamp(p / 0.2)), wx = ease(clamp((p - 0.28) / 0.45));
+      word.style.setProperty('--wi', wi.toFixed(3));
+      word.style.setProperty('--wx', wx.toFixed(3));
+      word.style.setProperty('--wo', (wi * (1 - wx * 0.85)).toFixed(3));
+      rows.forEach(function (el, i) { el.style.setProperty('--q', ease(clamp((p - (0.26 + i * (0.5 / n))) / 0.22)).toFixed(3)); });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();

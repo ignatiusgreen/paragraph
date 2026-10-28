@@ -404,3 +404,11 @@ body.dark-page{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
 .pf-stage.scrolled .pi img{transform:scale(calc(1.12 - .12 * var(--q,0))) translateX(calc((1 - var(--q,0)) * -3%))}
 .pf-stage.scrolled .pf:hover .pi img{transform:scale(1.04)}
 .pf-stage.scrolled .pf-word span{opacity:var(--wo,0)}
+
+/* Home: BRAND STORYTELLING over the brand list, same scroll-driven sequence */
+.pf-stage.bs{padding-top:clamp(30px,4.4vw,84px)}
+.bs-word{top:clamp(30px,4.4vw,84px);font-size:clamp(44px,9.2vw,176px)}
+.pf-stage.bs .clients{position:relative;z-index:1}
+.pf-stage.bs.scrolled .clients li{clip-path:inset(0 calc((1 - var(--q,0)) * 100%) 0 0)}
+.pf-stage.bs.scrolled .clients li .name{transform:translateX(calc((1 - var(--q,0)) * -24px))}
+.pf-stage.bs.scrolled .clients li a:hover .name{transform:translateX(12px)}
