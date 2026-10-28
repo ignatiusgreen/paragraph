@@ -23,3 +23,17 @@ html.screening .lb-x{cursor:pointer}
 .lb-label.on{opacity:1}
 .lb-snd{position:absolute;left:50%;bottom:clamp(14px,2.4vw,28px);transform:translateX(-50%);background:none;border:0;color:#f2efe9;opacity:.75;font:inherit;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;min-height:44px;padding:0 12px}
 .lb-snd:hover{opacity:1}
+
+/* Control bar under the picture: sound · time bar · play/pause */
+.lightbox{flex-direction:column;gap:clamp(16px,2.4vh,28px)}
+.lb-hit{cursor:pointer}
+.lb-label,.lb-snd{display:none!important}
+.lb-bar{display:flex;align-items:center;gap:18px;width:min(360px,70vw);color:#f2efe9}
+.lb-btn{flex:0 0 auto;width:34px;height:34px;display:grid;place-items:center;background:none;border:0;padding:6px;color:inherit;opacity:.8;cursor:pointer}
+.lb-btn:hover,.lb-btn:focus-visible{opacity:1;outline:none}
+.lb-btn svg{width:20px;height:20px}
+.lb-track{position:relative;flex:1;height:22px;cursor:pointer;touch-action:none}
+.lb-track::before{content:"";position:absolute;left:0;right:0;top:50%;height:3px;margin-top:-1.5px;border-radius:2px;background:rgba(242,239,233,.28)}
+.lb-fill{position:absolute;left:0;top:50%;height:3px;margin-top:-1.5px;border-radius:2px;background:#0e9fae;width:0;transition:width .25s linear}
+.lb-track:focus-visible{outline:1px solid rgba(255,255,255,.5);outline-offset:4px}
+html.screening .lb-bar .lb-btn,html.screening .lb-track{cursor:pointer}

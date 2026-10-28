@@ -149,7 +149,7 @@
     setTimeout(function () { lb.hidden = true; lbf.innerHTML = ''; cur.f = null; }, 450);
     if (lastFocus) lastFocus.focus();
   }
-  document.querySelectorAll('.film-row, [data-lb], button.cover[data-src]').forEach(function (b) { b.addEventListener('click', function () { openLB(b.dataset.src, b.dataset.title); }); });
+  document.querySelectorAll('.film-row, [data-lb], button.cover[data-src]').forEach(function (b) { b.addEventListener('click', function () { if (window.__screening) return; openLB(b.dataset.src, b.dataset.title); }); });   // screening.js handles these when present
   if (lb) {
     lb.querySelector('.lb-x').addEventListener('click', closeLB);
     lb.addEventListener('click', function (ev) { if (ev.target === lb) closeLB(); });
