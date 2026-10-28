@@ -81,7 +81,7 @@
       word.style.setProperty('--wi', wi.toFixed(3));
       word.style.setProperty('--wx', wx.toFixed(3));
       word.style.setProperty('--wo', (wi * (1 - wx * 0.85)).toFixed(3));
-      rows.forEach(function (el, i) { el.style.setProperty('--q', ease(clamp((p - (0.26 + i * (0.5 / n))) / 0.22)).toFixed(3)); });
+      rows.forEach(function (el, i) { el.style.setProperty('--q', ease(clamp((p - (0.2 + i * 0.05)) / 0.14)).toFixed(3)); });   // rows follow the heading in quick succession
     }
     requestAnimationFrame(frame);
   }
