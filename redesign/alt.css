@@ -386,3 +386,11 @@ body.dark-page{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
 .pf-foot .all{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pmute)}
 .pf-foot .all:hover{color:var(--pfg)}
 @media(prefers-reduced-motion:reduce){.pf-stage .pi{clip-path:none}.pf-word span{opacity:1;transform:none}}
+/* the words wipe away left to right, in step with the posters wiping in */
+.pf-stage.in .pf-word span{animation:pfword 2.6s cubic-bezier(.65,0,.35,1) forwards;transition:none}
+@keyframes pfword{
+  0%{opacity:0;transform:translateY(.18em);clip-path:inset(0 0 0 0)}
+  25%{opacity:1;transform:none;clip-path:inset(0 0 0 0)}
+  100%{opacity:0;transform:none;clip-path:inset(0 0 0 100%)}
+}
+@media(prefers-reduced-motion:reduce){.pf-stage.in .pf-word span{animation:none;opacity:0}}
