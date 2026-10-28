@@ -2,7 +2,7 @@
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var slides = [].slice.call(document.querySelectorAll('.hs')), caps = [].slice.call(document.querySelectorAll('.hc'));
   if (!slides.length) return;
-  var bar = document.querySelector('.hprog span'), cur = 0, timer, DUR = 6500, players = [];
+  var bar = document.querySelector('.hprog span'), cur = 0, timer, DUR = 5000, players = [];
   function post(f, method, value) { var m = { method: method }; if (value !== undefined) m.value = value; f.contentWindow && f.contentWindow.postMessage(JSON.stringify(m), 'https://player.vimeo.com'); }
   addEventListener('message', function (ev) {
     if (ev.origin !== 'https://player.vimeo.com') return;
