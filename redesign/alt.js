@@ -32,8 +32,16 @@
     body.style.setProperty('--logo-inv', dark ? 0 : 1);
   };
   if ('IntersectionObserver' in window) {
-    var themeIO = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) setTheme(en.target); }); }, { rootMargin: '-50% 0px -50% 0px' });
-    sections.forEach(function (s) { themeIO.observe(s); });
+    // the section whose top has passed its trigger line sets the colours (default: middle of the screen;
+    // a section can ask to take over earlier with data-bg-at, as a fraction of the screen height)
+    var active = null;
+    var pick = function () {
+      var vh = innerHeight, cur = sections[0];
+      sections.forEach(function (s) { if (s.getBoundingClientRect().top < vh * (+s.dataset.bgAt || 0.5)) cur = s; });
+      if (cur !== active) { active = cur; setTheme(cur); }
+      requestAnimationFrame(pick);
+    };
+    requestAnimationFrame(pick);
   }
 
   // Lede: split into words that brighten in sequence
