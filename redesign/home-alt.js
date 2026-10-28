@@ -52,7 +52,7 @@
     if (p !== last) {
       last = p;
       var wi = ease(clamp(p / 0.22));                          // words rise in
-      var wx = ease(clamp((p - 0.6) / 0.38));                   // then wipe away left to right
+      var wx = ease(clamp((p - 0.45) / 0.36));                   // then wipe away left to right
       word.style.setProperty('--wi', wi.toFixed(3));
       word.style.setProperty('--wx', wx.toFixed(3));
       word.style.setProperty('--wo', (wi * (1 - wx * 0.85)).toFixed(3));

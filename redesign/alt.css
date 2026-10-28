@@ -536,3 +536,6 @@ html.screening .lb-x{cursor:pointer}
 .lb-label.on{opacity:1}
 .lb-snd{position:absolute;left:50%;bottom:clamp(14px,2.4vw,28px);transform:translateX(-50%);background:none;border:0;color:#f2efe9;opacity:.75;font:inherit;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;min-height:44px;padding:0 12px}
 .lb-snd:hover{opacity:1}
+/* NOW STREAMING: clear gap above the posters */
+.pf-stage:not(.bs){padding-top:calc(clamp(48px,7vw,136px) + clamp(20px,2.4vw,40px))}
+.pf-stage:not(.bs) .pf-word{top:calc(clamp(48px,7vw,136px) + clamp(20px,2.4vw,40px));transform:translate(0,calc(-100% - clamp(20px,2.4vw,40px)))}
