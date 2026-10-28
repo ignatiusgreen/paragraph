@@ -480,3 +480,4 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
   .a-media.reel-top .reel-copy h1.statement-h{color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.35);font-size:clamp(26px,3.4vw,58px);max-width:30ch}
 }
 video.reel-bg::-webkit-media-controls,video.reel-bg::-webkit-media-controls-start-playback-button,video.reel-bg::-webkit-media-controls-overlay-play-button{display:none!important;-webkit-appearance:none;opacity:0}
+.statement-h{text-wrap:balance}
