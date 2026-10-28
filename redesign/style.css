@@ -286,3 +286,10 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 /* brand list thumbnail: anchored by its corner to the cursor */
 .peek{transform:scale(.92)}
 .peek.on{transform:scale(1)}
+
+/* Stills galleries: keep every image at its own shape (no cropping) */
+.stills{display:block;columns:3;column-gap:4px}
+@media(max-width:900px){.stills{columns:2}}
+@media(max-width:520px){.stills{columns:1}}
+.stills .still{aspect-ratio:auto;display:block;break-inside:avoid;margin:0 0 4px;overflow:hidden}
+.stills .still img{width:100%;height:auto;object-fit:initial;position:static;display:block}
