@@ -516,3 +516,8 @@ html.screening .lb-x{cursor:pointer}
 .pf-stage.bs{padding-top:clamp(60px,10vw,190px)}
 .bs-word{top:clamp(60px,10vw,190px);transform:translate(-50%,-112%)}
 .harrows{align-self:start;align-items:center;margin-top:-6px}.harrows button{height:44px;line-height:1}
+
+/* Home carousel: every slide drifts slowly (still and video alike), like The Chosen */
+.home-alt .hs>img:first-child,.home-alt .hs .vid{animation:kb 14s ease-in-out infinite alternate}
+.home-alt .hs .vid iframe{transform:none}
+@media(prefers-reduced-motion:reduce){.home-alt .hs>img:first-child,.home-alt .hs .vid{animation:none}}
