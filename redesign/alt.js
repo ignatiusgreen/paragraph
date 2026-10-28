@@ -51,8 +51,12 @@
 
   // Lede: split into words that brighten in sequence
   document.querySelectorAll('[data-words]').forEach(function (p) {
-    var words = p.textContent.trim().split(/\s+/);
-    p.innerHTML = words.map(function (w) { return '<span class="w">' + w.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</span>'; }).join(' ');
+    var esc = function (w) { return w.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }, out = [];
+    [].forEach.call(p.childNodes, function (n) {   // keep <em> italics while splitting into words
+      var it = n.nodeType === 1 && n.tagName === 'EM';
+      n.textContent.split(/\s+/).forEach(function (w) { if (w) out.push('<span class="w">' + (it ? '<em>' + esc(w) + '</em>' : esc(w)) + '</span>'); });
+    });
+    p.innerHTML = out.join(' ');
   });
 
   // Reveal on scroll
