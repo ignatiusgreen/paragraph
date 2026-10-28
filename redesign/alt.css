@@ -539,3 +539,11 @@ html.screening .lb-x{cursor:pointer}
 /* NOW STREAMING: clear gap above the posters */
 .pf-stage:not(.bs){padding-top:calc(clamp(48px,7vw,136px) + clamp(20px,2.4vw,40px))}
 .pf-stage:not(.bs) .pf-word{top:calc(clamp(48px,7vw,136px) + clamp(20px,2.4vw,40px));transform:translate(0,calc(-100% - clamp(20px,2.4vw,40px)))}
+
+/* Carousel placeholders for upcoming projects */
+.hs.soon{background:radial-gradient(ellipse at 30% 40%,#26241f 0%,#121110 60%,#0a0a0a 100%)}
+.soon-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;animation:kb 14s ease-in-out infinite alternate}
+.soon-t{font-family:"Instrument Serif",Georgia,serif;font-size:clamp(48px,8vw,140px);line-height:.95;color:#f2efe9;letter-spacing:-.015em}
+.soon-k{font-size:13px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#9a968e}
+.hframe.is-soon{cursor:default}
+.soon-go{color:var(--pmute);border-bottom-color:transparent!important}
