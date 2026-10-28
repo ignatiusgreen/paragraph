@@ -589,3 +589,6 @@ html.screening .lb-x{cursor:pointer}
 /* FEATURED BRAND PROJECTS sits like NOW STREAMING: clear gap above the list */
 .pf-stage.bs{padding-top:calc(clamp(36px,5.2vw,100px) + clamp(20px,2.4vw,40px))}
 .pf-stage.bs .bs-word{top:calc(clamp(36px,5.2vw,100px) + clamp(20px,2.4vw,40px));transform:translate(0,calc(-100% - clamp(20px,2.4vw,40px)))}
+/* Project intro text: shifted left with a wider right margin */
+.a-intro:not(.solo) .lede{grid-column:4/11}
+@media(max-width:800px){.a-intro:not(.solo) .lede{grid-column:1/-1}}
