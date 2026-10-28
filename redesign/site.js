@@ -73,7 +73,14 @@
       new Image().src = a.dataset.img;
       a.addEventListener('mouseenter', function () { pimg.src = a.dataset.img; peek.classList.add('on'); });
       a.addEventListener('mouseleave', function () { peek.classList.remove('on'); });
-      a.addEventListener('mousemove', function (e) { peek.style.left = e.clientX + 'px'; peek.style.top = e.clientY + 'px'; });
+      a.addEventListener('mousemove', function (e) {
+        // the thumbnail hangs off the cursor by its corner; flip to the other side near the screen edges
+        var w = peek.offsetWidth, h = peek.offsetHeight, gap = 4;
+        var flipX = e.clientX + gap + w > innerWidth - 8, flipY = e.clientY + gap + h > innerHeight - 8;
+        peek.style.left = (flipX ? e.clientX - gap - w : e.clientX + gap) + 'px';
+        peek.style.top = (flipY ? e.clientY - gap - h : e.clientY + gap) + 'px';
+        peek.style.transformOrigin = (flipX ? 'right' : 'left') + ' ' + (flipY ? 'bottom' : 'top');
+      });
     });
   }
 

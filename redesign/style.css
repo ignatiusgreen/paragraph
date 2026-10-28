@@ -283,3 +283,6 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 .cdot.text::before{transform:scale(.35)}
 .cdot.hide::before{transform:scale(0)}
 @media(hover:hover) and (pointer:fine){html.has-cdot,html.has-cdot a,html.has-cdot button,html.has-cdot label{cursor:none}}
+/* brand list thumbnail: anchored by its corner to the cursor */
+.peek{transform:scale(.92)}
+.peek.on{transform:scale(1)}
