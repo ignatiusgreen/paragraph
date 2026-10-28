@@ -552,3 +552,4 @@ html.screening .lb-x{cursor:pointer}
 .pf-stage.bs .bs-word span{color:#0d0d0c;filter:url(#bs-outline)}
 /* let the outline ring breathe past the letter edges while the wipe clips it */
 .pf-stage.scrolled .pf-word span{clip-path:inset(-12px -12px -12px calc(var(--wx,0) * 100%))}
+.pf-stage.scrolled .pf-word span{clip-path:inset(-12px -12px -12px calc(var(--wx,0) * (100% + 24px) - 12px))}
