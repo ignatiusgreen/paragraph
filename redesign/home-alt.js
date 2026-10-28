@@ -30,7 +30,7 @@
     load(slides[cur]);
     var fr = document.getElementById('aframe'), sl = slides[cur];
     if (fr) { if (sl.dataset.href) fr.href = sl.dataset.href; else fr.removeAttribute('href'); fr.classList.toggle('is-soon', !sl.dataset.href); fr.dataset.cursor = sl.dataset.cur; var vc = document.querySelector('.vcursor.on'); if (vc) vc.innerHTML = String(sl.dataset.cur).split(' ').map(function (w) { return '<span>' + w + '</span>'; }).join(''); }
-    if (bar) { bar.style.transition = 'none'; bar.style.width = '0'; requestAnimationFrame(function () { requestAnimationFrame(function () { bar.style.transition = 'width ' + DUR + 'ms linear'; bar.style.width = '100%'; }); }); }
+    if (bar) { bar.style.transition = 'none'; bar.style.width = '0'; bar.style.background = slides[cur].dataset.bar || ''; requestAnimationFrame(function () { requestAnimationFrame(function () { bar.style.transition = 'width ' + DUR + 'ms linear'; bar.style.width = '100%'; }); }); }
     clearTimeout(timer); timer = setTimeout(function () { show(cur + 1); }, DUR);
   }
   document.querySelectorAll('.harrows button').forEach(function (b) { b.addEventListener('click', function () { show(cur + (+b.dataset.go)); }); });
