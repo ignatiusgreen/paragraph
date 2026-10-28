@@ -262,7 +262,7 @@
 (function () {
   var vids = [].slice.call(document.querySelectorAll('video.reel-bg')); if (!vids.length) return;
   function go(v) { v.muted = true; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
-  vids.forEach(function (v) { go(v); v.addEventListener('canplay', function () { if (v.paused) go(v); }); });
+  vids.forEach(function (v) { go(v); v.addEventListener('canplay', function () { if (v.paused) go(v); }); v.addEventListener('playing', function () { v.classList.add('playing'); }); if (!v.paused && v.currentTime > 0) v.classList.add('playing'); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) vids.forEach(go); });
   ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (t) { addEventListener(t, function once() { vids.forEach(function (v) { if (v.paused) go(v); }); removeEventListener(t, once); }, { passive: true }); });
 })();
