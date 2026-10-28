@@ -5,7 +5,7 @@
   // Smooth scrolling (Lenis), falling back to native scrolling if it didn't load
   var lenis = null;
   if (!reduce && window.Lenis) {
-    lenis = new Lenis({ duration: 1.25, easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); }, smoothWheel: true });
+    lenis = new Lenis({ duration: 1.25, easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); }, smoothWheel: true }); window.__lenis = lenis;
     (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(0);
   }
 
@@ -248,4 +248,20 @@
   vids.forEach(function (v) { go(v); v.addEventListener('canplay', function () { if (v.paused) go(v); }); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) vids.forEach(go); });
   ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (t) { addEventListener(t, function once() { vids.forEach(function (v) { if (v.paused) go(v); }); removeEventListener(t, once); }, { passive: true }); });
+})();
+
+// In-page anchors (e.g. Say hello): glide there with the smooth scroller, and honour #hash on arrival
+(function () {
+  function go(hash, instant) {
+    var el = hash && document.getElementById(hash.slice(1)); if (!el) return false;
+    var y = el.getBoundingClientRect().top + scrollY;
+    if (window.__lenis) window.__lenis.scrollTo(y, { immediate: !!instant }); else scrollTo({ top: y, behavior: instant ? 'auto' : 'smooth' });
+    return true;
+  }
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest('a[href*="#"]'); if (!a) return;
+    var u = new URL(a.href, location.href);
+    if (u.pathname === location.pathname && u.hash && go(u.hash)) { ev.preventDefault(); history.replaceState(null, '', u.hash); }
+  });
+  if (location.hash) addEventListener('load', function () { setTimeout(function () { go(location.hash, true); }, 60); });
 })();
