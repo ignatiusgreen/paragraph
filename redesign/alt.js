@@ -37,7 +37,12 @@
     var active = null;
     var pick = function () {
       var vh = innerHeight, cur = sections[0];
-      sections.forEach(function (s) { if (s.getBoundingClientRect().top < vh * (+s.dataset.bgAt || 0.5)) cur = s; });
+      sections.forEach(function (s) {
+        var ok;
+        if (s.dataset.bgAfter) { var el = document.querySelector(s.dataset.bgAfter); ok = el ? el.getBoundingClientRect().bottom < 0 : false; }   // wait until that element has left the screen
+        else ok = s.getBoundingClientRect().top < vh * (+s.dataset.bgAt || 0.5);
+        if (ok) cur = s;
+      });
       if (cur !== active) { active = cur; setTheme(cur); }
       requestAnimationFrame(pick);
     };
