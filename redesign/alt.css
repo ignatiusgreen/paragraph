@@ -521,3 +521,9 @@ html.screening .lb-x{cursor:pointer}
 .home-alt .hs>img:first-child,.home-alt .hs .vid{animation:kb 14s ease-in-out infinite alternate}
 .home-alt .hs .vid iframe{transform:none}
 @media(prefers-reduced-motion:reduce){.home-alt .hs>img:first-child,.home-alt .hs .vid{animation:none}}
+
+/* Big words at half size, left-aligned */
+.pf-stage:not(.bs){padding-top:clamp(48px,7vw,136px)}
+.pf-stage:not(.bs) .pf-word{top:clamp(48px,7vw,136px);left:0;transform:translate(0,-112%);font-size:clamp(32px,6.4vw,120px);text-align:left}
+.pf-stage.bs{padding-top:clamp(36px,5.2vw,100px)}
+.pf-stage.bs .bs-word{top:clamp(36px,5.2vw,100px);left:0;transform:translate(0,-112%);font-size:clamp(24px,4.6vw,88px);text-align:left}
