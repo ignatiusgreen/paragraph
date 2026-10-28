@@ -586,3 +586,6 @@ html.screening .lb-x{cursor:pointer}
 .a-brandlist.dark .clients:hover .name{color:#3a3936}
 .a-brandlist.dark .clients li a:hover .name{color:#f2efe9}
 .pf-stage.bs .bs-word span{color:#f2efe9}
+/* FEATURED BRAND PROJECTS sits like NOW STREAMING: clear gap above the list */
+.pf-stage.bs{padding-top:calc(clamp(36px,5.2vw,100px) + clamp(20px,2.4vw,40px))}
+.pf-stage.bs .bs-word{top:calc(clamp(36px,5.2vw,100px) + clamp(20px,2.4vw,40px));transform:translate(0,calc(-100% - clamp(20px,2.4vw,40px)))}

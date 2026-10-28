@@ -74,10 +74,10 @@
   var n = rows.length, last = -1;
   function frame() {
     var r = stage.getBoundingClientRect(), vh = innerHeight;
-    var p = clamp((vh * 0.85 - r.top) / (vh * 0.85));          // starts once the page has turned white
+    var p = clamp((vh * 0.95 - r.top) / (vh * 1.05));          // starts once the page has turned white
     if (p !== last) {
       last = p;
-      var wi = ease(clamp(p / 0.2)), wx = ease(clamp((p - 0.6) / 0.38));
+      var wi = ease(clamp(p / 0.22)), wx = ease(clamp((p - 0.45) / 0.36));   // same timing as NOW STREAMING
       word.style.setProperty('--wi', wi.toFixed(3));
       word.style.setProperty('--wx', wx.toFixed(3));
       word.style.setProperty('--wo', (wi * (1 - wx * 0.85)).toFixed(3));
