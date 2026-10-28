@@ -295,11 +295,11 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 .stills .still img{width:100%;height:auto;object-fit:initial;position:static;display:block}
 
 /* Stills galleries: an even grid — every frame the same 2.39:1 shape, whole image shown inside it */
-.stills{display:grid;columns:auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.stills{display:grid;columns:auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
 @media(max-width:900px){.stills{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.stills{grid-template-columns:1fr}}
-.stills .still{aspect-ratio:2.39/1;margin:0;background:#0a0a0a;position:relative}
-.stills .still img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.stills .still{aspect-ratio:2.39/1;margin:0;background:#0a0a0a;position:relative;overflow:hidden}
+.stills .still img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
 /* Cursor over films and projects: open white ring with a play triangle (replaces the VIEW FILM / VIEW PROJECT text) */
 .vcursor{display:none!important}
