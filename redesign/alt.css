@@ -412,3 +412,5 @@ body.dark-page{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
 .pf-stage.bs.scrolled .clients li{clip-path:inset(0 calc((1 - var(--q,0)) * 100%) 0 0)}
 .pf-stage.bs.scrolled .clients li .name{transform:translateX(calc((1 - var(--q,0)) * -24px))}
 .pf-stage.bs.scrolled .clients li a:hover .name{transform:translateX(12px)}
+/* Banfield overhead still: keep his face in frame when cropped tall */
+img[src*="/img/banfield-overhead.jpg"]{object-position:22% 50%}
