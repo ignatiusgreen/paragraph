@@ -394,3 +394,13 @@ body.dark-page{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
   100%{opacity:0;transform:none;clip-path:inset(0 0 0 100%)}
 }
 @media(prefers-reduced-motion:reduce){.pf-stage.in .pf-word span{animation:none;opacity:0}}
+
+/* Scroll-driven version: JS sets --p per element; no time-based transitions */
+.pf-stage{padding-top:clamp(36px,5.6vw,108px)}
+.pf-word{top:clamp(36px,5.6vw,108px)}
+.pf-stage .pi,.pf-stage .pi img,.pf-stage.in .pf-word span,.pf-word span{transition:none!important;animation:none!important}
+.pf-stage.scrolled .pf-word span{opacity:var(--wo,0);transform:translateY(calc((1 - var(--wi,0)) * .18em));clip-path:inset(0 0 0 calc(var(--wx,0) * 100%))}
+.pf-stage.scrolled .pi{clip-path:inset(0 calc((1 - var(--q,0)) * 100%) 0 0)}
+.pf-stage.scrolled .pi img{transform:scale(calc(1.12 - .12 * var(--q,0))) translateX(calc((1 - var(--q,0)) * -3%))}
+.pf-stage.scrolled .pf:hover .pi img{transform:scale(1.04)}
+.pf-stage.scrolled .pf-word span{opacity:var(--wo,0)}

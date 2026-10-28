@@ -36,3 +36,29 @@
   document.querySelectorAll('.harrows button').forEach(function (b) { b.addEventListener('click', function () { show(cur + (+b.dataset.go)); }); });
   show(0);
 })();
+
+// NOW STREAMING: the words and the poster wipes follow the scroll position (forwards and backwards)
+(function () {
+  var stage = document.querySelector('.pf-stage'); if (!stage) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var word = stage.querySelector('.pf-word span'), pis = [].slice.call(stage.querySelectorAll('.pi'));
+  stage.classList.add('scrolled');
+  var clamp = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x; };
+  var ease = function (x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+  var last = -1;
+  function frame() {
+    var r = stage.getBoundingClientRect(), vh = innerHeight;
+    var p = clamp((vh * 0.95 - r.top) / (vh * 0.8));          // 0 as it enters, 1 when it nears the top
+    if (p !== last) {
+      last = p;
+      var wi = ease(clamp(p / 0.22));                          // words rise in
+      var wx = ease(clamp((p - 0.3) / 0.5));                   // then wipe away left to right
+      word.style.setProperty('--wi', wi.toFixed(3));
+      word.style.setProperty('--wx', wx.toFixed(3));
+      word.style.setProperty('--wo', (wi * (1 - wx * 0.85)).toFixed(3));
+      pis.forEach(function (el, i) { el.style.setProperty('--q', ease(clamp((p - (0.28 + i * 0.12)) / 0.3)).toFixed(3)); });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
