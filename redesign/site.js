@@ -134,7 +134,7 @@
   targets.forEach(function (a) {
     var fr = a.querySelector('.frame') || a;
     fr.addEventListener('mouseenter', function (ev) {
-      c.textContent = a.dataset.cursor;
+      c.innerHTML = String(a.dataset.cursor).split(' ').map(function (w) { return '<span>' + w + '</span>'; }).join('');
       if (!c.classList.contains('on')) { cx = x = ev.clientX; cy = y = ev.clientY; c.style.left = cx + 'px'; c.style.top = cy + 'px'; }
       c.classList.add('on');
     });

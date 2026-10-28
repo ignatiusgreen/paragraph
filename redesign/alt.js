@@ -130,7 +130,7 @@
   document.querySelectorAll('[data-cursor]').forEach(function (a) {
     var img = a.querySelector('.wi, .mi, .pi') || a;
     img.addEventListener('mouseenter', function (ev) {
-      c.textContent = a.dataset.cursor; c.classList.toggle('light', !!a.closest('.a-more'));
+      c.innerHTML = String(a.dataset.cursor).split(' ').map(function (w) { return '<span>' + w + '</span>'; }).join(''); c.classList.toggle('light', !!a.closest('.a-more'));
       if (!c.classList.contains('on')) { cx = x = ev.clientX; cy = y = ev.clientY; c.style.left = cx + 'px'; c.style.top = cy + 'px'; }
       c.classList.add('on');
     });
@@ -138,17 +138,55 @@
   });
 })();
 
-// Film index filters
+// Film index: posters wipe in left to right as each row arrives; filters replay the wipe
 (function () {
-  var bar = document.querySelector('.fbar'); if (!bar) return;
-  var cards = [].slice.call(document.querySelectorAll('.pgrid.ix .pf'));
+  var grid = document.querySelector('.pgrid.ix'); if (!grid) return;
+  var bar = document.querySelector('.fbar');
+  var cards = [].slice.call(grid.querySelectorAll('.pf'));
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function cols() { return getComputedStyle(grid).gridTemplateColumns.split(' ').length || 4; }
+  function shown() { return cards.filter(function (c) { return !c.classList.contains('hide'); }); }
+  function stagger() { var n = cols(); shown().forEach(function (c, i) { c.style.setProperty('--d', ((i % n) * 0.14).toFixed(2) + 's'); }); }
+  stagger();
+  if (reduce || !('IntersectionObserver' in window)) { cards.forEach(function (c) { c.classList.add('on'); }); }
+  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('on'); io.unobserve(en.target); } });
+  }, { rootMargin: '0px 0px -10% 0px' }) : null;
+  if (io && !reduce) cards.forEach(function (c) { io.observe(c); });
+  if (!bar) return;
   bar.addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
     bar.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
     cards.forEach(function (c) {
-      var show = b.dataset.f === 'all' || c.dataset.s === b.dataset.f;
-      c.classList.toggle('hide', !show);
-      if (show) c.querySelectorAll('[data-reveal]').forEach(function (r) { r.classList.add('in'); });
+      c.classList.remove('on'); if (io) io.unobserve(c);
+      c.classList.toggle('hide', !(b.dataset.f === 'all' || c.dataset.s === b.dataset.f));
+    });
+    stagger();
+    void grid.offsetWidth;                                     // restart the wipe
+    requestAnimationFrame(function () {
+      shown().forEach(function (c) { if (io && !reduce) io.observe(c); else c.classList.add('on'); });
     });
   });
+})();
+
+// About: behind-the-scenes marquee — drifts on its own; hover right half to speed it right, left half to run it left
+(function () {
+  var mq = document.querySelector('.marquee'); if (!mq) return;
+  var track = mq.querySelector('.mq-track');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var x = 0, v = 0, target = 0.6, base = 0.6, last = performance.now();   // px per frame at 60fps
+  mq.addEventListener('mousemove', function (ev) {
+    var r = mq.getBoundingClientRect(), f = (ev.clientX - r.left) / r.width - 0.5;   // -0.5 … 0.5
+    target = Math.abs(f) < 0.08 ? base * 0.4 : (f > 0 ? base + f * 14 : f * 14);
+  });
+  mq.addEventListener('mouseleave', function () { target = base; });
+  function tick(now) {
+    var dt = Math.min(48, now - last) / 16.67; last = now;
+    v += (target - v) * 0.06;
+    var half = track.scrollWidth / 2;
+    x -= v * dt; if (x <= -half) x += half; if (x > 0) x -= half;
+    track.style.transform = 'translate3d(' + x.toFixed(1) + 'px,0,0)';
+    requestAnimationFrame(tick);
+  }
+  if (!reduce) requestAnimationFrame(tick);
 })();
