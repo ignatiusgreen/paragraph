@@ -465,3 +465,5 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 /* Branded statement back under the reel, wider and balanced so no word sits alone */
 .a-media.reel-top .reel-copy{position:static;inset:auto;background:none;color:var(--pfg);display:flex;justify-content:center;text-align:center;padding:16vh clamp(16px,3vw,40px) 10vh;pointer-events:auto}
 .a-media.reel-top .reel-copy h1.statement-h{color:var(--pfg);text-shadow:none;font-size:clamp(30px,4.4vw,72px);line-height:1.06;max-width:32ch;text-wrap:balance}
+/* self-hosted reel */
+.a-media.reel-top video.reel-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0;background:#000;pointer-events:none}

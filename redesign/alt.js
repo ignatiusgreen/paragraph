@@ -207,3 +207,12 @@
   // first touch/click/scroll anywhere also starts it, for browsers that wait for a gesture
   ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (t) { addEventListener(t, function once() { frames.forEach(kick); removeEventListener(t, once); }, { passive: true }); });
 })();
+
+// Self-hosted background reels: make sure they start (and restart if the tab was hidden)
+(function () {
+  var vids = [].slice.call(document.querySelectorAll('video.reel-bg')); if (!vids.length) return;
+  function go(v) { v.muted = true; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+  vids.forEach(function (v) { go(v); v.addEventListener('canplay', function () { if (v.paused) go(v); }); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) vids.forEach(go); });
+  ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (t) { addEventListener(t, function once() { vids.forEach(function (v) { if (v.paused) go(v); }); removeEventListener(t, once); }, { passive: true }); });
+})();
