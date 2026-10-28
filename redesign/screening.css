@@ -1,0 +1,25 @@
+/* Screening room (black full-screen player) — shared by film pages; brand/alt pages get the same rules from alt.css */
+.lightbox{position:fixed;inset:0;z-index:150;background:rgba(10,10,10,.96);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .5s ease}
+.lightbox.on{opacity:1}
+.lightbox[hidden]{display:none}
+.lb-frame{width:min(92vw,160vh);aspect-ratio:16/9;transform:scale(.96);transition:transform .7s cubic-bezier(.16,1,.3,1)}
+.lightbox.on .lb-frame{transform:none}
+.lb-frame iframe{width:100%;height:100%;border:0}
+.lb-x{position:absolute;top:22px;right:clamp(16px,3vw,40px);color:#f2efe9;font:inherit;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:none;border:0;cursor:pointer;min-height:44px}
+.lightbox{background:#000;transition:opacity .6s ease}
+.lb-frame{width:min(88vw,calc((100vh - 140px) * 16 / 9))}
+.lb-x{top:clamp(14px,2.4vw,32px);right:clamp(14px,2.4vw,32px);width:52px;height:52px;padding:12px;display:grid;place-items:center;min-height:0;color:#f2efe9;opacity:.8;transition:opacity .2s,transform .3s}
+.lb-x:hover,.lb-x:focus-visible{opacity:1;transform:rotate(90deg);outline:none}
+.lb-x svg{width:28px;height:28px}
+html.screening,html.screening body{overflow:hidden}
+html.screening header{opacity:0;pointer-events:none;transition:opacity .4s}
+html.screening .cdot{opacity:0!important}
+html.screening.has-cdot,html.screening.has-cdot button{cursor:auto}
+html.screening .lb-x{cursor:pointer}
+.lb-frame{position:relative}
+.lb-hit{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0;padding:0;cursor:none;z-index:2}
+.lb-hit:focus-visible{outline:1px solid rgba(255,255,255,.5);outline-offset:4px}
+.lb-label{position:fixed;left:0;top:0;z-index:5;pointer-events:none;color:#fff;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;transform:translate(-50%,-50%);opacity:0;transition:opacity .2s;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.lb-label.on{opacity:1}
+.lb-snd{position:absolute;left:50%;bottom:clamp(14px,2.4vw,28px);transform:translateX(-50%);background:none;border:0;color:#f2efe9;opacity:.75;font:inherit;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;min-height:44px;padding:0 12px}
+.lb-snd:hover{opacity:1}

@@ -85,7 +85,7 @@
   }
 
   // Trailer players: our own play button; clicking swaps in the Vimeo player and starts it with sound
-  document.querySelectorAll('.play-cover').forEach(function (b) {
+  if (!window.__screening) document.querySelectorAll('.play-cover').forEach(function (b) {
     b.addEventListener('click', function () {
       var f = document.createElement('iframe');
       f.src = b.dataset.src; f.title = b.dataset.title || 'Trailer';
