@@ -14,8 +14,10 @@
     x = ev.clientX; y = ev.clientY;
     if (!shown) { shown = true; cx = x; cy = y; dot.classList.add('on'); }
     var t = ev.target;
-    dot.classList.toggle('hide', !!(t.closest && t.closest('[data-cursor] .wi, [data-cursor] .mi, [data-cursor] .pi, [data-cursor] .frame, .card[data-cursor] .frame, a.hframe, iframe, video[controls]')));
-    dot.classList.toggle('big', !!(t.closest && t.closest('a, button, label, [role=button], input[type=submit]')));
+    var onMedia = !!(t.closest && t.closest('[data-cursor] .wi, [data-cursor] .mi, [data-cursor] .pi, [data-cursor] .frame, .card[data-cursor] .frame, a.hframe[href]'));
+    dot.classList.toggle('play', onMedia);                       // over a film or project: open ring with a play triangle
+    dot.classList.toggle('hide', !onMedia && !!(t.closest && t.closest('iframe, video[controls]')));
+    dot.classList.toggle('big', !onMedia && !!(t.closest && t.closest('a, button, label, [role=button], input[type=submit]')));
     dot.classList.toggle('text', !!(t.closest && t.closest('input[type=text], input[type=email], input[type=password], textarea')));
     if (!raf) raf = requestAnimationFrame(loop);
   }, { passive: true });
