@@ -471,3 +471,12 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 /* Project pages: smaller title */
 .a-hero h1:not(.statement-h){font-size:clamp(40px,5.6vw,96px)}
 .a-hero .client{font-size:clamp(20px,2.2vw,34px)}
+
+/* Branded reel: below the navigation, statement in white over it (desktop); never show a native play button */
+.a-media.reel-top{padding-top:72px}
+@media(min-width:701px){
+  .a-media.reel-top .reel-copy{position:absolute;left:0;right:0;top:72px;bottom:0;display:flex;align-items:center;justify-content:center;padding:0 clamp(24px,6vw,96px);
+    background:radial-gradient(ellipse at center,rgba(0,0,0,.42) 0%,rgba(0,0,0,.18) 55%,rgba(0,0,0,.05) 100%);pointer-events:none}
+  .a-media.reel-top .reel-copy h1.statement-h{color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.35);font-size:clamp(26px,3.4vw,58px);max-width:30ch}
+}
+video.reel-bg::-webkit-media-controls,video.reel-bg::-webkit-media-controls-start-playback-button,video.reel-bg::-webkit-media-controls-overlay-play-button{display:none!important;-webkit-appearance:none;opacity:0}
