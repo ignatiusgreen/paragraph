@@ -74,7 +74,7 @@
       return;
     }
     if (d.event === 'ready') ['timeupdate', 'play', 'pause', 'ended'].forEach(function (e) { send({ method: 'addEventListener', value: e }); });
-    if (d.event === 'timeupdate' && d.data) setTime(d.data.seconds, d.data.duration);
+    if ((d.event === 'timeupdate' || d.event === 'playProgress') && d.data) setTime(d.data.seconds, d.data.duration);   // Vimeo reports progress as playProgress
     if (d.event === 'play') setPlaying(true);
     if (d.event === 'pause' || d.event === 'ended') setPlaying(false);
   });
