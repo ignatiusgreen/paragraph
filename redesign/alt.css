@@ -553,3 +553,4 @@ html.screening .lb-x{cursor:pointer}
 /* let the outline ring breathe past the letter edges while the wipe clips it */
 .pf-stage.scrolled .pf-word span{clip-path:inset(-12px -12px -12px calc(var(--wx,0) * 100%))}
 .pf-stage.scrolled .pf-word span{clip-path:inset(-12px -12px -12px calc(var(--wx,0) * (100% + 24px) - 12px))}
+.home-alt .a-pf{padding-bottom:8vh}.home-alt .a-brandlist{padding-top:6vh}

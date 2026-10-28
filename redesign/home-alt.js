@@ -74,7 +74,7 @@
   var n = rows.length, last = -1;
   function frame() {
     var r = stage.getBoundingClientRect(), vh = innerHeight;
-    var p = clamp((vh * 0.6 - r.top) / (vh * 0.85));          // starts once the page has turned white
+    var p = clamp((vh * 0.85 - r.top) / (vh * 0.85));          // starts once the page has turned white
     if (p !== last) {
       last = p;
       var wi = ease(clamp(p / 0.2)), wx = ease(clamp((p - 0.6) / 0.38));
