@@ -555,3 +555,6 @@ html.screening .lb-x{cursor:pointer}
 .pf-stage.scrolled .pf-word span{clip-path:inset(-12px -12px -12px calc(var(--wx,0) * (100% + 24px) - 12px))}
 .home-alt .a-pf{padding-bottom:8vh}.home-alt .a-brandlist{padding-top:6vh}
 .a-talk .big.wide{max-width:17ch;text-wrap:balance}
+
+/* No underline on project names when hovering */
+.wk:hover .wt,.pf:hover .wt,.wgrid .wk:hover .wt,.mc:hover .mt{text-decoration:none}

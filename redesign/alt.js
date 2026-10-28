@@ -125,6 +125,10 @@
     });
     hit.addEventListener('mousemove', function (ev) { label.style.left = ev.clientX + 'px'; label.style.top = ev.clientY + 'px'; label.classList.add('on'); });
     hit.addEventListener('mouseleave', function () { label.classList.remove('on'); });
+    // belt and braces: hide the label whenever the pointer is anywhere other than the picture
+    lb.addEventListener('mousemove', function (ev) { if (ev.target !== hit) label.classList.remove('on'); });
+    lb.addEventListener('mouseleave', function () { label.classList.remove('on'); });
+    document.addEventListener('mouseleave', function () { label.classList.remove('on'); });
     snd.addEventListener('click', function () { cur.muted = !cur.muted; cmd(cur.muted ? 'mute' : 'unmute'); snd.textContent = cur.muted ? 'Sound off' : 'Sound on'; });
   }
   function openLB(src, title) {
