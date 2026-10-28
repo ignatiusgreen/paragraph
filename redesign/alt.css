@@ -569,3 +569,7 @@ html.screening .lb-x{cursor:pointer}
 .hs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1vw,16px)}
 .hs-grid .gi{aspect-ratio:16/9;margin:0}
 @media(max-width:640px){.hs-grid{grid-template-columns:1fr}}
+
+/* Case study banner: 3 × 3 grid of story-hub stills */
+.a-media .cover.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:4px;background:#fff;transform:scale(var(--zoom,1.15))}
+.a-media .cover.hero-grid img{width:100%;height:100%;object-fit:cover;transform:none}
