@@ -481,3 +481,9 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 }
 video.reel-bg::-webkit-media-controls,video.reel-bg::-webkit-media-controls-start-playback-button,video.reel-bg::-webkit-media-controls-overlay-play-button{display:none!important;-webkit-appearance:none;opacity:0}
 .statement-h{text-wrap:balance}
+
+/* More projects: drifting marquee like the About carousel */
+.mq-more{margin:0}
+.mq-more .mq-track{gap:clamp(14px,1.6vw,24px);padding:0 0 12px}
+.mq-dup{display:contents}
+.mq-more .mc{flex:0 0 clamp(240px,27vw,420px)}

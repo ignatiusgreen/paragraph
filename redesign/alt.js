@@ -171,7 +171,8 @@
 
 // About: behind-the-scenes marquee — drifts on its own; hover right half to speed it right, left half to run it left
 (function () {
-  var mq = document.querySelector('.marquee'); if (!mq) return;
+  [].forEach.call(document.querySelectorAll('.marquee'), run);
+  function run(mq) {
   var track = mq.querySelector('.mq-track');
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var x = 0, v = 0, target = 0.6, base = 0.6, last = performance.now();   // px per frame at 60fps
@@ -189,6 +190,7 @@
     requestAnimationFrame(tick);
   }
   if (!reduce) requestAnimationFrame(tick);
+  }
 })();
 
 // Background reels: nudge the Vimeo player to start (some browsers ignore autoplay in embeds until told to play)
