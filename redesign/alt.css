@@ -592,3 +592,6 @@ html.screening .lb-x{cursor:pointer}
 /* Project intro text: shifted left with a wider right margin */
 .a-intro:not(.solo) .lede{grid-column:4/11}
 @media(max-width:800px){.a-intro:not(.solo) .lede{grid-column:1/-1}}
+
+/* no thin horizontal divider lines */
+.sgrid,.a-films-ix .mh,.a-ent{border-top:0!important}
