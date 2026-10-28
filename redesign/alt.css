@@ -579,3 +579,10 @@ html.screening .lb-x{cursor:pointer}
 .a-media.reel-top video.reel-bg{z-index:1;opacity:0;transition:opacity .6s ease}
 .a-media.reel-top video.reel-bg.playing{opacity:1}
 .a-media.reel-top .reel-copy{padding-bottom:17vh}
+
+/* Home brand list stays on black (no fade to white) */
+.a-brandlist.dark{--line:#2a2927}
+.a-brandlist.dark .clients li a{border-color:#2a2927}
+.a-brandlist.dark .clients:hover .name{color:#3a3936}
+.a-brandlist.dark .clients li a:hover .name{color:#f2efe9}
+.pf-stage.bs .bs-word span{color:#f2efe9}
