@@ -499,3 +499,6 @@ html.screening header{opacity:0;pointer-events:none;transition:opacity .4s}
 html.screening .cdot{opacity:0!important}
 html.screening.has-cdot,html.screening.has-cdot button{cursor:auto}
 html.screening .lb-x{cursor:pointer}
+.pf-stage:not(.bs) .pgrid{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:800px){.pf-stage:not(.bs) .pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){.pf-stage:not(.bs) .pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}

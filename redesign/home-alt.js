@@ -56,7 +56,7 @@
       word.style.setProperty('--wi', wi.toFixed(3));
       word.style.setProperty('--wx', wx.toFixed(3));
       word.style.setProperty('--wo', (wi * (1 - wx * 0.85)).toFixed(3));
-      pis.forEach(function (el, i) { el.style.setProperty('--q', ease(clamp((p - (0.28 + i * 0.12)) / 0.3)).toFixed(3)); });
+      pis.forEach(function (el, i) { el.style.setProperty('--q', ease(clamp((p - (0.26 + i * 0.1)) / 0.28)).toFixed(3)); });
     }
     requestAnimationFrame(frame);
   }
