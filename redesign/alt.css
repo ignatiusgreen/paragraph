@@ -558,3 +558,8 @@ html.screening .lb-x{cursor:pointer}
 
 /* No underline on project names when hovering */
 .wk:hover .wt,.pf:hover .wt,.wgrid .wk:hover .wt,.mc:hover .mt{text-decoration:none}
+
+/* Branded: statement first, reel underneath (gives the video a moment to load) */
+.a-media.reel-top .reel-copy,.a-media.reel-top .reel-copy h1.statement-h{position:static;background:none;color:var(--pfg);text-shadow:none}
+.a-media.reel-top .reel-copy{display:flex;justify-content:center;text-align:center;padding:14vh clamp(16px,6vw,96px) 9vh;pointer-events:auto}
+.a-media.reel-top .reel-copy h1.statement-h{font-size:clamp(30px,4.2vw,68px);max-width:30ch}
