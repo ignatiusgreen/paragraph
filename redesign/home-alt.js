@@ -48,11 +48,11 @@
   var last = -1;
   function frame() {
     var r = stage.getBoundingClientRect(), vh = innerHeight;
-    var p = clamp((vh * 0.95 - r.top) / (vh * 0.8));          // 0 as it enters, 1 when it nears the top
+    var p = clamp((vh * 0.95 - r.top) / (vh * 1.05));          // 0 as it enters, 1 when it nears the top
     if (p !== last) {
       last = p;
       var wi = ease(clamp(p / 0.22));                          // words rise in
-      var wx = ease(clamp((p - 0.3) / 0.5));                   // then wipe away left to right
+      var wx = ease(clamp((p - 0.6) / 0.38));                   // then wipe away left to right
       word.style.setProperty('--wi', wi.toFixed(3));
       word.style.setProperty('--wx', wx.toFixed(3));
       word.style.setProperty('--wo', (wi * (1 - wx * 0.85)).toFixed(3));
@@ -74,10 +74,10 @@
   var n = rows.length, last = -1;
   function frame() {
     var r = stage.getBoundingClientRect(), vh = innerHeight;
-    var p = clamp((vh * 0.95 - r.top) / (vh * 0.9));
+    var p = clamp((vh * 0.95 - r.top) / (vh * 1.1));
     if (p !== last) {
       last = p;
-      var wi = ease(clamp(p / 0.2)), wx = ease(clamp((p - 0.28) / 0.45));
+      var wi = ease(clamp(p / 0.2)), wx = ease(clamp((p - 0.6) / 0.38));
       word.style.setProperty('--wi', wi.toFixed(3));
       word.style.setProperty('--wx', wx.toFixed(3));
       word.style.setProperty('--wo', (wi * (1 - wx * 0.85)).toFixed(3));

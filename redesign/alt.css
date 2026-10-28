@@ -509,3 +509,9 @@ html.screening .lb-x{cursor:pointer}
 .pf-stage:not(.bs) .pf-word span{color:transparent;-webkit-text-stroke:1.5px var(--pfg);text-stroke:1.5px var(--pfg);paint-order:stroke}
 /* outline drawn as a clean ring around the letters (no inner overlap lines from the variable font) */
 .pf-stage:not(.bs) .pf-word span{color:#f2efe9;-webkit-text-stroke:0;text-stroke:0;filter:url(#pf-outline)}
+
+/* both big words sit fully above their content */
+.pf-stage:not(.bs){padding-top:clamp(80px,13.5vw,260px)}
+.pf-stage:not(.bs) .pf-word{top:clamp(80px,13.5vw,260px);transform:translate(-50%,-112%)}
+.pf-stage.bs{padding-top:clamp(60px,10vw,190px)}
+.bs-word{top:clamp(60px,10vw,190px);transform:translate(-50%,-112%)}
