@@ -190,3 +190,20 @@
   }
   if (!reduce) requestAnimationFrame(tick);
 })();
+
+// Background reels: nudge the Vimeo player to start (some browsers ignore autoplay in embeds until told to play)
+(function () {
+  var frames = [].slice.call(document.querySelectorAll('iframe.reel-bg')); if (!frames.length) return;
+  function post(f, method, value) { var m = { method: method }; if (value !== undefined) m.value = value; try { f.contentWindow.postMessage(JSON.stringify(m), 'https://player.vimeo.com'); } catch (e) {} }
+  function kick(f) { post(f, 'setVolume', 0); post(f, 'setMuted', true); post(f, 'setLoop', true); post(f, 'play'); }
+  frames.forEach(function (f) {
+    f.addEventListener('load', function () { kick(f); setTimeout(function () { kick(f); }, 800); setTimeout(function () { kick(f); }, 2500); });
+  });
+  addEventListener('message', function (ev) {
+    if (ev.origin !== 'https://player.vimeo.com') return;
+    var d; try { d = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data; } catch (e) { return; }
+    if (d && d.event === 'ready') frames.forEach(function (f) { if (f.contentWindow === ev.source) kick(f); });
+  });
+  // first touch/click/scroll anywhere also starts it, for browsers that wait for a gesture
+  ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (t) { addEventListener(t, function once() { frames.forEach(kick); removeEventListener(t, once); }, { passive: true }); });
+})();
