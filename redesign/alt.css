@@ -487,3 +487,15 @@ video.reel-bg::-webkit-media-controls,video.reel-bg::-webkit-media-controls-star
 .mq-more .mq-track{gap:clamp(14px,1.6vw,24px);padding:0 0 12px}
 .mq-dup{display:contents}
 .mq-more .mc{flex:0 0 clamp(240px,27vw,420px)}
+
+/* Screening room: black, centred player, page frozen, X to leave */
+.lightbox{background:#000;transition:opacity .6s ease}
+.lb-frame{width:min(88vw,calc((100vh - 140px) * 16 / 9))}
+.lb-x{top:clamp(14px,2.4vw,32px);right:clamp(14px,2.4vw,32px);width:52px;height:52px;padding:12px;display:grid;place-items:center;min-height:0;color:#f2efe9;opacity:.8;transition:opacity .2s,transform .3s}
+.lb-x:hover,.lb-x:focus-visible{opacity:1;transform:rotate(90deg);outline:none}
+.lb-x svg{width:28px;height:28px}
+html.screening,html.screening body{overflow:hidden}
+html.screening header{opacity:0;pointer-events:none;transition:opacity .4s}
+html.screening .cdot{opacity:0!important}
+html.screening.has-cdot,html.screening.has-cdot button{cursor:auto}
+html.screening .lb-x{cursor:pointer}

@@ -79,14 +79,6 @@
     addEventListener('resize', tick); tick();
   }
 
-  // Hero video plays in place
-  var cover = frame && frame.querySelector('button.cover');
-  if (cover) cover.addEventListener('click', function () {
-    var f = document.createElement('iframe'); f.src = cover.dataset.src; f.title = cover.dataset.title;
-    f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media'; f.setAttribute('allowfullscreen', '');
-    cover.replaceWith(f); f.focus();
-  });
-
   // Film rows open a lightbox player
   var lb = document.getElementById('lb'), lbf = lb && lb.querySelector('.lb-frame'), lastFocus = null;
   function openLB(src, title) {
@@ -94,14 +86,14 @@
     lbf.innerHTML = ''; var f = document.createElement('iframe'); f.src = src; f.title = title || 'Video';
     f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media'; f.setAttribute('allowfullscreen', ''); lbf.appendChild(f);
     lb.hidden = false; requestAnimationFrame(function () { lb.classList.add('on'); });
-    if (lenis) lenis.stop(); lb.querySelector('.lb-x').focus();
+    if (lenis) lenis.stop(); document.documentElement.classList.add('screening'); lb.querySelector('.lb-x').focus();
   }
   function closeLB() {
-    lb.classList.remove('on'); if (lenis) lenis.start();
+    lb.classList.remove('on'); if (lenis) lenis.start(); document.documentElement.classList.remove('screening');
     setTimeout(function () { lb.hidden = true; lbf.innerHTML = ''; }, 450);
     if (lastFocus) lastFocus.focus();
   }
-  document.querySelectorAll('.film-row, [data-lb]').forEach(function (b) { b.addEventListener('click', function () { openLB(b.dataset.src, b.dataset.title); }); });
+  document.querySelectorAll('.film-row, [data-lb], button.cover[data-src]').forEach(function (b) { b.addEventListener('click', function () { openLB(b.dataset.src, b.dataset.title); }); });
   if (lb) {
     lb.querySelector('.lb-x').addEventListener('click', closeLB);
     lb.addEventListener('click', function (ev) { if (ev.target === lb) closeLB(); });
