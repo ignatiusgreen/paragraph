@@ -337,3 +337,11 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 .cdot .cgo path{stroke-dasharray:14;stroke-dashoffset:14;transition:stroke-dashoffset .12s ease}
 .cdot.play.go.on .cgo .sh{stroke-dashoffset:0;transition:stroke-dashoffset .24s cubic-bezier(.3,.7,.2,1) .12s}
 .cdot.play.go.on .cgo .hd{stroke-dashoffset:0;transition:stroke-dashoffset .2s cubic-bezier(.3,.7,.2,1) .28s}
+
+/* More films: drifting marquee like More projects */
+.marquee{overflow:hidden;touch-action:pan-y;cursor:default}
+.mq-track{display:flex;align-items:flex-start;gap:clamp(14px,1.6vw,24px);width:max-content;will-change:transform}
+.mq-films{margin-top:8px}
+.mq-films .mq-track{padding:0 0 12px}
+.mq-films .card{flex:0 0 clamp(200px,19vw,300px)}
+@media(prefers-reduced-motion:reduce){.marquee{overflow-x:auto;touch-action:auto}}
