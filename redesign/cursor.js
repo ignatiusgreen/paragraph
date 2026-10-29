@@ -15,8 +15,8 @@
     if (!shown) { shown = true; cx = x; cy = y; dot.classList.add('on'); }
     var t = ev.target;
     var onMedia = !!(t.closest && t.closest('[data-cursor] .wi, [data-cursor] .mi, [data-cursor] .pi, [data-cursor] .frame, .card[data-cursor] .frame, a.hframe[href]'));
-    var onHero = !!(t.closest && t.closest('a.hframe[href]'));
-    dot.classList.toggle('go', onHero);
+    var lk = onMedia && t.closest('a[href]');                    // over an image that links to another page: magnifier
+    dot.classList.toggle('go', !!(lk && lk.getAttribute('href') && lk.getAttribute('href') !== '#'));
     dot.classList.toggle('play', onMedia);                       // over a film or project: open ring with a play triangle
     dot.classList.toggle('hide', !onMedia && !!(t.closest && t.closest('iframe, video[controls]')));
     dot.classList.toggle('big', !onMedia && !!(t.closest && t.closest('a, button, label, [role=button], input[type=submit]')));
