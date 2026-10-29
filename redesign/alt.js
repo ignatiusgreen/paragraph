@@ -354,10 +354,10 @@
       };
       var x0 = l.left - pad, x1 = l.right + pad, w = x1 - x0;
       var dir = false;                                                 // always painted left to right
-      var delay = Math.max(0, i * 0.17 + rnd(-0.18, 0.18)), dur = rnd(0.35, 0.58);
+      var delay = Math.max(0, i * 0.085 + rnd(-0.09, 0.09)), dur = rnd(0.18, 0.29);
       dab(x0, x1, delay, dur, dir);
       if (Math.random() < 0.55) {                                      // a second dab over a patch it missed
-        var a0 = rnd(0.1, 0.55); dab(x0 + w * a0, x0 + w * (a0 + rnd(0.22, 0.4)), delay + dur * rnd(0.5, 0.9), rnd(0.18, 0.28), false, rnd(-2, 2));
+        var a0 = rnd(0.1, 0.55); dab(x0 + w * a0, x0 + w * (a0 + rnd(0.22, 0.4)), delay + dur * rnd(0.5, 0.9), rnd(0.09, 0.14), false, rnd(-2, 2));
       }
     });
     return ends;
@@ -372,13 +372,20 @@
     }).join(' ') + '</span>';
     h.appendChild(tr);
     var rec = document.querySelector('.a-recog');
-    var showRec = function (d) { if (rec) timers.push(setTimeout(function () { rec.classList.add('on'); }, d)); };
-    if (reduce) { tr.classList.add('on'); if (rec) rec.classList.add('on'); return; }
+    var animDone = false, inView = false, shown = false;
+    function maybeShow() { if (rec && animDone && inView && !shown) { shown = true; rec.classList.add('on'); } }
+    if (rec) {
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (es) { es.forEach(function (en) { inView = en.isIntersecting; maybeShow(); }); }, { rootMargin: '0px 0px -30% 0px' }).observe(rec);
+      } else inView = true;
+    }
+    var showRec = function () { animDone = true; maybeShow(); };
+    if (reduce) { tr.classList.add('on'); animDone = true; inView = true; maybeShow(); return; }
     timers.push(setTimeout(function () { tr.classList.add('on'); }, Math.max(0, total * 1000 - 125)));
-    showRec(Math.max(0, total * 1000 - 125) + 12 * 45 + 900 + 1000);   // after the translation has sat for a second
+    timers.push(setTimeout(showRec, Math.max(0, total * 1000 - 125) + 12 * 45 + 900));   // top animation finished; the section now appears as it scrolls into view
   }
   addEventListener('resize', function () { if (started) build(false); });
-  var go = function () { timers.push(setTimeout(start, 2000)); };
+  var go = function () { timers.push(setTimeout(start, 1000)); };
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
     if (document.readyState === 'complete') go(); else addEventListener('load', go);
   });
