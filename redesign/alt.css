@@ -609,3 +609,6 @@ html.screening .lb-x{cursor:pointer}
 /* marquees: thumb-draggable on touch */
 .marquee{touch-action:pan-y}
 @media(prefers-reduced-motion:reduce){.marquee{overflow-x:auto;touch-action:auto}}
+
+/* mobile: reel cropped to 4:3 */
+@media(max-width:760px){.a-media.reel-top .frame.reel{aspect-ratio:4/3!important;height:auto!important}}
