@@ -669,3 +669,5 @@ html.screening .lb-x{cursor:pointer}
 .rc-bigsky img{height:clamp(66px,8.4vw,108px)}
 .rc-bigsky img{height:clamp(58px,7vw,92px)}
 .rc-bigsky img{height:clamp(72px,9vw,118px)}@media(max-width:600px){.rc-bigsky img{height:84px}}
+.rc-row .rc-vimeo img{filter:none;height:clamp(60px,7vw,92px)}
+.rc-row .rc-bigsky img{height:clamp(50px,5.6vw,74px)}@media(max-width:600px){.rc-row .rc-bigsky img{height:58px;max-width:100%}}
