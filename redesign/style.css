@@ -351,3 +351,4 @@ a[href$="flourish.html"] img{object-position:22% 50%}
 .film-main .log-body{margin-top:clamp(20px,3vw,36px)}.film-main .log-body p{font-size:clamp(16px,1.25vw,19px);line-height:1.6;color:#b8b5af;max-width:62ch;margin:0 0 1.1em}
 .side-btns{margin-top:28px}
 @media(max-width:800px){.poster img{max-width:min(170px,46vw);max-height:260px}}
+.cta.solid.watch{background:#0d5a62;border-color:#0d5a62;color:#fff}.cta.solid.watch:hover{background:#13777f;border-color:#13777f;color:#fff}body.lightzone .cta.solid.watch,body.lightzone .cta.solid.watch:hover{color:#fff}
