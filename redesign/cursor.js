@@ -3,6 +3,7 @@
 (function () {
   if (!(window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches)) return;
   var dot = document.createElement('div'); dot.className = 'cdot'; dot.setAttribute('aria-hidden', 'true');
+  dot.innerHTML = '<svg class="cgo" viewBox="0 0 24 24" aria-hidden="true"><path class="sh" d="M7.6 16.4L16.7 7.3"/><path class="hd" d="M10.7 7.5H16.4V13.2"/></svg>';
   document.body.appendChild(dot); document.documentElement.classList.add('has-cdot');
   var x = -100, y = -100, cx = -100, cy = -100, raf = null, shown = false;
   function loop() {
