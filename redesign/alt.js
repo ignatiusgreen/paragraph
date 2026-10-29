@@ -354,10 +354,10 @@
       };
       var x0 = l.left - pad, x1 = l.right + pad, w = x1 - x0;
       var dir = Math.random() < 0.3;                                   // sometimes the pen comes back the other way
-      var delay = Math.max(0, i * 0.34 + rnd(-0.35, 0.35)), dur = rnd(0.7, 1.15);
+      var delay = Math.max(0, i * 0.17 + rnd(-0.18, 0.18)), dur = rnd(0.35, 0.58);
       dab(x0, x1, delay, dur, dir);
       if (Math.random() < 0.55) {                                      // a second dab over a patch it missed
-        var a0 = rnd(0.1, 0.55); dab(x0 + w * a0, x0 + w * (a0 + rnd(0.22, 0.4)), delay + dur * rnd(0.5, 0.9), rnd(0.35, 0.55), Math.random() < 0.5, rnd(-2, 2));
+        var a0 = rnd(0.1, 0.55); dab(x0 + w * a0, x0 + w * (a0 + rnd(0.22, 0.4)), delay + dur * rnd(0.5, 0.9), rnd(0.18, 0.28), Math.random() < 0.5, rnd(-2, 2));
       }
     });
     return ends;
@@ -370,7 +370,7 @@
       TXT.split(' ').map(function (w, i) { return '<span class="hl-w" style="transition-delay:' + (i * 70) + 'ms">' + w + '</span>'; }).join(' ') + '</span>';
     h.appendChild(tr);
     if (reduce) { tr.classList.add('on'); return; }
-    timers.push(setTimeout(function () { tr.classList.add('on'); }, Math.max(0, total * 1000 - 250)));
+    timers.push(setTimeout(function () { tr.classList.add('on'); }, Math.max(0, total * 1000 - 125)));
   }
   addEventListener('resize', function () { if (started) build(false); });
   var go = function () { timers.push(setTimeout(start, 2000)); };
