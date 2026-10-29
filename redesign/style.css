@@ -328,8 +328,7 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 .award-badge{display:inline-flex;align-items:center;justify-content:center;background:#000;padding:22px 30px;margin-top:36px}
 .award-badge img{height:84px;width:auto;display:block;filter:brightness(0) invert(1)}
 
-/* hero banner: the ring carries a "go to project" arrow instead of the play triangle */
-.cdot.play.go::after{width:26px;height:26px;margin:-13px 0 0 -13px;clip-path:none;background:none;filter:none;
- -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='square'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;
- mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='square'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;background:#fff}
-a[href$="flourish.html"] img{object-position:32% 50%}
+/* hero banner: the cursor becomes a small eye ("view project") instead of the play ring */
+.cdot.play.go::before{opacity:0;transform:scale(.4)}
+.cdot.play.go::after{width:46px;height:27px;margin:-13px 0 0 -23px;clip-path:none;filter:drop-shadow(0 0 6px rgba(0,0,0,.35));background:#fff;
+ -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 28'%3E%3Cpath fill-rule='evenodd' d='M1 14Q24 -8 47 14Q24 36 1 14ZM32 14A8 8 0 1 0 16 14A8 8 0 1 0 32 14ZM28.6 14A4.6 4.6 0 1 1 19.4 14A4.6 4.6 0 1 1 28.6 14ZM28.3 11.5A1.8 1.8 0 1 1 24.7 11.5A1.8 1.8 0 1 1 28.3 11.5Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 28'%3E%3Cpath fill-rule='evenodd' d='M1 14Q24 -8 47 14Q24 36 1 14ZM32 14A8 8 0 1 0 16 14A8 8 0 1 0 32 14ZM28.6 14A4.6 4.6 0 1 1 19.4 14A4.6 4.6 0 1 1 28.6 14ZM28.3 11.5A1.8 1.8 0 1 1 24.7 11.5A1.8 1.8 0 1 1 28.3 11.5Z'/%3E%3C/svg%3E") center/contain no-repeat}
