@@ -673,3 +673,8 @@ html.screening .lb-x{cursor:pointer}
 .rc-row .rc-bigsky img{height:clamp(50px,5.6vw,74px)}@media(max-width:600px){.rc-row .rc-bigsky img{height:58px;max-width:100%}}
 .rc-adage img{height:auto;width:clamp(80px,7.5vw,108px)}@media(max-width:600px){.rc-adage img{width:92px}}
 @media(min-width:900px){.rc-row{display:grid;grid-template-columns:repeat(4,1fr);max-width:1080px;gap:56px clamp(24px,3vw,48px);justify-items:center}.rc-row li{flex:none;width:100%;height:110px}.a-recog.on .rc-row li:nth-child(6){transition-delay:1.45s}.a-recog.on .rc-row li:nth-child(7){transition-delay:1.6s}.a-recog.on .rc-row li:nth-child(8){transition-delay:1.75s}}
+
+.hl-tr .hl-ln{display:block;white-space:nowrap}
+@media(max-width:700px){.hl-tr .hl-ln{white-space:normal;text-wrap:balance}}
+.hl-tr .hl-txt{max-width:none}
+@media(max-width:700px){.hl-tr .hl-txt{max-width:22ch}}

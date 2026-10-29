@@ -367,9 +367,12 @@
     var total = build(!reduce);
     tr = document.createElement('span'); tr.className = 'hl-tr'; tr.setAttribute('aria-label', 'Translation: ' + TXT);
     var all = ('Translation: ' + TXT).split(' ');
-    tr.innerHTML = '<span class="hl-txt" aria-hidden="true">' + all.map(function (w, i) {
-      return '<span class="hl-w' + (i === 0 ? ' hl-key' : '') + (i >= all.length - 5 ? ' hl-love' : '') + '" style="transition-delay:' + (i * 45) + 'ms">' + w + '</span>';
-    }).join(' ') + '</span>';
+    var lines = [[], [], []], li = 0;
+    all.forEach(function (w, i) {
+      lines[li].push('<span class="hl-w' + (i === 0 ? ' hl-key' : '') + (i >= all.length - 5 ? ' hl-love' : '') + '" style="transition-delay:' + (i * 45) + 'ms">' + w + '</span>');
+      if (i === 0 || /images\.$/.test(w)) li = Math.min(li + 1, 2);
+    });
+    tr.innerHTML = '<span class="hl-txt" aria-hidden="true">' + lines.map(function (l) { return '<span class="hl-ln">' + l.join(' ') + '</span>'; }).join('') + '</span>';
     h.appendChild(tr);
     var rec = document.querySelector('.a-recog');
     var animDone = false, inView = false, shown = false;

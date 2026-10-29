@@ -327,3 +327,8 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 
 .award-badge{display:inline-flex;align-items:center;justify-content:center;background:#000;padding:22px 30px;margin-top:36px}
 .award-badge img{height:84px;width:auto;display:block;filter:brightness(0) invert(1)}
+
+/* hero banner: the ring carries a "go to project" arrow instead of the play triangle */
+.cdot.play.go::after{width:26px;height:26px;margin:-13px 0 0 -13px;clip-path:none;background:none;filter:none;
+ -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='square'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;
+ mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='square'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;background:#fff}
