@@ -312,7 +312,7 @@
   var inner = h.querySelector('.line > span'); if (!inner) return;
   var TXT = 'We tell stories with images. And we love doing it.';
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var bars = [], tr = null, started = false, timers = [];
+  var tr = null, started = false, timers = [];
   function lineRects() {
     var r = document.createRange(); r.selectNodeContents(inner);
     var hb = h.getBoundingClientRect(), out = [];
@@ -324,29 +324,55 @@
     });
     return out;
   }
-  function build(on) {
-    bars.forEach(function (b) { b.remove(); }); bars = [];
+  var rnd = function (a, b) { return a + Math.random() * (b - a); };
+  function ragged() {   // uneven, hand-painted top and bottom edges
+    var xs = [0, 18, 38, 58, 80, 100], top = [], bot = [];
+    xs.forEach(function (x) { top.push(x + '% ' + rnd(0, 14).toFixed(1) + '%'); bot.unshift(x + '% ' + (100 - rnd(0, 14)).toFixed(1) + '%'); });
+    return 'polygon(' + top.concat(bot).join(',') + ')';
+  }
+  var layer = null, ends = 0, anims = [];
+  function build(animate) {
+    if (layer) layer.remove(); layer = null; anims.forEach(function (a) { try { a.cancel(); } catch (e) {} }); anims = []; ends = 0;
+    layer = document.createElement('span'); layer.className = 'hl-layer'; layer.setAttribute('aria-hidden', 'true'); h.appendChild(layer);
     var pad = Math.max(4, parseFloat(getComputedStyle(h).fontSize) * 0.12);
     lineRects().forEach(function (l, i) {
-      var b = document.createElement('span'); b.className = 'hl-bar' + (on ? ' on' : ''); b.setAttribute('aria-hidden', 'true');
-      b.style.cssText = 'top:' + (l.top - 2) + 'px;height:' + (l.height + 4) + 'px;left:' + (l.left - pad) + 'px;width:' + (l.right - l.left + pad * 2) + 'px;' + (on ? 'transition:none;' : 'transition-delay:' + (i * 0.5) + 's;');
-      h.appendChild(b); bars.push(b);
+      var dab = function (x0, x1, delay, dur, fromRight, extraTop) {
+        var b = document.createElement('span'); b.className = 'hl-bar';
+        var hh = l.height * rnd(0.98, 1.16), t = l.top - (hh - l.height) / 2 + rnd(-3, 3) + (extraTop || 0);
+        b.style.cssText = 'top:' + t + 'px;height:' + hh + 'px;left:' + x0 + 'px;width:' + (x1 - x0) + 'px;clip-path:' + ragged() + ';transform-origin:' + (fromRight ? '100%' : '0') + ' 50%;';
+        layer.appendChild(b);
+        var rot = rnd(-0.7, 0.7);
+        if (!animate) { b.style.transform = 'rotate(' + rot + 'deg)'; return; }
+        var m1 = rnd(0.35, 0.6), m2 = m1 + rnd(0.02, 0.1);                                   // a quick stroke, a hesitation, then the rest
+        var a = b.animate([
+          { transform: 'rotate(' + rot + 'deg) scaleX(0)', offset: 0 },
+          { transform: 'rotate(' + rot + 'deg) scaleX(' + m1.toFixed(2) + ')', offset: 0.42, easing: 'ease-out' },
+          { transform: 'rotate(' + rot + 'deg) scaleX(' + m2.toFixed(2) + ')', offset: 0.55, easing: 'ease-in' },
+          { transform: 'rotate(' + rot + 'deg) scaleX(1)', offset: 1 }
+        ], { duration: dur * 1000, delay: delay * 1000, fill: 'both', easing: 'cubic-bezier(.4,.1,.3,1)' });
+        anims.push(a); ends = Math.max(ends, delay + dur);
+      };
+      var x0 = l.left - pad, x1 = l.right + pad, w = x1 - x0;
+      var dir = Math.random() < 0.3;                                   // sometimes the pen comes back the other way
+      var delay = Math.max(0, i * 0.34 + rnd(-0.35, 0.35)), dur = rnd(0.7, 1.15);
+      dab(x0, x1, delay, dur, dir);
+      if (Math.random() < 0.55) {                                      // a second dab over a patch it missed
+        var a0 = rnd(0.1, 0.55); dab(x0 + w * a0, x0 + w * (a0 + rnd(0.22, 0.4)), delay + dur * rnd(0.5, 0.9), rnd(0.35, 0.55), Math.random() < 0.5, rnd(-2, 2));
+      }
     });
-    return bars.length;
+    return ends;
   }
   function start() {
     if (started) return; started = true;
-    var n = build(reduce);
+    var total = build(!reduce);
     tr = document.createElement('span'); tr.className = 'hl-tr'; tr.setAttribute('aria-label', 'Translation: ' + TXT);
     tr.innerHTML = '<span class="hl-lbl" aria-hidden="true">Translation:</span><span class="hl-txt" aria-hidden="true">' +
       TXT.split(' ').map(function (w, i) { return '<span class="hl-w" style="transition-delay:' + (i * 70) + 'ms">' + w + '</span>'; }).join(' ') + '</span>';
     h.appendChild(tr);
     if (reduce) { tr.classList.add('on'); return; }
-    void h.offsetWidth;
-    bars.forEach(function (b) { b.classList.add('on'); });
-    timers.push(setTimeout(function () { tr.classList.add('on'); }, Math.max(0, (n - 1) * 500) + 450));
+    timers.push(setTimeout(function () { tr.classList.add('on'); }, Math.max(0, total * 1000 - 250)));
   }
-  addEventListener('resize', function () { if (started) { var done = bars.length && bars[0].classList.contains('on'); build(true); } });
+  addEventListener('resize', function () { if (started) build(false); });
   var go = function () { timers.push(setTimeout(start, 2000)); };
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
     if (document.readyState === 'complete') go(); else addEventListener('load', go);

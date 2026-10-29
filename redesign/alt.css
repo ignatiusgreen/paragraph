@@ -615,13 +615,13 @@ html.screening .lb-x{cursor:pointer}
 
 /* About: after 2s a white highlighter pen sweeps over the statement (70% white), then the plain-English line appears on top */
 .about-page .a-hero h1.statement-h{position:relative}
-.hl-bar{position:absolute;z-index:2;background:rgba(255,255,255,.7);border-radius:.1em;transform:scaleX(0);transform-origin:0 50%;pointer-events:none;will-change:transform}
-.hl-bar.on{transform:scaleX(1);transition:transform .75s cubic-bezier(.65,0,.35,1)}
+.hl-layer{position:absolute;inset:0;z-index:2;opacity:.85;pointer-events:none}   /* one 85% layer so overlapping strokes do not stack */
+.hl-bar{position:absolute;background:#fff;pointer-events:none;will-change:transform}
 .hl-tr{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;padding:0 .2em}
 .hl-tr .hl-lbl{font-family:"Darker Grotesque","Helvetica Neue",Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pmute);margin-bottom:1.1em;opacity:0;transition:opacity .8s ease}
 .hl-tr .hl-txt{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:inherit;line-height:1.06;letter-spacing:-.015em;color:var(--pfg);max-width:20ch;text-wrap:balance}
 .hl-tr .hl-w{display:inline-block;opacity:0;transform:translateY(.3em);transition:opacity .7s ease,transform .9s cubic-bezier(.16,1,.3,1)}
 .hl-tr.on .hl-lbl{opacity:1}
 .hl-tr.on .hl-w{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.hl-bar.on,.hl-tr .hl-w,.hl-tr .hl-lbl{transition:none}}
+@media(prefers-reduced-motion:reduce){.hl-tr .hl-w,.hl-tr .hl-lbl{transition:none}}
 .hl-tr .hl-txt,.hl-tr .hl-lbl{text-shadow:0 0 .22em #fff,0 0 .5em #fff,0 0 .9em rgba(255,255,255,.9)}
