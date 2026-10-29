@@ -350,3 +350,4 @@ a.card[href$="flourish.html"] .frame img{width:100%;height:100%;object-fit:cover
 a[href$="flourish.html"] img{object-position:22% 50%}
 .film-main .log-body{margin-top:clamp(20px,3vw,36px)}.film-main .log-body p{font-size:clamp(16px,1.25vw,19px);line-height:1.6;color:#b8b5af;max-width:62ch;margin:0 0 1.1em}
 .side-btns{margin-top:28px}
+@media(max-width:800px){.poster img{max-width:min(170px,46vw);max-height:260px}}
