@@ -366,11 +366,16 @@
     if (started) return; started = true;
     var total = build(!reduce);
     tr = document.createElement('span'); tr.className = 'hl-tr'; tr.setAttribute('aria-label', 'Translation: ' + TXT);
-    tr.innerHTML = '<span class="hl-txt" aria-hidden="true">' +
-      ('Translation: ' + TXT).split(' ').map(function (w, i) { return '<span class="hl-w' + (i === 0 ? ' hl-key' : '') + '" style="transition-delay:' + (i * 45) + 'ms">' + w + '</span>'; }).join(' ') + '</span>';
+    var all = ('Translation: ' + TXT).split(' ');
+    tr.innerHTML = '<span class="hl-txt" aria-hidden="true">' + all.map(function (w, i) {
+      return '<span class="hl-w' + (i === 0 ? ' hl-key' : '') + (i >= all.length - 5 ? ' hl-love' : '') + '" style="transition-delay:' + (i * 45) + 'ms">' + w + '</span>';
+    }).join(' ') + '</span>';
     h.appendChild(tr);
-    if (reduce) { tr.classList.add('on'); return; }
+    var rec = document.querySelector('.a-recog');
+    var showRec = function (d) { if (rec) timers.push(setTimeout(function () { rec.classList.add('on'); }, d)); };
+    if (reduce) { tr.classList.add('on'); if (rec) rec.classList.add('on'); return; }
     timers.push(setTimeout(function () { tr.classList.add('on'); }, Math.max(0, total * 1000 - 125)));
+    showRec(Math.max(0, total * 1000 - 125) + 12 * 45 + 900 + 1000);   // after the translation has sat for a second
   }
   addEventListener('resize', function () { if (started) build(false); });
   var go = function () { timers.push(setTimeout(start, 2000)); };
