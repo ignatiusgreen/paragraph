@@ -327,7 +327,7 @@
   var rnd = function (a, b) { return a + Math.random() * (b - a); };
   function ragged() {   // uneven, hand-painted top and bottom edges
     var xs = [0, 18, 38, 58, 80, 100], top = [], bot = [];
-    xs.forEach(function (x) { top.push(x + '% ' + rnd(0, 14).toFixed(1) + '%'); bot.unshift(x + '% ' + (100 - rnd(0, 14)).toFixed(1) + '%'); });
+    xs.forEach(function (x) { top.push(x + '% ' + rnd(0, 8).toFixed(1) + "%"); bot.unshift(x + '% ' + (100 - rnd(0, 7)).toFixed(1) + '%'); });
     return 'polygon(' + top.concat(bot).join(',') + ')';
   }
   var layer = null, ends = 0, anims = [];
@@ -338,7 +338,7 @@
     lineRects().forEach(function (l, i) {
       var dab = function (x0, x1, delay, dur, fromRight, extraTop) {
         var b = document.createElement('span'); b.className = 'hl-bar';
-        var hh = l.height * rnd(0.98, 1.16), t = l.top - (hh - l.height) / 2 + rnd(-3, 3) + (extraTop || 0);
+        var hh = l.height * rnd(1.08, 1.22), t = l.top - (hh - l.height) / 2 + rnd(-3, 3) + (extraTop || 0);
         b.style.cssText = 'top:' + t + 'px;height:' + hh + 'px;left:' + x0 + 'px;width:' + (x1 - x0) + 'px;clip-path:' + ragged() + ';transform-origin:' + (fromRight ? '100%' : '0') + ' 50%;';
         layer.appendChild(b);
         var rot = rnd(-0.7, 0.7);
@@ -366,8 +366,8 @@
     if (started) return; started = true;
     var total = build(!reduce);
     tr = document.createElement('span'); tr.className = 'hl-tr'; tr.setAttribute('aria-label', 'Translation: ' + TXT);
-    tr.innerHTML = '<span class="hl-lbl" aria-hidden="true">Translation:</span><span class="hl-txt" aria-hidden="true">' +
-      TXT.split(' ').map(function (w, i) { return '<span class="hl-w" style="transition-delay:' + (i * 70) + 'ms">' + w + '</span>'; }).join(' ') + '</span>';
+    tr.innerHTML = '<span class="hl-txt" aria-hidden="true">' +
+      ('Translation: ' + TXT).split(' ').map(function (w, i) { return '<span class="hl-w' + (i === 0 ? ' hl-key' : '') + '" style="transition-delay:' + (i * 45) + 'ms">' + w + '</span>'; }).join(' ') + '</span>';
     h.appendChild(tr);
     if (reduce) { tr.classList.add('on'); return; }
     timers.push(setTimeout(function () { tr.classList.add('on'); }, Math.max(0, total * 1000 - 125)));

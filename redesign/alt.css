@@ -638,3 +638,6 @@ html.screening .lb-x{cursor:pointer}
   .wgrid.three .wc{font-size:17px;line-height:1.15}
   .wgrid.three .wf{font-size:11px;margin-top:6px;letter-spacing:.1em}
 }
+
+.hl-tr .hl-key{font-style:italic}
+.hl-tr .hl-txt{max-width:22ch}
