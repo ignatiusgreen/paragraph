@@ -345,3 +345,7 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 .mq-films .mq-track{padding:0 0 12px}
 .mq-films .card{flex:0 0 clamp(200px,19vw,300px)}
 @media(prefers-reduced-motion:reduce){.marquee{overflow-x:auto;touch-action:auto}}
+a[href$="the-dali-heist.html"] img{object-position:78% 50%}
+a.card[href$="flourish.html"] .frame,a.card[href$="the-dali-heist.html"] .frame{aspect-ratio:2/3}
+a.card[href$="flourish.html"] .frame img,a.card[href$="the-dali-heist.html"] .frame img{width:100%;height:100%;object-fit:cover}
+a[href$="flourish.html"] img{object-position:32% 50%}
