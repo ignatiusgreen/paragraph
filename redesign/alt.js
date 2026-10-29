@@ -253,7 +253,8 @@
   function tick(now) {
     var dt = Math.min(48, now - last) / 16.67; last = now;
     if (!drag || drag.dir !== 'x') v += (target - v) * (Math.abs(v) > Math.abs(base) * 2 ? 0.035 : 0.06);
-    var half = track.scrollWidth / 2;
+    var dup = track.querySelector('[data-dup]'), first = track.firstElementChild;
+    var half = dup ? dup.offsetLeft - first.offsetLeft : track.scrollWidth / 2;   // exact width of one set of cards
     if (!drag || drag.dir !== 'x') x -= v * dt;
     while (x <= -half) x += half; while (x > 0) x -= half;
     track.style.transform = 'translate3d(' + x.toFixed(1) + 'px,0,0)';
