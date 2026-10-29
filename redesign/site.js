@@ -8,8 +8,16 @@
   function onScroll() { hdr.classList.toggle('solid', !hasHero || scrollY > 40); }
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
   var nav = document.getElementById('nav'), mb = nav.querySelector('.menu-btn');
-  mb.addEventListener('click', function () { var o = nav.classList.toggle('open'); mb.setAttribute('aria-expanded', o); });
-  nav.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { nav.classList.remove('open'); }); });
+  function setMenu(o) {
+    nav.classList.toggle('open', o); mb.setAttribute('aria-expanded', o);
+    document.documentElement.classList.toggle('menu-open', o);
+    var path = mb.querySelector('svg path'); if (path) path.setAttribute('d', o ? 'M4 0l14 14M4 14L18 0' : 'M0 1h22M0 7h22M0 13h22');
+    if (window.__lenis) { o ? window.__lenis.stop() : window.__lenis.start(); }
+  }
+  mb.addEventListener('click', function () { setMenu(!nav.classList.contains('open')); });
+  nav.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+  addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && nav.classList.contains('open')) setMenu(false); });
+  addEventListener('resize', function () { if (innerWidth > 800 && nav.classList.contains('open')) setMenu(false); });
 
   // Hero: rotating slides, each with its trailer looping silently behind the title
   var slides = [].slice.call(document.querySelectorAll('.hero .slide'));
