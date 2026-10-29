@@ -305,3 +305,50 @@
   });
   if (location.hash) addEventListener('load', function () { setTimeout(function () { go(location.hash, true); }, 60); });
 })();
+
+// ABOUT: highlighter-pen cover over the statement, then the plain-English translation
+(function () {
+  var h = document.querySelector('.about-page .a-hero h1.statement-h'); if (!h) return;
+  var inner = h.querySelector('.line > span'); if (!inner) return;
+  var TXT = 'We tell stories with images. And we love doing it.';
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var bars = [], tr = null, started = false, timers = [];
+  function lineRects() {
+    var r = document.createRange(); r.selectNodeContents(inner);
+    var hb = h.getBoundingClientRect(), out = [];
+    [].forEach.call(r.getClientRects(), function (q) {
+      if (q.width < 4) return;
+      var top = q.top - hb.top, last = out[out.length - 1];
+      if (last && Math.abs(last.top - top) < q.height * 0.5) { var l = Math.min(last.left, q.left - hb.left), rr = Math.max(last.right, q.right - hb.left); last.left = l; last.right = rr; }
+      else out.push({ top: top, height: q.height, left: q.left - hb.left, right: q.right - hb.left });
+    });
+    return out;
+  }
+  function build(on) {
+    bars.forEach(function (b) { b.remove(); }); bars = [];
+    var pad = Math.max(4, parseFloat(getComputedStyle(h).fontSize) * 0.12);
+    lineRects().forEach(function (l, i) {
+      var b = document.createElement('span'); b.className = 'hl-bar' + (on ? ' on' : ''); b.setAttribute('aria-hidden', 'true');
+      b.style.cssText = 'top:' + (l.top - 2) + 'px;height:' + (l.height + 4) + 'px;left:' + (l.left - pad) + 'px;width:' + (l.right - l.left + pad * 2) + 'px;' + (on ? 'transition:none;' : 'transition-delay:' + (i * 0.5) + 's;');
+      h.appendChild(b); bars.push(b);
+    });
+    return bars.length;
+  }
+  function start() {
+    if (started) return; started = true;
+    var n = build(reduce);
+    tr = document.createElement('span'); tr.className = 'hl-tr'; tr.setAttribute('aria-label', 'Translation: ' + TXT);
+    tr.innerHTML = '<span class="hl-lbl" aria-hidden="true">Translation:</span><span class="hl-txt" aria-hidden="true">' +
+      TXT.split(' ').map(function (w, i) { return '<span class="hl-w" style="transition-delay:' + (i * 70) + 'ms">' + w + '</span>'; }).join(' ') + '</span>';
+    h.appendChild(tr);
+    if (reduce) { tr.classList.add('on'); return; }
+    void h.offsetWidth;
+    bars.forEach(function (b) { b.classList.add('on'); });
+    timers.push(setTimeout(function () { tr.classList.add('on'); }, Math.max(0, (n - 1) * 500) + 450));
+  }
+  addEventListener('resize', function () { if (started) { var done = bars.length && bars[0].classList.contains('on'); build(true); } });
+  var go = function () { timers.push(setTimeout(start, 2000)); };
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
+    if (document.readyState === 'complete') go(); else addEventListener('load', go);
+  });
+})();
