@@ -311,3 +311,6 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
 
 /* no thin horizontal divider lines */
 .sec-head,.about-row,.facts,.fine,.no-letter{border-top:0!important}
+
+/* film pages: breathing room between stills and More films */
+.more-films{margin-top:clamp(120px,14vw,240px)}
