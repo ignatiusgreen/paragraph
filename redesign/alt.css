@@ -671,5 +671,5 @@ html.screening .lb-x{cursor:pointer}
 .rc-bigsky img{height:clamp(72px,9vw,118px)}@media(max-width:600px){.rc-bigsky img{height:84px}}
 .rc-row .rc-vimeo img{filter:none;height:clamp(60px,7vw,92px)}
 .rc-row .rc-bigsky img{height:clamp(50px,5.6vw,74px)}@media(max-width:600px){.rc-row .rc-bigsky img{height:58px;max-width:100%}}
-.rc-thr img{height:auto;width:clamp(110px,11vw,160px)}@media(max-width:600px){.rc-thr img{width:140px}}
+.rc-adage img{height:auto;width:clamp(80px,7.5vw,108px)}@media(max-width:600px){.rc-adage img{width:92px}}
 @media(min-width:900px){.rc-row{flex-wrap:wrap;max-width:1080px;gap:44px clamp(36px,5vw,72px)}.rc-row li{flex:0 0 auto}}
