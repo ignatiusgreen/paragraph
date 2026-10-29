@@ -625,3 +625,16 @@ html.screening .lb-x{cursor:pointer}
 .hl-tr.on .hl-w{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.hl-tr .hl-w,.hl-tr .hl-lbl{transition:none}}
 .hl-tr .hl-txt,.hl-tr .hl-lbl{text-shadow:0 0 .22em #fff,0 0 .5em #fff,0 0 .9em rgba(255,255,255,.9)}
+
+/* mobile Branded: thumbnails two per row, no per-thumbnail reveal animations */
+@media(max-width:760px){
+  .wgrid.three{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;row-gap:32px}
+  .wgrid.three .wi[data-reveal],.wgrid.three .wm[data-reveal]{clip-path:none!important;opacity:1!important;transform:none!important;transition:none!important}
+  .wgrid.three .wi img,.wgrid.three .wi.in img{transform:none!important;transition:none!important}
+  .wgrid.three .wi{aspect-ratio:4/5}
+  .wgrid.three .wm{grid-template-columns:1fr;margin-top:10px}
+  .wgrid.three .wn{display:none}
+  .wgrid.three .wt{font-size:17px}
+  .wgrid.three .wc{font-size:17px;line-height:1.15}
+  .wgrid.three .wf{font-size:11px;margin-top:6px;letter-spacing:.1em}
+}
