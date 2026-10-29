@@ -661,3 +661,8 @@ html.screening .lb-x{cursor:pointer}
 .rc-webby img{height:clamp(54px,6.4vw,84px)}
 .rc-rt img{height:clamp(60px,7vw,92px)}
 @media(min-width:900px){.rc-row{max-width:1360px;gap:28px clamp(24px,3.4vw,56px);flex-wrap:nowrap}}
+
+/* Branded: the company we keep — logo grid, black on white */
+.a-keep{padding-top:clamp(40px,8vh,100px);padding-bottom:clamp(60px,12vh,150px);text-align:center}
+.a-keep .lbl{text-align:center;margin-bottom:clamp(16px,4vh,48px)}
+.keep-grid{display:block;width:min(100%,1100px);height:auto;margin:0 auto;filter:brightness(0)}
