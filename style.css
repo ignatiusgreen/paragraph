@@ -352,3 +352,6 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 .side-btns{margin-top:28px}
 @media(max-width:800px){.poster img{max-width:min(170px,46vw);max-height:260px}}
 .cta.solid.watch{background:#0d5a62;border-color:#0d5a62;color:#fff}.cta.solid.watch:hover{background:#13777f;border-color:#13777f;color:#fff}body.lightzone .cta.solid.watch,body.lightzone .cta.solid.watch:hover{color:#fff}
+
+/* desktop: the cursor shows the play triangle on hover, so hide the baked-in one (kept on mobile) */
+@media(min-width:801px){.play-icon{display:none!important}}
