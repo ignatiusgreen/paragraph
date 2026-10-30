@@ -70,13 +70,14 @@
     if (cur.yt) {
       var i = d.info || {};
       if (typeof i.currentTime === 'number') setTime(i.currentTime, i.duration);
-      if (typeof i.playerState === 'number') { if (i.playerState === 1) setPlaying(true); if (i.playerState === 2 || i.playerState === 0) setPlaying(false); }
+      if (typeof i.playerState === 'number') { if (i.playerState === 1) setPlaying(true); if (i.playerState === 2 || i.playerState === 0) setPlaying(false); if (i.playerState === 0 && !lb.hidden) close(); }
       return;
     }
-    if (d.event === 'ready') ['timeupdate', 'play', 'pause', 'ended'].forEach(function (e) { send({ method: 'addEventListener', value: e }); });
+    if (d.event === 'ready') ['timeupdate', 'play', 'pause', 'ended', 'finish'].forEach(function (e) { send({ method: 'addEventListener', value: e }); });
     if ((d.event === 'timeupdate' || d.event === 'playProgress') && d.data) setTime(d.data.seconds, d.data.duration);   // Vimeo reports progress as playProgress
     if (d.event === 'play') setPlaying(true);
-    if (d.event === 'pause' || d.event === 'ended') setPlaying(false);
+    if (d.event === 'pause' || d.event === 'ended' || d.event === 'finish') setPlaying(false);
+    if ((d.event === 'ended' || d.event === 'finish') && !lb.hidden) close();   // skip the end-screen suggestions: close when the video finishes
   });
   function open(src, title) {
     lastFocus = document.activeElement;
@@ -85,7 +86,7 @@
     cur = { f: f, yt: isYT(src), playing: true, muted: false, dur: 0, t: 0 }; setPlaying(true); setMuted(false); setTime(0);
     f.addEventListener('load', function () {
       if (cur.yt) send({ event: 'listening' });
-      else ['timeupdate', 'play', 'pause', 'ended'].forEach(function (e) { send({ method: 'addEventListener', value: e }); });
+      else ['timeupdate', 'play', 'pause', 'ended', 'finish'].forEach(function (e) { send({ method: 'addEventListener', value: e }); });
     });
     lb.hidden = false; requestAnimationFrame(function () { lb.classList.add('on'); });
     if (window.__lenis) window.__lenis.stop();
