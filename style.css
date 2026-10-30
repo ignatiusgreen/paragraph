@@ -355,3 +355,6 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 
 /* desktop: the cursor shows the play triangle on hover, so hide the baked-in one (kept on mobile) */
 @media(min-width:801px){.play-icon{display:none!important}}
+
+/* years removed from film thumbnails */
+.card .yr,.pf .wc,.wk .wc,.wc{display:none!important}
