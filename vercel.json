@@ -1,94 +1,211 @@
 {
   "cleanUrls": false,
   "trailingSlash": false,
-  "rewrites": [
+  "redirects": [
+    {
+      "source": "/redesign",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/redesign/:path*",
+      "destination": "/:path*",
+      "permanent": true
+    },
     {
       "source": "/entertainment",
-      "destination": "/film-tv.html"
+      "destination": "/film-tv.html",
+      "permanent": true
     },
     {
       "source": "/brand",
-      "destination": "/branded.html"
+      "destination": "/branded.html",
+      "permanent": true
     },
+    {
+      "source": "/nike-case-study",
+      "destination": "/brands/nike.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/birth-camera-phone",
+      "destination": "/films/birth-camera-phone.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-birth-camera-phone.html",
+      "destination": "/films/birth-camera-phone.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/bitconned",
+      "destination": "/films/bitconned.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-bitconned.html",
+      "destination": "/films/bitconned.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/bookseller",
+      "destination": "/films/bookseller.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-bookseller.html",
+      "destination": "/films/bookseller.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/dickweed",
+      "destination": "/films/dickweed.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-dickweed.html",
+      "destination": "/films/dickweed.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/lottery",
+      "destination": "/films/lottery.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-lottery.html",
+      "destination": "/films/lottery.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/mississippi",
+      "destination": "/films/mississippi.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-mississippi.html",
+      "destination": "/films/mississippi.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/mr-ingram",
+      "destination": "/films/mr-ingram.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-mr-ingram.html",
+      "destination": "/films/mr-ingram.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/pez",
+      "destination": "/films/pez.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-pez.html",
+      "destination": "/films/pez.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/relay",
+      "destination": "/films/relay.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-relay.html",
+      "destination": "/films/relay.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/social-animals",
+      "destination": "/films/social-animals.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-social-animals.html",
+      "destination": "/films/social-animals.html",
+      "permanent": true
+    },
+    {
+      "source": "/entertainment/cashman",
+      "destination": "/film-tv.html",
+      "permanent": true
+    },
+    {
+      "source": "/film-cashman.html",
+      "destination": "/film-tv.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand/fsc",
+      "destination": "/brands/fsc.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand-fsc.html",
+      "destination": "/brands/fsc.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand/google",
+      "destination": "/brands/google.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand-google.html",
+      "destination": "/brands/google.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand/nike-dream",
+      "destination": "/brands/nike-story-platform.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand-nike-dream.html",
+      "destination": "/brands/nike-story-platform.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand/purina",
+      "destination": "/brands/purina.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand-purina.html",
+      "destination": "/brands/purina.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand/uber-grammys",
+      "destination": "/brands/uber.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand-uber-grammys.html",
+      "destination": "/brands/uber.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand/warp",
+      "destination": "/branded.html",
+      "permanent": true
+    },
+    {
+      "source": "/brand-warp.html",
+      "destination": "/branded.html",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
     {
       "source": "/about",
       "destination": "/about.html"
     },
     {
-      "source": "/nike-case-study",
-      "destination": "/nike-case-study.html"
-    },
-    {
       "source": "/archive",
       "destination": "/archive.html"
-    },
-    {
-      "source": "/entertainment/birth-camera-phone",
-      "destination": "/film-birth-camera-phone.html"
-    },
-    {
-      "source": "/entertainment/bitconned",
-      "destination": "/film-bitconned.html"
-    },
-    {
-      "source": "/entertainment/bookseller",
-      "destination": "/film-bookseller.html"
-    },
-    {
-      "source": "/entertainment/cashman",
-      "destination": "/film-cashman.html"
-    },
-    {
-      "source": "/entertainment/dickweed",
-      "destination": "/film-dickweed.html"
-    },
-    {
-      "source": "/entertainment/lottery",
-      "destination": "/film-lottery.html"
-    },
-    {
-      "source": "/entertainment/mississippi",
-      "destination": "/film-mississippi.html"
-    },
-    {
-      "source": "/entertainment/mr-ingram",
-      "destination": "/film-mr-ingram.html"
-    },
-    {
-      "source": "/entertainment/pez",
-      "destination": "/film-pez.html"
-    },
-    {
-      "source": "/entertainment/relay",
-      "destination": "/film-relay.html"
-    },
-    {
-      "source": "/entertainment/social-animals",
-      "destination": "/film-social-animals.html"
-    },
-    {
-      "source": "/brand/fsc",
-      "destination": "/brand-fsc.html"
-    },
-    {
-      "source": "/brand/google",
-      "destination": "/brand-google.html"
-    },
-    {
-      "source": "/brand/nike-dream",
-      "destination": "/brand-nike-dream.html"
-    },
-    {
-      "source": "/brand/purina",
-      "destination": "/brand-purina.html"
-    },
-    {
-      "source": "/brand/uber-grammys",
-      "destination": "/brand-uber-grammys.html"
-    },
-    {
-      "source": "/brand/warp",
-      "destination": "/brand-warp.html"
     },
     {
       "source": "/archive/3m",

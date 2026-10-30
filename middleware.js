@@ -8,7 +8,7 @@ export const config = { matcher: ['/archive(.*)'] };
 const FULL = 'pg_archive';      // cookie: signed in with the password
 const GRANT = 'pg_share';       // cookie: projects opened from shared links
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
-const SITE = '/redesign/';   // where the public site lives (change to '/' when the redesign goes live)
+const SITE = '/';   // where the public site lives (change to '/' when the redesign goes live)
 
 const PROJECTS = [
  {
@@ -517,7 +517,7 @@ function page(body, status, cookies = []) {
 <title>Archive — Paragraph</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@400;500;600;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/redesign/archive.css">
+<link rel="stylesheet" href="/archive.css">
 </head>
 <body>
 <header>
