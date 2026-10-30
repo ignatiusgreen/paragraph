@@ -96,3 +96,13 @@ label.pick input:focus-visible + .tile img{outline:2px solid var(--fg);outline-o
 .ahead h1{margin-bottom:0}
 .ahead .actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .ahead .actions .enter{margin-top:0}
+
+/* click-to-play cover (from main) */
+.play-cover{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#000;cursor:pointer;display:block}
+.play-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.play-cover::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.12);transition:background .3s}
+.play-icon{position:absolute;left:50%;top:50%;z-index:1;width:clamp(36px,3.6vw,56px);transform:translate(-40%,-50%);color:#fff;transition:transform .35s ease;filter:drop-shadow(0 1px 8px rgba(0,0,0,.35))}
+.play-icon svg{display:block;width:100%;height:auto;overflow:visible}
+.play-cover:hover img{transform:scale(1.02)}.play-cover:hover::after{background:rgba(0,0,0,.25)}
+.play-cover:hover .play-icon{transform:translate(-40%,-50%) scale(1.08)}
+.play-cover:focus-visible{outline:2px solid #fff;outline-offset:-6px}

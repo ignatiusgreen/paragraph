@@ -634,15 +634,18 @@ function reelBody(ids) {
     `<button type="button" class="tile" data-i="${i}" aria-pressed="${i === 0}" aria-label="Play ${esc(v.title || v.project)}"><img src="${esc(v.thumb)}" alt="" loading="lazy"><span>${esc(v.project)}<small>${esc(v.title && v.title !== v.project ? v.title : '')}</small></span></button>`).join('')}</div>` : '';
   return `<div class="card wide"><div class="rule" aria-hidden="true"></div><div class="label">Selected work</div>
     <h1>${list.length > 1 ? 'A few projects, <em>picked for you.</em>' : 'A project, <em>picked for you.</em>'}</h1>
-    <div class="player" id="player"><iframe id="frame" src="${esc(first.src)}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen title="${esc(first.title || first.project)}"></iframe></div>
+    <div class="player" id="player"><button type="button" class="play-cover" id="cover" aria-label="Play ${esc(first.title || first.project)}"><img src="${esc(first.thumb)}" alt=""><span class="play-icon" aria-hidden="true"><svg viewBox="0 0 66 98"><polygon points="1.5,1.5 64.5,49 1.5,96.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button></div>
     <div class="nowbar"><div class="now" id="now">${esc(first.project)}${first.title && first.title !== first.project ? `<small>${esc(first.title)}</small>` : ''}</div></div>
     ${tiles}
     <a class="back" href="${SITE}index.html">← Back to Paragraph</a></div>
   <script>(function(){
-    var V=${data},frame=document.getElementById('frame'),now=document.getElementById('now');
+    var V=${data},player=document.getElementById('player'),now=document.getElementById('now');
     function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
+    function play(v){var f=document.createElement('iframe');f.src=v.src+(v.src.indexOf('?')<0?'?':'&')+'autoplay=1';f.title=v.title||v.project;
+      f.allow='autoplay; fullscreen; picture-in-picture; encrypted-media';f.setAttribute('allowfullscreen','');player.innerHTML='';player.appendChild(f);}
+    document.getElementById('cover').addEventListener('click',function(){play(V[0]);});
     [].forEach.call(document.querySelectorAll('button.tile'),function(t){t.addEventListener('click',function(){
-      var i=+t.dataset.i,v=V[i];frame.src=v.src+(v.src.indexOf('?')<0?'?':'&')+'autoplay=1';frame.title=v.title||v.project;
+      var i=+t.dataset.i,v=V[i];play(v);
       now.innerHTML=esc(v.project)+(v.title&&v.title!==v.project?'<small>'+esc(v.title)+'</small>':'');
       [].forEach.call(document.querySelectorAll('button.tile'),function(x){x.setAttribute('aria-pressed',String(x===t));});
       document.getElementById('player').scrollIntoView({behavior:'smooth',block:'start'});});});
