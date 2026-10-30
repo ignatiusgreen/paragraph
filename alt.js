@@ -388,7 +388,7 @@
     timers.push(setTimeout(showRec, Math.max(0, total * 1000 - 125) + 12 * 45 + 900));   // top animation finished; the section now appears as it scrolls into view
   }
   addEventListener('resize', function () { if (started) build(false); });
-  var go = function () { timers.push(setTimeout(start, 2300)); };
+  var go = function () { timers.push(setTimeout(start, 3300)); };
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
     if (document.readyState === 'complete') go(); else addEventListener('load', go);
   });
