@@ -687,4 +687,4 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 @media(max-width:800px){.a-quote{padding:7vh 16px 6vh}.a-quote cite{margin-top:22px}.a-intro:has(+.a-quote){padding-bottom:2vh}.a-quote + .a-films{padding-top:0}}
 
 /* years removed from film thumbnails */
-.card .yr,.pf .wc,.wk .wc,.wc{display:none!important}
+.card .yr,a.pf .wc{display:none!important}

@@ -357,4 +357,4 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 @media(min-width:801px){.play-icon{display:none!important}}
 
 /* years removed from film thumbnails */
-.card .yr,.pf .wc,.wk .wc,.wc{display:none!important}
+.card .yr,a.pf .wc{display:none!important}
