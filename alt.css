@@ -270,7 +270,7 @@ img[src*="/img/the-chosen.jpg"]{object-position:28% 50%}
 .harrows button:hover{color:#0e9fae}
 .hprog{position:absolute;left:clamp(16px,3vw,40px);right:clamp(16px,3vw,40px);top:0;height:1px;background:var(--line,#dcd9d3)}
 .hprog span{display:block;height:100%;width:0;background:var(--pfg)}
-@media(max-width:800px){.hc,.hc .hn,.hc .ht,.hc .go{grid-column:1/-1}.hc{grid-template-columns:1fr;gap:8px}.harrows{grid-column:1/-1;grid-row:2;justify-self:start}.hcaps{grid-template-columns:1fr;min-height:220px}}
+@media(max-width:800px){.hc,.hc .hn,.hc .ht,.hc .go{grid-column:1/-1}.hc{grid-template-columns:1fr;gap:8px}.harrows{grid-column:1/-1;grid-row:1;justify-self:end;align-self:start;margin-top:-6px;margin-right:-10px;position:relative;z-index:2}.hcaps{grid-template-columns:1fr;min-height:220px}}
 .mh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6vh}
 .mh .lbl{margin-bottom:0}
 .mh .all{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pmute)}
