@@ -678,5 +678,5 @@ html.screening .lb-x{cursor:pointer}
 @media(max-width:700px){.hl-tr .hl-ln{white-space:normal;text-wrap:balance}}
 .hl-tr .hl-txt{max-width:none}
 @media(max-width:700px){.hl-tr .hl-txt{max-width:22ch}}
-a[href$="flourish.html"] img{object-position:22% 50%}
+a[href$="flourish.html"] img{object-position:52% 50%}
 @media(min-width:801px){.pf-stage:not(.bs) .pf5{display:none}}
