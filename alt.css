@@ -690,3 +690,6 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 
 /* years removed from film thumbnails */
 .card .yr,a.pf .wc{display:none!important}
+
+/* small italic aside under the "Have a story worth telling?" headline */
+.a-talk .aside-it{font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-weight:400;text-transform:none;letter-spacing:0;font-size:clamp(22px,2.3vw,34px);line-height:1.15;margin-top:18px;opacity:.8}
