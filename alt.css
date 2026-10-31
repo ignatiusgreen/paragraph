@@ -665,7 +665,9 @@ html.screening .lb-x{cursor:pointer}
 /* Branded: the company we keep — logo grid, black on white */
 .a-keep{padding-top:clamp(40px,8vh,100px);padding-bottom:clamp(60px,12vh,150px);text-align:center}
 .a-keep .lbl{text-align:center;margin-bottom:clamp(16px,4vh,48px)}
-.keep-grid{display:block;width:min(100%,1100px);height:auto;margin:0 auto;filter:brightness(0)}
+.keep-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 0;width:min(100%,760px);margin:0 auto}
+.keep-grid img{display:block;width:100%;height:auto}
+@media(max-width:800px){.keep-grid{grid-template-columns:repeat(3,1fr);width:100%}}
 .rc-bigsky img{height:clamp(66px,8.4vw,108px)}
 .rc-bigsky img{height:clamp(58px,7vw,92px)}
 .rc-bigsky img{height:clamp(72px,9vw,118px)}@media(max-width:600px){.rc-bigsky img{height:84px}}
