@@ -21,6 +21,7 @@
     var isGo = !!(lk && lk.getAttribute('href') && lk.getAttribute('href') !== '#');
     if (isGo) {
       var dc = lk.closest('[data-cursor]'), lab = (dc && dc.getAttribute('data-cursor')) || (/(^|\/)films\//.test(lk.getAttribute('href')) ? 'View film' : 'View project');
+      if (/flourish\.html/.test(lk.getAttribute('href'))) lab = 'View series';   // documentary series
       if (lab !== dot._lab) { dot._lab = lab; dot.firstChild.innerHTML = lab.replace(' ', '<br>'); }
     }
     dot.classList.toggle('go', isGo);
