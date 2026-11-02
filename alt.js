@@ -71,7 +71,11 @@
         } else el.classList.add('in');
       });
     }, { rootMargin: '0px 0px -12% 0px' });
-    reveals.forEach(function (el) { io.observe(el); });
+    // project grid thumbs/descriptions start as soon as they peek in, so scrolling never waits on them
+    var ioG = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { if (en.isIntersecting) { ioG.unobserve(en.target); en.target.classList.add('in'); } });
+    }, { rootMargin: '0px 0px -2% 0px' });
+    reveals.forEach(function (el) { (el.closest && el.closest('.wgrid') ? ioG : io).observe(el); });
   } else reveals.forEach(function (el) { el.classList.add('in'); el.querySelectorAll('.w').forEach(function (w) { w.classList.add('in'); }); });
 
   // Scroll-linked motion: hero frame widens to full bleed; stills drift at different speeds
@@ -198,12 +202,12 @@
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   function cols() { return getComputedStyle(grid).gridTemplateColumns.split(' ').length || 4; }
   function shown() { return cards.filter(function (c) { return !c.classList.contains('hide'); }); }
-  function stagger() { var n = cols(); shown().forEach(function (c, i) { c.style.setProperty('--d', ((i % n) * 0.14).toFixed(2) + 's'); }); }
+  function stagger() { var n = cols(); shown().forEach(function (c, i) { c.style.setProperty('--d', ((i % n) * 0.07).toFixed(2) + 's'); }); }
   stagger();
   if (reduce || !('IntersectionObserver' in window)) { cards.forEach(function (c) { c.classList.add('on'); }); }
   var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
     es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('on'); io.unobserve(en.target); } });
-  }, { rootMargin: '0px 0px -10% 0px' }) : null;
+  }, { rootMargin: '0px 0px -2% 0px' }) : null;
   if (io && !reduce) cards.forEach(function (c) { io.observe(c); });
   if (!bar) return;
   bar.addEventListener('click', function (ev) {
