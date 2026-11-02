@@ -303,7 +303,7 @@ img[src*="/img/the-chosen.jpg"]{object-position:28% 50%}
 
 /* ALT home v2: black page, white Branded band, faster slides, clickable carousel */
 body.home-alt{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
-.home-alt .hm{padding-top:96px}
+.home-alt .hm{padding-top:0}
 .home-alt .hs{transition:opacity .7s ease}
 .home-alt .hs.novid>img:first-child{animation:kb 14s ease-in-out infinite alternate}
 @keyframes kb{from{transform:scale(var(--zoom,1.15))}to{transform:scale(calc(var(--zoom,1.15) + .06)) translateX(-1.5%)}}
@@ -322,7 +322,7 @@ body.home-alt{--pbg:#0a0a0a;--pfg:#f2efe9;--pmute:#9a968e;--logo-inv:0}
 .a-brandlist .clients:hover .name{color:#cfccc6}
 .a-brandlist .clients li a:hover .name{color:var(--pfg)}
 .a-brandlist .clients .name{font-weight:500}
-.home-alt .hframe{aspect-ratio:auto;height:min(56.25vw,calc(100vh - 260px));min-height:320px}
+.home-alt .hframe{aspect-ratio:auto;height:calc(min(56.25vw,calc(100vh - 260px)) + 96px);min-height:416px}   /* runs to the top of the page, under the nav */
 .home-alt .pf1,.home-alt .pf3{margin-top:0}
 .home-alt .pf .pt{display:none}
 
@@ -698,3 +698,6 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 
 /* Branded work grid: description reveals faster */
 .wgrid .wm[data-reveal]{transition-duration:.6s}
+
+/* home: hero image runs under the nav, no bar */
+@media(max-width:800px){body.home-alt header,body.home-alt header.solid{background:linear-gradient(to bottom,rgba(10,10,10,.55),rgba(10,10,10,0))!important;backdrop-filter:none!important}}
