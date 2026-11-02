@@ -325,7 +325,7 @@ img[src*="Nike_v2.jpg"]{object-position:36% 22%!important}
   @keyframes menuIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 }
 
-.award-badge{display:inline-flex;align-items:center;justify-content:center;background:#000;padding:22px 30px;margin-top:36px}
+.award-badge{display:inline-flex;align-items:center;justify-content:center;background:none;padding:0;margin-top:36px}
 .award-badge img{height:84px;width:auto;display:block;filter:brightness(0) invert(1)}
 
 /* rollover over any image that links to another page: the usual pixel-inverting ball, with an arrow cut out of it that draws itself in */
