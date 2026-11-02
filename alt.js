@@ -378,18 +378,14 @@
     });
     tr.innerHTML = '<span class="hl-txt" aria-hidden="true">' + lines.map(function (l) { return '<span class="hl-ln">' + l.join(' ') + '</span>'; }).join('') + '</span>';
     h.appendChild(tr);
-    var rec = document.querySelector('.a-recog');
-    var animDone = false, inView = false, shown = false;
-    function maybeShow() { if (rec && animDone && inView && !shown) { shown = true; rec.classList.add('on'); } }
-    if (rec) {
-      if ('IntersectionObserver' in window) {
-        new IntersectionObserver(function (es) { es.forEach(function (en) { inView = en.isIntersecting; maybeShow(); }); }, { rootMargin: '0px 0px -30% 0px' }).observe(rec);
-      } else inView = true;
-    }
-    var showRec = function () { animDone = true; maybeShow(); };
-    if (reduce) { tr.classList.add('on'); animDone = true; inView = true; maybeShow(); return; }
+    if (reduce) { tr.classList.add('on'); return; }
     timers.push(setTimeout(function () { tr.classList.add('on'); }, Math.max(0, total * 1000 - 125)));
-    timers.push(setTimeout(showRec, Math.max(0, total * 1000 - 125) + 12 * 45 + 900));   // top animation finished; the section now appears as it scrolls into view
+  }
+  // Recognition grid: appears as soon as the visitor scrolls it into view, independent of the top animation
+  var rec = document.querySelector('.a-recog');
+  if (rec) {
+    if (reduce || !('IntersectionObserver' in window)) rec.classList.add('on');
+    else { var rio = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { rec.classList.add('on'); rio.disconnect(); } }); }, { rootMargin: '0px 0px -12% 0px' }); rio.observe(rec); }
   }
   addEventListener('resize', function () { if (started) build(false); });
   var go = function () { timers.push(setTimeout(start, 3300)); };
