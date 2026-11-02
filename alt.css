@@ -237,7 +237,7 @@ img[src*="/img/the-chosen.jpg"]{object-position:28% 50%}
 @media(max-width:800px){.a-rec{grid-template-columns:1fr}}
 .a-bts{padding-top:20vh;padding-bottom:16vh}
 .bts-row{margin-bottom:36px}
-.bts{flex:0 0 auto;height:clamp(260px,34vw,480px);scroll-snap-align:start;overflow:hidden;background:#eee}
+.bts{flex:0 0 auto;height:clamp(130px,17vw,240px);scroll-snap-align:start;overflow:hidden;background:#eee}
 .bts img{height:100%;width:auto;display:block;pointer-events:none}
 .a-contacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
 .a-contacts .lbl{display:block;margin-bottom:14px;margin-bottom:14px}
