@@ -369,3 +369,8 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 .stills{overflow:hidden}
 .stills .still{overflow:visible}
 .stills .still img{inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px)}
+
+/* film pages: poster + facts sit flush to the right page margin, so left and right gutters match */
+.film-body>.poster{justify-self:end;width:clamp(250px,24vw,350px);max-width:100%}
+.film-body>.poster img{width:100%;max-width:none;max-height:none;object-fit:cover}
+@media(max-width:800px){.film-body>.poster{justify-self:start;width:auto}.film-body>.poster img{width:auto;max-width:min(170px,46vw);max-height:260px}}
