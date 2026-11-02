@@ -704,5 +704,5 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 
 /* home: nav and logo are plain white over the hero photos (no difference-blend), switching to dark over the white band */
 body.home-alt header,body.home-alt header.solid{mix-blend-mode:normal;color:var(--pfg);text-shadow:0 1px 14px rgba(0,0,0,.35)}
-body.home-alt .logo img{filter:brightness(0) invert(calc(1 - var(--logo-inv,0))) drop-shadow(.6px 0 0 currentColor) drop-shadow(-.6px 0 0 currentColor) drop-shadow(0 1px 10px rgba(0,0,0,.35))}
+body.home-alt .logo img{filter:brightness(0) invert(calc(1 - var(--logo-inv,0))) drop-shadow(0 1px 10px rgba(0,0,0,.35))}
 body.home-alt #nav a{opacity:1;font-weight:800;text-shadow:0 1px 12px rgba(0,0,0,.55)}
