@@ -4,7 +4,8 @@
   if (!(window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches)) return;
   var dot = document.createElement('div'); dot.className = 'cdot'; dot.setAttribute('aria-hidden', 'true');
   dot.innerHTML = '<span class="clabel"></span><svg class="cgo" viewBox="0 0 24 24" aria-hidden="true"><path class="sh" d="M7.6 16.4L16.7 7.3"/><path class="hd" d="M10.7 7.5H16.4V13.2"/></svg>';
-  document.body.appendChild(dot); document.documentElement.classList.add('has-cdot');
+  document.body.appendChild(dot);
+  var root = document.documentElement;
   var x = -100, y = -100, cx = -100, cy = -100, raf = null, shown = false;
   function loop() {
     cx += (x - cx) * 0.22; cy += (y - cy) * 0.22;
@@ -13,6 +14,7 @@
   }
   addEventListener('mousemove', function (ev) {
     x = ev.clientX; y = ev.clientY;
+    root.classList.add('has-cdot');   // hide the system arrow only while the pointer is over the page
     if (!shown) { shown = true; cx = x; cy = y; dot.classList.add('on'); }
     var t = ev.target;
     var onMedia = !!(t.closest && t.closest('[data-cursor] .wi, [data-cursor] .mi, [data-cursor] .pi, [data-cursor] .frame, .card[data-cursor] .frame, a.hframe[href]'));
@@ -31,7 +33,15 @@
     dot.classList.toggle('text', !!(t.closest && t.closest('input[type=text], input[type=email], input[type=password], textarea')));
     if (!raf) raf = requestAnimationFrame(loop);
   }, { passive: true });
-  document.addEventListener('mouseleave', function () { dot.classList.remove('on'); shown = false; });
+  // Give the system arrow back the moment the pointer leaves the page or the window loses focus,
+  // so it never stays hidden when switching to another app.
+  function release() { dot.classList.remove('on'); root.classList.remove('has-cdot'); shown = false; }
+  document.addEventListener('mouseleave', release);
+  root.addEventListener('mouseleave', release);
+  document.addEventListener('mouseout', function (e) { if (!e.relatedTarget) release(); });
+  addEventListener('blur', release);
+  addEventListener('pagehide', release);
+  document.addEventListener('visibilitychange', function () { if (document.hidden) release(); });
   addEventListener('mousedown', function () { dot.classList.add('press'); });
   addEventListener('mouseup', function () { dot.classList.remove('press'); });
 })();
