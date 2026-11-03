@@ -389,3 +389,14 @@ html.pz-open{overflow:hidden}
 html.pz-open.has-cdot,html.pz-open.has-cdot *{cursor:zoom-out!important}
 html.pz-open .cdot{opacity:0!important}
 html.pz-open header{opacity:0;pointer-events:none}
+
+/* Flourish: partner logos, white on transparent, in the right column */
+.partners{margin-top:40px}
+.plogos{display:flex;flex-direction:column;align-items:flex-start;gap:28px;margin-top:20px}
+.film-body>.poster .plogos img{display:block;height:auto;max-width:100%;max-height:none;object-fit:contain;opacity:.92}
+.film-body>.poster .plogos img.pl-hv{width:min(100%,230px)}
+.film-body>.poster .plogos img.pl-gf{width:min(100%,190px)}
+.film-body>.poster .plogos img.pl-bu{width:min(100%,300px)}
+.film-body>.poster .plogos img.pl-gl{width:min(100%,160px)}
+.film-body>.poster .plogos img.pl-cos{width:min(100%,200px)}
+@media(max-width:800px){.plogos{flex-direction:row;flex-wrap:wrap;align-items:center;gap:24px 34px}.film-body>.poster .plogos img.pl-hv{width:140px}.film-body>.poster .plogos img.pl-gf{width:120px}.film-body>.poster .plogos img.pl-bu{width:190px}.film-body>.poster .plogos img.pl-gl{width:100px}.film-body>.poster .plogos img.pl-cos{width:140px}}
