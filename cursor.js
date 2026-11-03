@@ -29,7 +29,7 @@
     dot.classList.toggle('go', isGo);
     dot.classList.toggle('play', onMedia || vp);                       // over a film or project: open ring with a play triangle
     dot.classList.toggle('hide', !onMedia && !vp && !!(t.closest && t.closest('iframe, video[controls]')));
-    dot.classList.toggle('big', !onMedia && !vp && !!(t.closest && t.closest('a, button, label, [role=button], input[type=submit]')));
+    dot.classList.toggle('big', !onMedia && !vp && !(t.closest && t.closest('.pl-link')) && !!(t.closest && t.closest('a, button, label, [role=button], input[type=submit]')));   // partner logo link keeps the small dot so its colour shows
     dot.classList.toggle('text', !!(t.closest && t.closest('input[type=text], input[type=email], input[type=password], textarea')));
     if (!raf) raf = requestAnimationFrame(loop);
   }, { passive: true });

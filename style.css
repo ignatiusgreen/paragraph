@@ -392,11 +392,17 @@ html.pz-open header{opacity:0;pointer-events:none}
 
 /* Flourish: partner logos, white on transparent, in the right column */
 .partners{margin-top:40px}
-.plogos{display:flex;flex-direction:column;align-items:flex-start;gap:20px;margin-top:20px}
+.plogos{display:flex;flex-direction:column;align-items:flex-start;gap:34px;margin-top:24px}
 .film-body>.poster .plogos img{display:block;height:auto;max-width:100%;max-height:none;object-fit:contain;opacity:.92}
 .film-body>.poster .plogos img.pl-hv{width:min(100%,115px)}
-.film-body>.poster .plogos img.pl-gf{width:min(100%,95px)}
+.film-body>.poster .plogos .pl-gf{width:min(100%,95px)}
 .film-body>.poster .plogos img.pl-bu{width:min(100%,150px)}
 .film-body>.poster .plogos img.pl-gl{width:min(100%,80px)}
 .film-body>.poster .plogos img.pl-cos{width:min(100%,100px)}
-@media(max-width:800px){.plogos{flex-direction:row;flex-wrap:wrap;align-items:center;gap:24px 34px}.film-body>.poster .plogos img.pl-hv{width:70px}.film-body>.poster .plogos img.pl-gf{width:60px}.film-body>.poster .plogos img.pl-bu{width:95px}.film-body>.poster .plogos img.pl-gl{width:50px}.film-body>.poster .plogos img.pl-cos{width:70px}}
+@media(max-width:800px){.plogos{flex-direction:row;flex-wrap:wrap;align-items:center;gap:30px 40px}.film-body>.poster .plogos img.pl-hv{width:70px}.film-body>.poster .plogos .pl-gf{width:60px}.film-body>.poster .plogos img.pl-bu{width:95px}.film-body>.poster .plogos img.pl-gl{width:50px}.film-body>.poster .plogos img.pl-cos{width:70px}}
+
+/* Flourish: only the Global Flourishing Study logo links out; it fades to its colour version on hover */
+.pl-link{position:relative;display:block;line-height:0}
+.film-body>.poster .plogos .pl-link img{width:100%;opacity:1}
+.film-body>.poster .plogos .pl-link .pl-hover{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}
+.film-body>.poster .plogos .pl-link:hover .pl-hover,.film-body>.poster .plogos .pl-link:focus-visible .pl-hover{opacity:1}

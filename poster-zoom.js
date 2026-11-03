@@ -1,6 +1,6 @@
 // Film pages: click the poster to see it full screen. Click anywhere, press Esc, or use the close button to return.
 (function () {
-  var img = document.querySelector('.film-body .poster img'); if (!img) return;
+  var img = document.querySelector('.film-body .poster > img'); if (!img) return;
   var ov = null, last = null;
   function big(src) { return src.replace(/format=\d+w/, 'format=2500w'); }
   function build() {
