@@ -406,3 +406,6 @@ html.pz-open header{opacity:0;pointer-events:none}
 .film-body>.poster .plogos .pl-link img{width:100%;opacity:1}
 .film-body>.poster .plogos .pl-link .pl-hover{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}
 .film-body>.poster .plogos .pl-link:hover .pl-hover,.film-body>.poster .plogos .pl-link:focus-visible .pl-hover{opacity:1}
+
+.film-main .log-body a.inline-link{color:inherit;text-decoration:underline;text-decoration-color:rgba(242,239,233,.45);text-underline-offset:.18em;text-decoration-thickness:1px;transition:text-decoration-color .25s ease,color .25s ease}
+.film-main .log-body a.inline-link:hover{color:#fff;text-decoration-color:#fff}
