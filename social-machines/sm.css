@@ -284,6 +284,7 @@ canvas.field.fade-left{-webkit-mask-image:linear-gradient(90deg,transparent 30%,
 .pg.dark .attrib{color:rgba(255,255,255,.78)}
 .pg.dark .attrib b{color:var(--rose)}
 .qwrap{align-items:center}
+.quote.wide-q{max-width:30ch;font-size:clamp(28px,2.9vw,52px);line-height:1.18}
 .qwrap .q-lg{margin-left:auto;margin-right:auto}
 .ghost{opacity:.5}
 
