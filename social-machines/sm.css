@@ -243,24 +243,55 @@ canvas.field.fade-left{-webkit-mask-image:linear-gradient(90deg,transparent 30%,
 .stat-txt b{font-weight:700}
 .stat-vis{display:flex;justify-content:center;align-items:center}
 
-/* phone */
-.phone{text-align:left;--pw:min(clamp(230px,19vw,360px),34vh);position:relative;flex:none;width:var(--pw);aspect-ratio:9/19.3;border-radius:16%/7.6%;padding:calc(var(--pw) * .032);
-  background:linear-gradient(145deg,#a36d78,#5d2a35 30%,#7b4250 55%,#4a1f29 80%,#8f5966);box-shadow:0 40px 80px -40px rgba(60,20,30,.55),inset 0 0 0 1px rgba(255,255,255,.18);container-type:inline-size}
-.phone-scr{position:relative;width:100%;height:100%;border-radius:13.4%/6.3%;background:#060506;overflow:hidden;box-shadow:inset 0 0 0 2px #000}
-.ph-status{position:absolute;left:0;right:0;top:3.2%;display:flex;align-items:center;justify-content:space-between;padding:0 11%;font-size:5.4cqw;font-weight:600;color:#fff}
-.ph-island{position:absolute;left:50%;top:-10%;width:30%;height:9cqw;border-radius:6cqw;background:#000;transform:translateX(-50%);box-shadow:0 0 0 1px #111}
-.ph-icons{display:flex;gap:2.4cqw;align-items:center}
-.ph-icons i{display:block;width:4.2cqw;height:3.2cqw;border-radius:1cqw;background:#fff}
-.ph-icons i:last-child{width:7cqw;height:3.4cqw;border-radius:1.2cqw}
-.ph-bar{position:absolute;left:7%;right:7%;top:9.4%;display:flex;justify-content:space-between;align-items:center}
-.ph-menu{display:flex;flex-direction:column;gap:2cqw;width:10cqw;height:10cqw;border-radius:50%;background:#1b1a1c;align-items:center;justify-content:center}
-.ph-menu i{display:block;width:4.6cqw;height:.7cqw;background:#ddd;border-radius:1cqw}
-.ph-menu i:last-child{width:3cqw;margin-right:1.6cqw}
-.ph-new{width:10cqw;height:10cqw;border-radius:50%;background:#1b1a1c;position:relative}
-.ph-new::after{content:"";position:absolute;inset:28%;border:.8cqw solid #ddd;border-radius:50% 50% 50% 8%}
+/* phones: iPhone Air and Galaxy S26, drawn in CSS */
+.phone{--pw:min(clamp(230px,18vw,340px),33vh);--r:.168;--rim:.011;--bez:.03;
+  --m1:#2e2e31;--m2:#6a6a70;--m3:#1d1d1f;--hl:rgba(255,255,255,.28);
+  position:relative;flex:none;text-align:left;width:var(--pw);aspect-ratio:74.7/156.2;container-type:inline-size;
+  border-radius:calc(var(--pw) * var(--r));padding:calc(var(--pw) * var(--rim));
+  background:linear-gradient(115deg,var(--m2) 0%,var(--m1) 9%,var(--m3) 22%,var(--m1) 48%,var(--m2) 63%,var(--m3) 80%,var(--m1) 92%,var(--m2) 100%);
+  box-shadow:inset 0 0 0 calc(var(--pw) * .0025) var(--hl),inset 0 0 0 calc(var(--pw) * .006) rgba(0,0,0,.18),
+    0 calc(var(--pw) * .16) calc(var(--pw) * .26) calc(var(--pw) * -.1) rgba(24,18,14,.5),0 calc(var(--pw) * .03) calc(var(--pw) * .05) rgba(24,18,14,.18)}
+.phone.lg{--pw:min(clamp(250px,20vw,380px),35vh)}
+.phone.iphone.black{--m1:#36363a;--m2:#7b7b82;--m3:#232326;--hl:rgba(255,255,255,.3)}
+.phone.iphone.sky{--m1:#bccfdb;--m2:#eef5f9;--m3:#97adbb;--hl:rgba(255,255,255,.75)}
+.phone.iphone.gold{--m1:#e2d2b3;--m2:#f7efe1;--m3:#c2ad87;--hl:rgba(255,255,255,.7)}
+.phone.galaxy{--r:.125;--rim:.012;--bez:.024}
+.phone.galaxy.white{--m1:#e6e6e4;--m2:#fbfbfa;--m3:#c4c4c1;--hl:rgba(255,255,255,.9)}
+.phone-scr{position:relative;width:100%;height:100%;border-radius:calc(var(--pw) * (var(--r) - var(--rim)));
+  border:calc(var(--pw) * var(--bez)) solid #050506;background:#060607;overflow:hidden;box-shadow:0 0 0 calc(var(--pw) * .002) rgba(0,0,0,.6)}
+.phone-scr::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:5;
+  background:linear-gradient(118deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.02) 34%,rgba(255,255,255,0) 35%,rgba(255,255,255,0) 100%)}
+/* hardware buttons */
+.hw{position:absolute;width:calc(var(--pw) * .012);border-radius:calc(var(--pw) * .006);background:linear-gradient(90deg,var(--m3),var(--m2) 50%,var(--m1))}
+.hw.l1,.hw.l2,.hw.l3{left:calc(var(--pw) * -.009)} .hw.r1,.hw.r2{right:calc(var(--pw) * -.009)}
+.iphone .hw.l1{top:17.5%;height:4.4%} .iphone .hw.l2{top:25%;height:7.6%} .iphone .hw.l3{top:34.5%;height:7.6%}
+.iphone .hw.r1{top:28%;height:11%} .iphone .hw.r2{top:58%;height:7%;width:calc(var(--pw) * .008);right:calc(var(--pw) * -.005);opacity:.85}
+.galaxy .hw.r1{top:21%;height:12%} .galaxy .hw.r2{top:36%;height:6.5%}
+/* status bars */
+.ph-status{position:absolute;left:0;right:0;top:0;height:11.5cqw;display:flex;align-items:center;justify-content:space-between;padding:0 8% 0 11%;color:#fff;z-index:3}
+.ph-time{font-size:5.1cqw;font-weight:600;letter-spacing:-.01em;font-family:-apple-system,"SF Pro Text",var(--font)}
+.ph-icons{display:flex;align-items:center;gap:1.5cqw}
+.ph-icons svg{display:block;height:2.9cqw;width:auto;fill:currentColor}
+.ph-icons svg:last-child{height:3.1cqw}
+.ph-island{position:absolute;left:50%;top:2.6cqw;width:30cqw;height:8.6cqw;border-radius:5cqw;background:#000;transform:translateX(-50%);box-shadow:inset 0 0 0 .3cqw #0b0b0c}
+.ph-island::after{content:"";position:absolute;right:3cqw;top:50%;width:3cqw;height:3cqw;margin-top:-1.5cqw;border-radius:50%;background:radial-gradient(circle at 40% 35%,#24304a,#07080c 60%)}
+.galaxy .ph-status{height:9cqw;padding:0 6.5% 0 7.5%}
+.galaxy .ph-time{font-size:4.3cqw;font-weight:500;font-family:"Roboto",var(--font)}
+.galaxy .ph-icons{gap:1.2cqw}
+.galaxy .ph-icons svg{height:2.7cqw}
+.ph-pct{font-size:3.6cqw;font-weight:500}
+.galaxy .ph-island{top:2.4cqw;width:4.2cqw;height:4.2cqw;border-radius:50%;box-shadow:inset 0 0 0 .35cqw #111}
+.galaxy .ph-island::after{right:auto;left:50%;width:2cqw;height:2cqw;margin:-1cqw 0 0 -1cqw}
+/* app chrome (a generic companion app) */
+.ph-bar{position:absolute;left:6%;right:6%;top:13.5cqw;display:flex;justify-content:space-between;align-items:center;z-index:3}
+.ph-menu{display:flex;flex-direction:column;gap:1.6cqw;width:9cqw;height:9cqw;border-radius:50%;background:#1a1a1c;align-items:center;justify-content:center}
+.ph-menu i{display:block;width:4cqw;height:.6cqw;background:#ddd;border-radius:1cqw}
+.ph-menu i:last-child{width:2.6cqw;margin-right:1.4cqw}
+.ph-new{width:9cqw;height:9cqw;border-radius:50%;background:#1a1a1c;position:relative}
+.ph-new::after{content:"";position:absolute;inset:29%;border:.7cqw solid #ddd;border-radius:50% 50% 50% 8%}
 .phone .orb-c{top:14%;height:62%}
 .ph-msg{position:absolute;left:12%;right:9%;top:36%;margin:0;font-size:7.1cqw;font-style:italic;font-weight:500;line-height:1.3;color:var(--rose);text-align:left;white-space:pre-line}
-.ph-input{position:absolute;left:6%;right:6%;bottom:3.4%;height:12.5cqw;border-radius:7cqw;background:#18171a;display:flex;align-items:center;gap:3cqw;padding:0 2.4cqw 0 5cqw;color:#bbb;font-size:4.9cqw}
+.ph-input{position:absolute;left:5%;right:5%;bottom:4.2%;height:12.5cqw;border-radius:7cqw;background:#18171a;display:flex;align-items:center;gap:3cqw;padding:0 2.4cqw 0 5cqw;color:#bbb;font-size:4.9cqw}
 .ph-plus{font-size:7cqw;font-weight:300;color:#ddd;line-height:1}
 .ph-ph{flex:1;white-space:nowrap}
 .ph-mic{width:6cqw;height:6cqw;fill:none;stroke:#ddd;stroke-width:1.8}
@@ -268,7 +299,6 @@ canvas.field.fade-left{-webkit-mask-image:linear-gradient(90deg,transparent 30%,
 .ph-go i{width:.55cqw;height:2.4cqw}
 .ph-go i:nth-child(2){height:3.8cqw} .ph-go i:nth-child(3){height:3cqw} .ph-go i:nth-child(4){height:1.8cqw}
 
-.phone.lg{--pw:min(clamp(250px,21vw,400px),35vh)}
 .phone .orb-mid{top:16%;height:66%}
 /* conversation inside the phone */
 .phone .convo{position:absolute;left:0;right:0;top:17%;bottom:15%;display:flex;flex-direction:column;justify-content:flex-end;gap:3.4cqw;padding:0 6cqw;font-size:5.4cqw;overflow:hidden}
@@ -470,7 +500,7 @@ canvas.field.fade-left{-webkit-mask-image:linear-gradient(90deg,transparent 30%,
   .split-img{height:46vh}
   .split-txt{padding:30px 22px 90px}
   .stat{display:flex;flex-direction:column;justify-content:center;gap:22px;padding-bottom:110px}
-  .phone{--pw:min(56vw,250px)}
+  .phone,.phone.lg{--pw:min(58vw,260px)}
   .g{width:min(62vw,280px)}
   .cols3{grid-template-columns:1fr;gap:26px}
   .col3 .num{margin-bottom:12px}
