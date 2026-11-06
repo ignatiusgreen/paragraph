@@ -330,7 +330,16 @@
         },
         {
           "key": "Cache-Control",
-          "value": "private, max-age=3600"
+          "value": "private, no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/social-machines/img/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, max-age=86400"
         }
       ]
     }
