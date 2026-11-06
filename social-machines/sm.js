@@ -259,7 +259,25 @@
     [].forEach.call(p.querySelectorAll('.typer'), function (el) { typeCycle(p, el); });
     [].forEach.call(p.querySelectorAll('.convo'), function (b) { convo(p, b); });
   }
-  function leave(p) { components(p).forEach(function (c) { c.stop(); }); resetEffects(p); }
+  function leave(p) { components(p).forEach(function (c) { c.stop(); }); resetEffects(p); stopVideo(p); }
+
+  /* ---------- trailer: play in place, stop when leaving the page ---------- */
+  function stopVideo(p) {
+    [].forEach.call(p.querySelectorAll('.player iframe'), function (f) { f.remove(); });
+    [].forEach.call(p.querySelectorAll('.play-cover'), function (b) { b.style.display = ''; });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.play-cover');
+    if (!b) return;
+    var f = document.createElement('iframe');
+    f.src = 'https://player.vimeo.com/video/' + b.getAttribute('data-vimeo') + '?title=0&byline=0&portrait=0&autoplay=1&dnt=1';
+    f.title = 'Social Animals trailer';
+    f.allow = 'autoplay; fullscreen; picture-in-picture';
+    f.allowFullscreen = true;
+    b.parentNode.appendChild(f);
+    b.style.display = 'none';
+    f.focus();
+  });
 
   /* ---------- contents (table of contents) ---------- */
   var secs = [];

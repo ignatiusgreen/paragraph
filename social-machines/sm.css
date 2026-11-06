@@ -403,7 +403,7 @@ canvas.field.fade-left{-webkit-mask-image:linear-gradient(90deg,transparent 30%,
 
 /* Social Animals overview */
 .sa .duo-vis{flex:.8}
-.sa-phone{margin:0;width:min(28vw,46vh,420px);aspect-ratio:544/725;border-radius:6px;box-shadow:0 30px 70px -40px rgba(20,18,16,.6)}
+.sa-phone{margin:0;width:min(26vw,44vh,440px);aspect-ratio:750/1125;border-radius:4px;box-shadow:0 30px 70px -40px rgba(20,18,16,.6)}
 .facts{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,3vh,32px) clamp(20px,2.4vw,44px);margin-top:clamp(10px,2vh,24px)}
 .fact{display:flex;flex-direction:column;gap:6px;padding-top:14px;border-top:1px solid rgba(20,18,16,.16)}
 .fact .big{font-size:clamp(26px,2.4vw,44px);font-weight:300;letter-spacing:-.02em;color:var(--rose2);line-height:1}
@@ -413,6 +413,19 @@ canvas.field.fade-left{-webkit-mask-image:linear-gradient(90deg,transparent 30%,
 .keyart .bg img{object-position:50% 50%}
 .sa-frame{position:absolute;z-index:4;left:50%;top:50%;height:min(80vh,66vw);width:auto;transform:translate(-50%,-47%);opacity:0;transition:opacity 1.2s var(--ease),transform 1.6s var(--ease);transition-delay:calc(var(--base) + .3s);filter:drop-shadow(0 30px 60px rgba(0,0,0,.45))}
 .pg.on .sa-frame{opacity:1;transform:translate(-50%,-50%)}
+
+/* trailer */
+.trailer-in{align-items:center}
+.trailer-in .kick{align-self:center}
+.player{position:relative;width:min(100%,calc((100vh - 260px) * 16 / 9),1400px);aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;box-shadow:0 40px 90px -40px rgba(0,0,0,.8)}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.play-cover{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
+.play-cover img{width:100%;height:100%;object-fit:cover;opacity:.82;transition:opacity .6s,transform 1.4s var(--ease)}
+.play-cover:hover img{opacity:.95}
+.play-icon{position:absolute;left:50%;top:50%;width:clamp(40px,4vw,66px);transform:translate(-40%,-50%);color:#fff;transition:transform .5s var(--ease)}
+.play-icon svg{display:block;width:100%;height:auto}
+.play-cover:hover .play-icon{transform:translate(-40%,-50%) scale(1.08)}
+.play-cover:focus-visible{outline:2px solid var(--tealL);outline-offset:4px}
 
 /* press */
 .press{display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(18px,2.2vw,40px) clamp(14px,1.6vw,30px)}
