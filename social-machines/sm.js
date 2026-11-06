@@ -202,9 +202,17 @@
     if (reduce) { el.textContent = txt; return; }
     var speed = parseFloat(el.getAttribute('data-speed') || '36'), i = 0;
     el.textContent = '';
+    var box = el.closest('.chat');
     var tick = function () {
       i++; el.textContent = txt.slice(0, i);
+      if (box && i === 1) box.classList.add('has-text');
       if (i < txt.length) later(p, tick, txt[i - 1] === '\n' ? 260 : /[.,?!]/.test(txt[i - 1]) ? speed * 6 : speed * (0.6 + Math.random() * 0.8));
+      else if (box && el.hasAttribute('data-send')) {
+        // press send: button dips, message lifts away, field resets
+        later(p, function () { box.classList.add('pressing'); }, 900);
+        later(p, function () { box.classList.remove('pressing'); box.classList.add('sent'); }, 1120);
+        later(p, function () { el.textContent = ''; box.classList.remove('has-text', 'sent'); }, 1900);
+      }
     };
     later(p, tick, parseFloat(el.getAttribute('data-delay') || '1') * 1000 + BASE());
   }
@@ -247,6 +255,7 @@
     clearTimers(p);
     [].forEach.call(p.querySelectorAll('.count'), function (el) { if (!reduce) el.textContent = '0' + (el.getAttribute('data-suffix') || ''); });
     [].forEach.call(p.querySelectorAll('.type,.typer'), function (el) { if (!reduce) el.textContent = ''; });
+    [].forEach.call(p.querySelectorAll('.chat'), function (b) { b.classList.remove('has-text', 'pressing', 'sent'); });
     [].forEach.call(p.querySelectorAll('.convo'), function (b) {
       [].forEach.call(b.querySelectorAll('.typing'), function (x) { x.remove(); }); b._typing = null;
       [].forEach.call(b.querySelectorAll('.m'), function (m) { if (!reduce) m.classList.remove('show'); });
