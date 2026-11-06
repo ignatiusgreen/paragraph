@@ -3,7 +3,10 @@
 // - Single projects or groups of projects can be shared with signed links, made at /archive/links.
 // The password is NOT stored here: set ARCHIVE_PASSWORD in Vercel (Settings → Environments → Production).
 // Changing the password signs everyone out AND turns off every shared link made with the old one.
-export const config = { matcher: ['/archive(.*)'] };
+//
+// Social Machines pitch (/social-machines) is private too, with its own sign-in.
+// Its password is SOCIAL_MACHINES_PASSWORD in Vercel; until that is set it uses ARCHIVE_PASSWORD.
+export const config = { matcher: ['/archive(.*)', '/social-machines', '/social-machines/(.*)'] };
 
 const FULL = 'pg_archive';      // cookie: signed in with the password
 const GRANT = 'pg_share';       // cookie: projects opened from shared links
@@ -427,6 +430,9 @@ function projectFor(pathname) {
 }
 
 export default async function middleware(request) {
+  const where = new URL(request.url).pathname;
+  if (where === '/social-machines' || where.startsWith('/social-machines/')) return pitchGate(request);
+
   const password = process.env.ARCHIVE_PASSWORD;
   if (!password) return new Response('The archive is locked until a password is set.', { status: 503 });
 
@@ -650,4 +656,74 @@ function reelBody(ids) {
       [].forEach.call(document.querySelectorAll('button.tile'),function(x){x.setAttribute('aria-pressed',String(x===t));});
       document.getElementById('player').scrollIntoView({behavior:'smooth',block:'start'});});});
   })();</script>`;
+}
+
+// ---------- Social Machines: private pitch microsite ----------
+const PITCH = 'pg_sm';
+const PITCH_PATH = '/social-machines';
+const pitchCookie = (value, maxAge) =>
+  `${PITCH}=${encodeURIComponent(value)}; Path=${PITCH_PATH}; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`;
+
+async function pitchGate(request) {
+  const password = process.env.SOCIAL_MACHINES_PASSWORD || process.env.ARCHIVE_PASSWORD;
+  if (!password) return new Response('This presentation is locked until a password is set.', { status: 503 });
+  const url = new URL(request.url);
+  const token = await sha('paragraph-social-machines:' + password);
+
+  if (url.pathname === PITCH_PATH + '/logout') return redirect(PITCH_PATH, [pitchCookie('', 0)]);
+  if (readCookie(request, PITCH) === token) return;   // signed in: serve the page
+
+  if (request.method === 'POST') {
+    let given = '';
+    try { given = String((await request.formData()).get('password') || ''); } catch (e) {}
+    if (given === password) return redirect(url.pathname + url.search, [pitchCookie(token, THIRTY_DAYS)]);
+    return pitchPage(true);
+  }
+  return pitchPage(false);
+}
+
+function pitchPage(wrong) {
+  const html = `<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Social Machines — Paragraph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..700;1,400..700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font-family:Figtree,system-ui,sans-serif;background:#E9E7E2;color:#151514;display:grid;place-items:center;min-height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+canvas{position:fixed;inset:0;width:100%;height:100%;opacity:.55}
+form{position:relative;width:min(440px,calc(100vw - 40px));text-align:center;animation:up 1.2s cubic-bezier(.16,1,.3,1) both}
+@keyframes up{from{opacity:0;transform:translateY(24px)}}
+.mark{font-size:clamp(40px,8vw,64px);font-weight:600;font-style:italic;letter-spacing:-.02em;margin:0}
+.sub{margin:.4em 0 2.2em;font-style:italic;font-size:18px;color:#398592}
+.lbl{display:block;margin:0 0 10px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#7EA4A9}
+input{width:100%;padding:16px 20px;border-radius:16px;border:1.5px solid #C9C8C3;background:rgba(255,255,255,.6);font:inherit;font-size:17px;color:#151514;outline:none;transition:border-color .2s}
+input:focus{border-color:#398592}
+button{margin-top:14px;width:100%;padding:15px;border:0;border-radius:99px;background:#267C86;color:#fff;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
+button:hover{background:#1d6a73}
+.err{min-height:1.4em;margin:10px 0 0;font-size:14px;color:#a0505f}
+.back{display:inline-block;margin-top:26px;font-size:13px;color:#94928F;text-decoration:none}
+.back:hover{color:#151514}
+</style></head>
+<body>
+<canvas aria-hidden="true"></canvas>
+<form method="post">
+  <h1 class="mark">social_machines</h1>
+  <p class="sub">a documentary about artificial intimacy</p>
+  <label class="lbl" for="password">Private presentation</label>
+  <input id="password" name="password" type="password" placeholder="Password" autocomplete="current-password" autofocus required>
+  <button type="submit">Enter</button>
+  <p class="err" role="alert">${wrong ? 'That password isn’t right. Please try again.' : ''}</p>
+  <a class="back" href="/">← Paragraph</a>
+</form>
+<script>(function(){var c=document.querySelector('canvas'),x=c.getContext('2d'),n=900,P=[],g=Math.PI*(3-Math.sqrt(5));
+for(var i=0;i<n;i++){var y=1-i/(n-1)*2,r=Math.sqrt(1-y*y);P.push([Math.cos(g*i)*r,y,Math.sin(g*i)*r]);}
+if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+function f(t){t/=1000;var d=Math.min(2,devicePixelRatio||1),W=c.width=innerWidth*d,H=c.height=innerHeight*d,R=Math.min(W,H)*.3,a=t*.18,cy=Math.cos(a),sy=Math.sin(a);
+x.fillStyle='#2c2b2e';for(var i=0;i<n;i++){var p=P[i],k=1+.15*Math.sin(2.7*p[0]+t)*Math.cos(2.1*p[1]-t*.8),X=p[0]*k,Y=p[1]*k*.8,Z=p[2]*k,x1=X*cy-Z*sy,z1=X*sy+Z*cy,e=(z1+1.3)/2.6;
+x.globalAlpha=.05+.4*e*e;var s=(.6+1.2*e)*d;x.fillRect(W/2+x1*R-s/2,H/2+Y*R-s/2,s,s);}requestAnimationFrame(f);}requestAnimationFrame(f);})();</script>
+</body></html>`;
+  return new Response(html, { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' } });
 }

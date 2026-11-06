@@ -200,6 +200,10 @@
   ],
   "rewrites": [
     {
+      "source": "/social-machines",
+      "destination": "/social-machines/index.html"
+    },
+    {
       "source": "/about",
       "destination": "/about.html"
     },
@@ -314,6 +318,21 @@
     {
       "source": "/archive/uberville",
       "destination": "/archive-uberville.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/social-machines(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, max-age=3600"
+        }
+      ]
     }
   ]
 }
