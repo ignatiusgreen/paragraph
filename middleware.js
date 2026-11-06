@@ -6,7 +6,8 @@
 //
 // Social Machines pitch (/social-machines) is private too, with its own sign-in.
 // Its password is SOCIAL_MACHINES_PASSWORD in Vercel; until that is set it uses ARCHIVE_PASSWORD.
-export const config = { matcher: ['/archive(.*)', '/social-machines', '/social-machines/(.*)'] };
+// Password for /social-machines is OFF for now. To turn it back on, add '/social-machines', '/social-machines/(.*)' to the matcher.
+export const config = { matcher: ['/archive(.*)'] };
 
 const FULL = 'pg_archive';      // cookie: signed in with the password
 const GRANT = 'pg_share';       // cookie: projects opened from shared links
