@@ -269,15 +269,13 @@
     secs[secs.length - 1].items.push(i);
   });
   function pad(n) { return (n < 10 ? '0' : '') + n; }
-  toc.innerHTML = '<div class="toc-head"><b>Contents</b><span id="smCount"></span></div><div class="toc-grid">' +
+  toc.innerHTML = '<div class="toc-head"><b>Contents</b><span id="smCount"></span></div><ol class="toc-list">' +
     secs.map(function (s, k) {
-      return '<div class="toc-sec"><h4>' + (k ? '<i>' + pad(k) + '</i>' : '') + s.name + '</h4><ul>' +
-        s.items.map(function (i) {
-          var p = pages[i];
-          return '<li><a href="#/' + p.getAttribute('data-slug') + '" data-go="' + i + '"><span class="n">' + pad(i + 1) + '</span><span>' + p.getAttribute('data-title') + '</span></a></li>';
-        }).join('') + '</ul></div>';
-    }).join('') + '</div>';
+      var first = pages[s.items[0]], name = s.name === 'Social Animals' ? '<em>Social Animals</em>' : s.name;
+      return '<li><a href="#/' + first.getAttribute('data-slug') + '" data-go="' + s.items[0] + '" data-sec="' + k + '"><span class="n">' + (k ? pad(k) : '—') + '</span><span>' + name + '</span></a></li>';
+    }).join('') + '</ol>';
   var tocLinks = [].slice.call(toc.querySelectorAll('a[data-go]'));
+  function secOf(i) { for (var k = 0; k < secs.length; k++) if (secs[k].items.indexOf(i) > -1) return k; return 0; }
   var countEl = $('smCount');
 
   function setOpen(on) { nav.classList.toggle('open', on); where.setAttribute('aria-expanded', on ? 'true' : 'false'); }
@@ -297,7 +295,8 @@
     body.classList.toggle('at-cover', idx === 0);
     prevBtn.disabled = idx === 0; nextBtn.disabled = idx === N - 1;
     countEl.textContent = pad(idx + 1) + ' / ' + pad(N);
-    tocLinks.forEach(function (a) { var on = +a.getAttribute('data-go') === idx; a.classList.toggle('cur', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    var cs = secOf(idx);
+    tocLinks.forEach(function (a) { var on = +a.getAttribute('data-sec') === cs; a.classList.toggle('cur', on); if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
     pages.forEach(function (q, i) { var hide = i !== idx; q.setAttribute('aria-hidden', hide ? 'true' : 'false'); if ('inert' in q) q.inert = hide; });
     live.textContent = 'Page ' + (idx + 1) + ' of ' + N + ': ' + p.getAttribute('data-title');
     try { history.replaceState(null, '', '#/' + p.getAttribute('data-slug')); } catch (e) {}
