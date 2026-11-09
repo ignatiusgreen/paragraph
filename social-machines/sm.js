@@ -216,6 +216,27 @@
     };
     later(p, tick, parseFloat(el.getAttribute('data-delay') || '1') * 1000 + BASE());
   }
+  function typeSteps(p, el) {
+    var steps = el.getAttribute('data-steps').split('|'), box = el.closest('.chat');
+    var base = steps[0].slice(0, steps[0].lastIndexOf(' ') + 1);
+    if (reduce) { el.textContent = base + steps[steps.length - 1]; if (box) box.classList.add('has-text'); return; }
+    var speed = parseFloat(el.getAttribute('data-speed') || '50'), cur = '';
+    var set = function (t) { cur = t; el.textContent = t; if (box) box.classList.toggle('has-text', t.length > 0); };
+    var typeTo = function (target, done) {
+      if (cur.length < target.length) { set(target.slice(0, cur.length + 1)); later(p, function () { typeTo(target, done); }, speed * (0.6 + Math.random() * 0.8)); }
+      else later(p, done, 1500);
+    };
+    var eraseTo = function (len, done) {
+      if (cur.length > len) { set(cur.slice(0, -1)); later(p, function () { eraseTo(len, done); }, 45); }
+      else later(p, done, 380);
+    };
+    var k = 0;
+    var next = function () {
+      k++; if (k >= steps.length) return;
+      eraseTo(base.length, function () { typeTo(base + steps[k], next); });
+    };
+    later(p, function () { typeTo(steps[0], next); }, parseFloat(el.getAttribute('data-delay') || '1') * 1000 + BASE());
+  }
   function typeCycle(p, el) {
     var list = el.getAttribute('data-cycle').split('|'), k = 0;
     if (reduce) { el.textContent = list[0]; return; }
@@ -254,7 +275,7 @@
   function resetEffects(p) {
     clearTimers(p);
     [].forEach.call(p.querySelectorAll('.count'), function (el) { if (!reduce) el.textContent = '0' + (el.getAttribute('data-suffix') || ''); });
-    [].forEach.call(p.querySelectorAll('.type,.typer'), function (el) { if (!reduce) el.textContent = ''; });
+    [].forEach.call(p.querySelectorAll('.type,.typer,.typesteps'), function (el) { if (!reduce) el.textContent = ''; });
     [].forEach.call(p.querySelectorAll('.chat'), function (b) { b.classList.remove('has-text', 'pressing', 'sent'); });
     [].forEach.call(p.querySelectorAll('.convo'), function (b) {
       [].forEach.call(b.querySelectorAll('.typing'), function (x) { x.remove(); }); b._typing = null;
@@ -266,6 +287,7 @@
     [].forEach.call(p.querySelectorAll('.count'), function (el) { countUp(p, el); });
     [].forEach.call(p.querySelectorAll('.type'), function (el) { typeText(p, el); });
     [].forEach.call(p.querySelectorAll('.typer'), function (el) { typeCycle(p, el); });
+    [].forEach.call(p.querySelectorAll('.typesteps'), function (el) { typeSteps(p, el); });
     [].forEach.call(p.querySelectorAll('.convo'), function (b) { convo(p, b); });
   }
   function leave(p) { components(p).forEach(function (c) { c.stop(); }); resetEffects(p); stopVideo(p); }
