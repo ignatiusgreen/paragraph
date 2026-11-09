@@ -383,6 +383,14 @@
 
   prevBtn.addEventListener('click', function () { go(idx - 1); });
   nextBtn.addEventListener('click', function () { go(idx + 1); });
+  [].forEach.call(document.querySelectorAll('.go-next'), function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var box = b.closest('.chat');
+      if (box && !reduce) { box.classList.add('pressing'); setTimeout(function () { box.classList.remove('pressing'); go(idx + 1); }, 220); }
+      else go(idx + 1);
+    });
+  });
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="#/"]');
     if (!a) return;
