@@ -224,11 +224,11 @@
     var set = function (t) { cur = t; el.textContent = t; if (box) box.classList.toggle('has-text', t.length > 0); };
     var typeTo = function (target, done) {
       if (cur.length < target.length) { set(target.slice(0, cur.length + 1)); later(p, function () { typeTo(target, done); }, speed * (0.6 + Math.random() * 0.8)); }
-      else later(p, done, 1500);
+      else later(p, done, 480);
     };
     var eraseTo = function (len, done) {
-      if (cur.length > len) { set(cur.slice(0, -1)); later(p, function () { eraseTo(len, done); }, 45); }
-      else later(p, done, 380);
+      if (cur.length > len) { set(cur.slice(0, -1)); later(p, function () { eraseTo(len, done); }, 26); }
+      else later(p, done, 140);
     };
     var k = 0;
     var next = function () {
@@ -381,8 +381,10 @@
     return -1;
   }
 
+  // on the cover, only the chat's send button moves forward
+  function step(d) { if (idx === 0 && d > 0) return; go(idx + d); }
   prevBtn.addEventListener('click', function () { go(idx - 1); });
-  nextBtn.addEventListener('click', function () { go(idx + 1); });
+  nextBtn.addEventListener('click', function () { step(1); });
   [].forEach.call(document.querySelectorAll('.go-next'), function (b) {
     b.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -408,7 +410,8 @@
     if (typing) return;
     if (e.key === 'Escape') { setOpen(false); return; }
     var onCtl = t && t !== body && /^(A|BUTTON)$/.test(t.tagName);
-    if (e.key === 'ArrowRight' || e.key === 'PageDown' || (e.key === 'ArrowDown' && !scrollable()) || (e.key === ' ' && !onCtl)) { e.preventDefault(); go(idx + 1); }
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || (e.key === 'ArrowDown' && !scrollable()) || (e.key === ' ' && !onCtl)) { e.preventDefault(); step(1); }
+    else if (e.key === 'Enter' && idx === 0 && !onCtl) { e.preventDefault(); var gb = pages[0].querySelector('.go-next'); if (gb) gb.click(); }
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || (e.key === 'ArrowUp' && !scrollable())) { e.preventDefault(); go(idx - 1); }
     else if (e.key === 'Home') { e.preventDefault(); go(0); }
     else if (e.key === 'End') { e.preventDefault(); go(N - 1); }
@@ -429,7 +432,7 @@
     if (now < lockUntil) { lockUntil = Math.max(lockUntil, now + 160); return; }
     if (now - lastWheel > 250) acc = 0;
     lastWheel = now; acc += dy;
-    if (Math.abs(acc) > 50) { go(idx + (acc > 0 ? 1 : -1)); acc = 0; lockUntil = now + 950; }
+    if (Math.abs(acc) > 50) { step(acc > 0 ? 1 : -1); acc = 0; lockUntil = now + 950; }
   }, { passive: false });
 
   var tx = 0, ty = 0, tt = 0;
@@ -437,7 +440,7 @@
   window.addEventListener('touchend', function (e) {
     if (e.target.closest && e.target.closest('.sm-toc')) return;
     var t = e.changedTouches[0], dx = t.clientX - tx, dy = t.clientY - ty;
-    if (Date.now() - tt < 800 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.3) go(idx + (dx < 0 ? 1 : -1));
+    if (Date.now() - tt < 800 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.3) step(dx < 0 ? 1 : -1);
   }, { passive: true });
 
   var rz = 0;

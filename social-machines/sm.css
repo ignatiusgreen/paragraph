@@ -71,10 +71,8 @@ body.on-dark .sm-prog-fill{background:#A9CFD2}
 .sm-arrow.next{right:clamp(12px,1.6vw,30px)}
 .sm-arrow.prev:hover{transform:translateX(-4px)}
 .sm-arrow.next:hover{transform:translateX(4px)}
-body.at-cover .sm-arrow.next svg{animation:arrowPulse 1.8s ease-in-out infinite;transform-origin:50% 50%}
-body.at-cover .sm-arrow.next:hover svg{animation-play-state:paused}
+body.at-cover .sm-arrow.next{opacity:0;visibility:hidden;pointer-events:none}
 @keyframes arrowPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.45)}}
-@media (prefers-reduced-motion:reduce){body.at-cover .sm-arrow.next svg{animation:none}}
 .sm-arrow[disabled]{opacity:0;pointer-events:none}
 body.on-dark .sm-arrow{color:var(--tealL)}
 .sm-arrow:focus-visible,.sm-where:focus-visible,.sm-mark:focus-visible{outline:2px solid var(--teal);outline-offset:4px;border-radius:6px}
