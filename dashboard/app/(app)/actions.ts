@@ -169,3 +169,12 @@ export async function revokeAgentToken(f: FormData) {
   await adminDb().from("agent_tokens").delete().eq("id", String(f.get("id")));
   refresh();
 }
+
+/** Order and width of the dashboard widgets. */
+export async function saveDashboardLayout(layout: { id: string; span: string }[]) {
+  const supabase = await guard();
+  const value = layout.filter((l) => /^[a-z]+$/.test(l.id) && /^s(3|4|6|8|12)$/.test(l.span)).slice(0, 30);
+  const { error } = await supabase.from("settings").upsert({ key: "dashboard_layout", value, updated_at: new Date().toISOString() });
+  if (error) await flash(`Couldn't save the layout: ${error.message}`);
+  refresh();
+}

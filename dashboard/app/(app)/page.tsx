@@ -2,6 +2,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { Card, Empty, eventWhen, PageHead, RowForm, TodoFields, TodoItem, F } from "@/components/ui";
 import { Clock, ImageField, Modal, Weather } from "@/components/client";
+import { WidgetGrid } from "@/components/WidgetGrid";
 import { getEvents, getNotes, getProjects, getSettings, getTodos, getTz, rows } from "@/lib/data";
 import { financeSummary, months } from "@/lib/finance-data";
 import { DEFAULT_FEEDS, getNews } from "@/lib/feeds";
@@ -59,8 +60,9 @@ export default async function Dashboard() {
         </Modal>
       </PageHead>
 
-      <div className="grid stretch">
-        <Card tone="dark" className="s4" title="Now">
+      <WidgetGrid saved={Array.isArray(settings.dashboard_layout) ? (settings.dashboard_layout as { id: string; span: string }[]) : null} items={[
+        { id: "now", label: "Now", span: "s4", node: (
+        <Card tone="dark" title="Now">
           <Clock />
           <hr className="rule" />
           <div>
@@ -70,10 +72,14 @@ export default async function Dashboard() {
             ) : <p className="muted small" style={{ marginTop: 6 }}>Nothing on the schedule.</p>}
           </div>
         </Card>
+        ) },
 
-        <Card tone="sky" className="s4" title="This week's weather"><Weather approx={approx} /></Card>
+        { id: "weather", label: "Weather", span: "s4", node: (
+        <Card tone="sky" title="This week's weather"><Weather approx={approx} /></Card>
+        ) },
 
-        <Card className="s4" title={fmtDate(ym, "month")} more="/schedule">
+        { id: "calendar", label: "Calendar", span: "s4", node: (
+        <Card title={fmtDate(ym, "month")} more="/schedule">
           <div className="minical" role="img" aria-label={`Calendar for ${fmtDate(ym, "month")}; ${upcoming.length} upcoming events`}>
             {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={i} className="dow">{d}</div>)}
             {grid.flat().map((d) => (
@@ -88,8 +94,10 @@ export default async function Dashboard() {
             ))}
           </div>
         </Card>
+        ) },
 
-        <Card tone="sun" className="s4" title="To-dos" more="/todos">
+        { id: "todos", label: "To-dos", span: "s4", node: (
+        <Card tone="sun" title="To-dos" more="/todos">
           <div className="row" style={{ gap: 18 }}>
             <div><div className="big">{open.length}</div><div className="small">open</div></div>
             <div><div className="mid">{urgent.length}</div><div className="small">urgent</div></div>
@@ -100,8 +108,10 @@ export default async function Dashboard() {
             {!top.length ? <p className="small">Nothing open. Add one with “+ To-do”.</p> : null}
           </div>
         </Card>
+        ) },
 
-        <Card className="s8" title="Projects">
+        { id: "projects", label: "Projects", span: "s8", node: (
+        <Card title="Projects">
           {(["client", "documentary", "narrative"] as Kind[]).map((kind) => {
             const list = projects.filter((p) => p.kind === kind);
             return (
@@ -139,8 +149,10 @@ export default async function Dashboard() {
             </>
           ) : <p className="small muted">No projects yet. Add them under Client projects, Documentary and Narrative.</p>}
         </Card>
+        ) },
 
-        <Card tone="teal" className="s4" title="Finance" more="/finance">
+        { id: "finance", label: "Finance", span: "s4", node: (
+        <Card tone="teal" title="Finance" more="/finance">
           <div>
             <div className="big">{months(fin.monthsBooked)}<small>months of runway</small></div>
             <div className="small muted" style={{ marginTop: 8 }}>
@@ -154,8 +166,10 @@ export default async function Dashboard() {
             <div className="tile"><span className="tile-label">Pitched</span><span className="tile-value">{money(fin.pitched, { compact: true })}</span><span className="tile-note">weighted by odds</span></div>
           </div>
         </Card>
+        ) },
 
-        <Card tone="pearl" className="s4" title="New biz" more="/bizdev">
+        { id: "bizdev", label: "New biz", span: "s4", node: (
+        <Card tone="pearl" title="New biz" more="/bizdev">
           <div className="row" style={{ gap: 18 }}>
             <div><div className="big">{openLeads.length}</div><div className="small muted">open leads</div></div>
             <div><div className="mid">{money(openLeads.reduce((s, l) => s + Number(l.est_value ?? 0), 0), { compact: true })}</div><div className="small muted">estimated value</div></div>
@@ -166,8 +180,10 @@ export default async function Dashboard() {
             ))}
           </div>
         </Card>
+        ) },
 
-        <Card className="s4" title="Notebook + gear" more="/notebook">
+        { id: "notebook", label: "Notebook + gear", span: "s4", node: (
+        <Card title="Notebook + gear" more="/notebook">
           <div className="list">
             {notes.slice(0, 3).map((n) => (
               <div className="item" key={n.id}><div className="grow"><div className="rowtitle">{n.title}</div><div className="meta">{fmtDate(n.noted_on)}{n.tags.map((tag) => <span key={tag} className="chip">{tag}</span>)}</div></div></div>
@@ -181,8 +197,10 @@ export default async function Dashboard() {
             <span className="tile"><span className="tile-label">To buy</span><span className="tile-value">{buying.length}</span><span className="tile-note">{money(buying.reduce((s, g) => s + Number(g.est_cost ?? 0), 0), { compact: true })}</span></span>
           </Link>
         </Card>
+        ) },
 
-        <Card className="s5 news" title="Industry news">
+        { id: "news", label: "Industry news", span: "s4", node: (
+        <Card className="news" title="Industry news">
           <div className="list">
             {news.map((a) => (
               <a className="item" key={a.url} href={a.url} target="_blank" rel="noreferrer">
@@ -192,8 +210,10 @@ export default async function Dashboard() {
             {!news.length ? <Empty>Headlines couldn’t be loaded just now. They refresh every half hour.</Empty> : null}
           </div>
         </Card>
+        ) },
 
-        <Card tone="dark" className="s7" title="Visual inspiration" actions={
+        { id: "inspiration", label: "Visual inspiration", span: "s8", node: (
+        <Card tone="dark" title="Visual inspiration" actions={
           <Modal label="+ Pin image" title="Pin an image" className="btn sm">
             <RowForm table="pins" submit="Pin">
               <ImageField name="image_url" label="Image" folder="pins" />
@@ -225,7 +245,8 @@ export default async function Dashboard() {
           ) : <p className="small muted">Museum and film images couldn’t be loaded just now. Pin your own with “+ Pin image”.</p>}
           <p className="tiny muted">Exhibitions on view at the Art Institute of Chicago, highlights on view at The Met{process.env.TMDB_API_KEY ? ", stills from films trending this week" : ""}, and your pins.</p>
         </Card>
-      </div>
+        ) },
+      ]} />
     </>
   );
 }
