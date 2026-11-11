@@ -92,6 +92,7 @@ export async function saveSection(f: FormData) {
   const supabase = await guard();
   const { error } = await supabase.from("sections").upsert({
     key: String(f.get("key")), header_url: (f.get("header_url") as string) || null, background_url: (f.get("background_url") as string) || null,
+    background_color: /^#[0-9a-f]{6}$/i.test(String(f.get("background_color"))) ? String(f.get("background_color")).toLowerCase() : null,
   });
   if (error) await flash(`Couldn't save: ${error.message}`);
   refresh();

@@ -1,17 +1,35 @@
-import { Delete, ImageField, LinksField, Modal, Submit, TodoCheck } from "./client";
+import { ColorField, Delete, ImageField, LinksField, Modal, Submit, TodoCheck } from "./client";
 import { deleteRow, saveRow, saveSection } from "@/app/(app)/actions";
 import { getSection } from "@/lib/data";
 import { fmtDate, fmtTime, money, relDay } from "@/lib/format";
 import { KIND_LABEL, REMINDERS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Todo } from "@/lib/types";
+
+/** Perceived brightness of a #rrggbb colour: true when white text reads better on it. */
+function isDark(hex: string) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return (r * 299 + g * 587 + b * 114) / 1000 < 140;
+}
+/** Text that sits directly on the page (outside cards) turns light when the page background is dark. */
+const ON_DARK = `.wrap{color:#fff;--muted:rgba(255,255,255,.8);--line:rgba(255,255,255,.2);--line-strong:rgba(255,255,255,.45)}`
+  + `.wrap .seg a{background:rgba(255,255,255,.16);color:#fff}.wrap .seg a[aria-current="true"]{background:#fff;color:#041b21}`
+  + `.wrap>.row>.btn.ghost,.wrap>section>.btn.ghost{color:#fff}.col{background:rgba(255,255,255,.88)}`;
 
 /** Big page title, with the section's optional header and background images. */
 export async function PageHead({ section, title, eyebrow, sub, children }: {
   section: string; title: string; eyebrow?: string; sub?: React.ReactNode; children?: React.ReactNode;
 }) {
   const s = await getSection(section);
+  // A background image gets a dark wash so cards stand out; a custom colour replaces the default mint.
+  const color = s?.background_color && /^#[0-9a-f]{6}$/i.test(s.background_color) ? s.background_color : null;
+  const dark = !!s?.background_url || (color ? isDark(color) : false);
+  const css = [
+    color ? `.main{background-color:${color}}` : "",
+    s?.background_url ? `.main{background-image:linear-gradient(rgba(4,27,33,.62),rgba(4,27,33,.62)),url("${s.background_url}")}` : "",
+    dark ? ON_DARK : "",
+  ].join("");
   return (
     <header className={`hero${s?.header_url ? " has-image" : ""}`} style={s?.header_url ? { backgroundImage: `url("${s.header_url}")` } : undefined}>
-      {s?.background_url ? <style>{`.main{background-image:linear-gradient(rgba(217,232,227,.55),rgba(217,232,227,.55)),url("${s.background_url}")}`}</style> : null}
+      {css ? <style>{css}</style> : null}
       <div>
         {eyebrow ? <div className="eyebrow">{eyebrow}</div> : null}
         <h1>{title}.</h1>
@@ -19,11 +37,12 @@ export async function PageHead({ section, title, eyebrow, sub, children }: {
       </div>
       <div className="hero-actions">
         {children}
-        <Modal label="Images" title={`${title} — images`} className="btn ghost">
+        <Modal label="Appearance" title={`${title} — appearance`} className="btn ghost">
           <form action={saveSection} className="stack">
             <input type="hidden" name="key" value={section} />
             <ImageField name="header_url" label="Header image (behind the title)" defaultValue={s?.header_url} folder="sections" />
-            <ImageField name="background_url" label="Background image (behind the whole page)" defaultValue={s?.background_url} folder="sections" />
+            <ImageField name="background_url" label="Background image (behind the whole page, darkened)" defaultValue={s?.background_url} folder="sections" />
+            <ColorField name="background_color" label="Background color" defaultValue={color} />
             <div className="form-foot"><span /><Submit>Save</Submit></div>
           </form>
         </Modal>

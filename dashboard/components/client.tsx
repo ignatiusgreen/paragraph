@@ -243,3 +243,30 @@ export function TokenForm() {
     </form>
   );
 }
+
+const SWATCHES = [
+  ["#d9e8e3", "Mint (default)"], ["#f0eeec", "Pearl"], ["#f1f6f4", "Arctic"], ["#b0d4e4", "Sky"], ["#88b98c", "Leaf"],
+  ["#ffc801", "Forsythia"], ["#d78f1f", "Sun"], ["#04656b", "Teal"], ["#114c5a", "Deep teal"], ["#172b36", "Noir"], ["#041b21", "Dusk"],
+];
+
+/** Pick a page background colour: a palette swatch, any custom colour, or back to the default. */
+export function ColorField({ name, label, defaultValue }: { name: string; label: string; defaultValue?: string | null }) {
+  const [color, setColor] = useState(defaultValue ?? "");
+  return (
+    <div className="field">
+      <span className="label">{label}</span>
+      <input type="hidden" name={name} value={color} />
+      <div className="swatches">
+        {SWATCHES.map(([hex, title]) => (
+          <button key={hex} type="button" title={title} aria-label={title} aria-pressed={color === hex || (!color && hex === SWATCHES[0][0])}
+            style={{ background: hex }} onClick={() => setColor(hex === SWATCHES[0][0] ? "" : hex)} />
+        ))}
+        <label className="custom">
+          Custom
+          <input type="color" aria-label="Custom background color" value={color || SWATCHES[0][0]} onChange={(e) => setColor(e.target.value)} />
+        </label>
+      </div>
+      <span className="tiny muted">{color ? `Using ${color}.` : "Using the default mint."} A background image, if set, shows on top of the color.</span>
+    </div>
+  );
+}

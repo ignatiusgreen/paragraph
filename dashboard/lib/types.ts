@@ -35,7 +35,7 @@ export type Gear = {
   priority: string | null; image_url: string | null; notes: string | null;
 };
 export type Pin = { id: string; image_url: string; caption: string | null; source_url: string | null };
-export type Section = { key: string; header_url: string | null; background_url: string | null };
+export type Section = { key: string; header_url: string | null; background_url: string | null; background_color: string | null };
 
 export const STAGES: Record<Kind, { group?: string; value: string; label: string }[]> = {
   client: [
