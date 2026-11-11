@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { Card, Empty, eventWhen, PageHead, RowForm, TodoFields, TodoItem, F } from "@/components/ui";
 import { Clock, ImageField, Modal, Weather } from "@/components/client";
 import { getEvents, getNotes, getProjects, getSettings, getTodos, getTz, rows } from "@/lib/data";
@@ -17,6 +18,12 @@ const ago = (iso: string | null) => {
 
 export default async function Dashboard() {
   const tz = await getTz();
+  // Vercel tells us roughly where the request came from; the weather panel uses it until the browser shares a precise location.
+  const h = await headers();
+  const lat = Number(h.get("x-vercel-ip-latitude")), lon = Number(h.get("x-vercel-ip-longitude"));
+  const approx = h.get("x-vercel-ip-latitude") && Number.isFinite(lat) && Number.isFinite(lon)
+    ? { lat: +lat.toFixed(2), lon: +lon.toFixed(2), place: [decodeURIComponent(h.get("x-vercel-ip-city") ?? ""), h.get("x-vercel-ip-country-region")].filter(Boolean).join(", ") }
+    : null;
   const t = today(tz), ym = t.slice(0, 7);
   const grid = monthGrid(ym);
   const [todos, projects, events, notes, leads, gear, pins, settings, fin] = await Promise.all([
@@ -64,7 +71,7 @@ export default async function Dashboard() {
           </div>
         </Card>
 
-        <Card tone="sky" className="s4" title="This week's weather"><Weather /></Card>
+        <Card tone="sky" className="s4" title="This week's weather"><Weather approx={approx} /></Card>
 
         <Card className="s4" title={fmtDate(ym, "month")} more="/schedule">
           <div className="minical" role="img" aria-label={`Calendar for ${fmtDate(ym, "month")}; ${upcoming.length} upcoming events`}>

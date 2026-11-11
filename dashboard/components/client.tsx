@@ -159,43 +159,49 @@ const wmo = (code: number) => WMO.find(([codes]) => codes.includes(code)) ?? [[]
 type Wx = { place: string; days: { date: string; code: number; hi: number; lo: number }[] };
 
 /** This week's forecast for wherever the browser is (Open-Meteo, no key needed). */
-export function Weather() {
+export function Weather({ approx }: { approx?: { lat: number; lon: number; place: string } | null }) {
   const [wx, setWx] = useState<Wx | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "denied" | "error">("loading");
   useEffect(() => {
-    let live = true;
-    async function load(lat: number, lon: number) {
+    let live = true, precise = false;
+    async function load(lat: number, lon: number, known?: string) {
       try {
         const f = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto&forecast_days=7`)).json();
-        let place = "Current location";
-        try {
-          const g = await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)).json();
-          place = [g.city || g.locality, g.principalSubdivisionCode?.split("-").pop()].filter(Boolean).join(", ") || place;
-        } catch { /* name is optional */ }
+        let place = known || "Current location";
+        if (!known) {
+          try {
+            const g = await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)).json();
+            place = [g.city || g.locality, g.principalSubdivisionCode?.split("-").pop()].filter(Boolean).join(", ") || place;
+          } catch { /* name is optional */ }
+        }
         const days = (f.daily.time as string[]).map((date, i) => ({
           date, code: f.daily.weather_code[i], hi: Math.round(f.daily.temperature_2m_max[i]), lo: Math.round(f.daily.temperature_2m_min[i]),
         }));
         if (!live) return;
         setWx({ place, days }); setState("ready");
-        try { localStorage.setItem("wx-loc", JSON.stringify({ lat, lon })); } catch { /* fine */ }
-      } catch { if (live) setState("error"); }
+      } catch { if (live) setState((s) => (s === "ready" ? s : "error")); }
     }
+    // Show something straight away: the last precise location, else the approximate one from the network.
     let saved: { lat: number; lon: number } | null = null;
     try { saved = JSON.parse(localStorage.getItem("wx-loc") ?? "null"); } catch { /* fine */ }
     if (saved) load(saved.lat, saved.lon);
-    if (!navigator.geolocation) { if (!saved) setState("denied"); return; }
+    else if (approx) load(approx.lat, approx.lon, approx.place);
+    // Then refine with the device's location if the browser gives it. Failing here is fine.
+    if (!navigator.geolocation) { if (!saved && !approx) setState("denied"); return; }
     navigator.geolocation.getCurrentPosition(
       (p) => {
+        precise = true;
         const lat = +p.coords.latitude.toFixed(2), lon = +p.coords.longitude.toFixed(2);
+        try { localStorage.setItem("wx-loc", JSON.stringify({ lat, lon })); } catch { /* fine */ }
         if (!saved || saved.lat !== lat || saved.lon !== lon) load(lat, lon);
       },
-      () => { if (!saved && live) setState("denied"); },
-      { maximumAge: 3600000, timeout: 10000 },
+      () => { if (!saved && !approx && !precise && live) setState("denied"); },
+      { maximumAge: 3600000, timeout: 20000 },
     );
     return () => { live = false; };
-  }, []);
+  }, [approx?.lat, approx?.lon, approx?.place]);
   if (state !== "ready" || !wx) {
-    return <p className="small muted">{state === "loading" ? "Finding the forecast…" : state === "denied" ? "Allow location access in your browser to see this week's weather here." : "The forecast isn't available right now."}</p>;
+    return <p className="small muted">{state === "loading" ? "Finding the forecast…" : state === "denied" ? "Your location couldn't be read. On a Mac, check System Settings → Privacy & Security → Location Services and make sure Safari is switched on." : "The forecast isn't available right now."}</p>;
   }
   const t = wx.days[0];
   return (
