@@ -2,7 +2,7 @@ import { ColorField, Delete, ImageField, LinksField, Modal, Submit, TodoCheck } 
 import { deleteRow, saveRow, saveSection } from "@/app/(app)/actions";
 import { getSection } from "@/lib/data";
 import { fmtDate, fmtTime, money, relDay } from "@/lib/format";
-import { KIND_LABEL, REMINDERS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Todo } from "@/lib/types";
+import { GLOBAL_SECTION, KIND_LABEL, REMINDERS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Todo } from "@/lib/types";
 
 /** Perceived brightness of a #rrggbb colour: true when white text reads better on it. */
 function isDark(hex: string) {
@@ -18,13 +18,17 @@ const ON_DARK = `.wrap{color:#fff;--muted:rgba(255,255,255,.8);--line:rgba(255,2
 export async function PageHead({ section, title, eyebrow, sub, children }: {
   section: string; title: string; eyebrow?: string; sub?: React.ReactNode; children?: React.ReactNode;
 }) {
-  const s = await getSection(section);
+  const [s, shared] = await Promise.all([getSection(section), getSection(GLOBAL_SECTION)]);
+  // A page uses its own background if it has one, otherwise the one shared by all pages.
+  const own = !!(s?.background_url || s?.background_color);
+  const bg = own ? s : shared;
+  const bgUrl = bg?.background_url ?? null;
   // A background image gets a dark wash so cards stand out; a custom colour replaces the default mint.
-  const color = s?.background_color && /^#[0-9a-f]{6}$/i.test(s.background_color) ? s.background_color : null;
-  const dark = !!s?.background_url || (color ? isDark(color) : false);
+  const color = bg?.background_color && /^#[0-9a-f]{6}$/i.test(bg.background_color) ? bg.background_color : null;
+  const dark = !!bgUrl || (color ? isDark(color) : false);
   const css = [
     color ? `.main{background-color:${color}}` : "",
-    s?.background_url ? `.main{background-image:linear-gradient(rgba(4,27,33,.62),rgba(4,27,33,.62)),url("${s.background_url}")}` : "",
+    bgUrl ? `.main{background-image:linear-gradient(rgba(4,27,33,.62),rgba(4,27,33,.62)),url("${bgUrl}")}` : "",
     dark ? ON_DARK : "",
   ].join("");
   return (
@@ -41,8 +45,14 @@ export async function PageHead({ section, title, eyebrow, sub, children }: {
           <form action={saveSection} className="stack">
             <input type="hidden" name="key" value={section} />
             <ImageField name="header_url" label="Header image (behind the title)" defaultValue={s?.header_url} folder="sections" />
-            <ImageField name="background_url" label="Background image (behind the whole page, darkened)" defaultValue={s?.background_url} folder="sections" />
+            <ImageField name="background_url" label="Background image (behind the whole page, darkened)" defaultValue={bgUrl} folder="sections" />
             <ColorField name="background_color" label="Background color" defaultValue={color} />
+            <div className="field">
+              <label className="check"><input type="checkbox" name="everywhere" defaultChecked={!own} />Use this background on all pages</label>
+              <span className="tiny muted">{own
+                ? "This page has its own background. Tick the box to make it the background everywhere instead."
+                : "Untick to give only this page a different background. Pages with their own background keep it."}</span>
+            </div>
             <div className="form-foot"><span /><Submit>Save</Submit></div>
           </form>
         </Modal>
