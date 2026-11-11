@@ -110,12 +110,12 @@ export default async function Finance() {
             <>
               <LineChart label="Projected month-end cash for the next 12 months" months={f.series.map((m) => m.month + "-01")}
                 series={[
-                  { name: "Booked only", color: "#04656b", values: f.series.map((m) => m.booked) },
-                  { name: "With pitches", color: "#d78f1f", values: f.series.map((m) => m.withPitches), dashed: true },
+                  { name: "Booked only", color: "#00919b", values: f.series.map((m) => m.booked) },
+                  { name: "With pitches", color: "#c47e10", values: f.series.map((m) => m.withPitches), dashed: true },
                 ]} />
               <div className="legend">
-                <span><i style={{ background: "#04656b" }} />Booked only: {outLabel(f.outBooked)}</span>
-                <span><i style={{ background: "#d78f1f" }} />With pitches (weighted by odds): {outLabel(f.outWithPitches)}</span>
+                <span><i style={{ background: "#00919b" }} />Booked only: {outLabel(f.outBooked)}</span>
+                <span><i style={{ background: "#c47e10" }} />With pitches (weighted by odds): {outLabel(f.outWithPitches)}</span>
               </div>
               <details>
                 <summary className="small">Show as a table</summary>

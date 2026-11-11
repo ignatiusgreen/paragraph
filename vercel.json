@@ -3,6 +3,16 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/dashboard",
+      "destination": "https://dashboard.paragraphfilms.com/",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard/:path*",
+      "destination": "https://dashboard.paragraphfilms.com/",
+      "permanent": false
+    },
+    {
       "source": "/redesign",
       "destination": "/",
       "permanent": true

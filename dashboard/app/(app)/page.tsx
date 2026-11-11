@@ -6,7 +6,7 @@ import { financeSummary, months } from "@/lib/finance-data";
 import { DEFAULT_FEEDS, getNews } from "@/lib/feeds";
 import { getInspiration } from "@/lib/inspiration";
 import { addDays, fmtDate, money, monthGrid, nowTime, relDay, today } from "@/lib/format";
-import { KIND_LABEL, KIND_PATH, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
+import { KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
 
 const RAMP = ["#b0d4e4", "#7fb4c0", "#4b929b", "#04656b", "#114c5a", "#172b36", "#041b21"];
 const ago = (iso: string | null) => {
@@ -117,6 +117,20 @@ export default async function Dashboard() {
               </div>
             );
           })}
+          {projects.length ? (
+            <>
+              <hr className="rule" />
+              <div className="strip">
+                {[...projects].sort((a, b) => Number(!!b.image_url) - Number(!!a.image_url) || b.created_at.localeCompare(a.created_at)).slice(0, 6).map((p) => (
+                  <Link key={p.id} href={KIND_PATH[p.kind]} className="strip-item">
+                    <span className="art" style={p.image_url ? { backgroundImage: `url("${p.image_url}")` } : undefined}>{p.image_url ? "" : p.title.slice(0, 1)}</span>
+                    <strong>{p.title}</strong>
+                    <span className="tiny muted">{KIND_LABEL[p.kind]} · {stageLabel(p.kind, p.stage)}</span>
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : <p className="small muted">No projects yet. Add them under Client projects, Documentary and Narrative.</p>}
         </Card>
 
         <Card tone="teal" className="s4" title="Finance" more="/finance">
@@ -127,6 +141,7 @@ export default async function Dashboard() {
             </div>
           </div>
           <div className="tiles">
+            <div className="tile"><span className="tile-label">Overhead</span><span className="tile-value">{money(fin.burn.total, { compact: true })}</span><span className="tile-note">a month</span></div>
             <div className="tile"><span className="tile-label">Cash</span><span className="tile-value">{money(fin.cash, { compact: true })}</span></div>
             <div className="tile"><span className="tile-label">Booked</span><span className="tile-value">{money(fin.booked, { compact: true })}</span></div>
             <div className="tile"><span className="tile-label">Pitched</span><span className="tile-value">{money(fin.pitched, { compact: true })}</span><span className="tile-note">weighted by odds</span></div>
@@ -153,10 +168,10 @@ export default async function Dashboard() {
             {!notes.length ? <p className="small muted">No notes yet.</p> : null}
           </div>
           <hr className="rule" />
-          <Link href="/gear" className="tiles" style={{ textDecoration: "none" }}>
+          <Link href="/gear" className="tiles" style={{ textDecoration: "none", gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
             <span className="tile"><span className="tile-label">Gear owned</span><span className="tile-value">{gear.filter((g) => g.list === "inventory").length}</span></span>
             <span className="tile"><span className="tile-label">For sale</span><span className="tile-value">{selling.length}</span></span>
-            <span className="tile"><span className="tile-label">To buy</span><span className="tile-value">{money(buying.reduce((s, g) => s + Number(g.est_cost ?? 0), 0), { compact: true })}</span></span>
+            <span className="tile"><span className="tile-label">To buy</span><span className="tile-value">{buying.length}</span><span className="tile-note">{money(buying.reduce((s, g) => s + Number(g.est_cost ?? 0), 0), { compact: true })}</span></span>
           </Link>
         </Card>
 

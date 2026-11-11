@@ -66,8 +66,8 @@ export default async function GearPage() {
         <div className="tiles">
           <div className="tile"><span className="tile-label">Inventory</span><span className="tile-value">{inv.length}</span><span className="tile-note">{money(inv.reduce((s, g) => s + Number(g.purchase_price ?? 0), 0), { compact: true })} paid</span></div>
           <div className="tile"><span className="tile-label">For sale</span><span className="tile-value">{selling.length}</span><span className="tile-note">{money(selling.reduce((s, g) => s + Number(g.ask_price ?? 0), 0), { compact: true })} asking</span></div>
-          <div className="tile"><span className="tile-label">Sold</span><span className="tile-value">{money(sell.reduce((s, g) => s + Number(g.sell_status === "sold" ? g.sold_price ?? 0 : 0), 0), { compact: true })}</span><span className="tile-note">{sell.length - selling.length} items</span></div>
-          <div className="tile"><span className="tile-label">Purchase budget</span><span className="tile-value">{money(buy.reduce((s, g) => s + Number(g.est_cost ?? 0), 0), { compact: true })}</span><span className="tile-note">{buy.length} items wanted</span></div>
+          <div className="tile"><span className="tile-label">Sold</span><span className="tile-value">{money(sell.reduce((s, g) => s + Number(g.sell_status === "sold" ? g.sold_price ?? 0 : 0), 0), { compact: true })}</span><span className="tile-note">{sell.length - selling.length} item{sell.length - selling.length === 1 ? "" : "s"}</span></div>
+          <div className="tile"><span className="tile-label">Purchase budget</span><span className="tile-value">{money(buy.reduce((s, g) => s + Number(g.est_cost ?? 0), 0), { compact: true })}</span><span className="tile-note">{buy.length} item{buy.length === 1 ? "" : "s"} wanted</span></div>
         </div>
       </div>
 

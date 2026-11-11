@@ -7,12 +7,14 @@ export function LineChart({ months, series, label }: { months: string[]; series:
   const W = 760, H = 280, L = 58, R = 128, T = 34, B = 30;
   const all = series.flatMap((s) => s.values);
   const lo = Math.min(0, ...all), hi = Math.max(0, ...all);
-  const pad = (hi - lo || 1) * 0.08;
-  const y0 = lo < 0 ? lo - pad : 0, y1 = hi + pad;
+  // Round the axis to a "nice" step so tick labels are clean numbers.
+  const rough = (hi - lo || 1) / 4, mag = 10 ** Math.floor(Math.log10(rough));
+  const unit = [1, 2, 2.5, 5, 10].find((m) => m * mag >= rough)! * mag;
+  const y0 = Math.floor(lo / unit) * unit, y1 = Math.ceil(hi / unit) * unit || unit;
   const x = (i: number) => L + (i * (W - L - R)) / Math.max(1, months.length - 1);
   const y = (v: number) => T + ((y1 - v) * (H - T - B)) / (y1 - y0);
   const step = (W - L - R) / Math.max(1, months.length - 1);
-  const ticks = Array.from({ length: 4 }, (_, i) => y0 + ((y1 - y0) * i) / 3);
+  const ticks = Array.from({ length: Math.round((y1 - y0) / unit) + 1 }, (_, i) => y0 + i * unit);
   // Keep the two end labels from sitting on top of each other.
   const ends = series.map((s) => y(s.values[s.values.length - 1]));
   if (ends.length === 2 && Math.abs(ends[0] - ends[1]) < 14) { const mid = (ends[0] + ends[1]) / 2, up = ends[0] <= ends[1] ? 0 : 1; ends[up] = mid - 7; ends[1 - up] = mid + 7; }

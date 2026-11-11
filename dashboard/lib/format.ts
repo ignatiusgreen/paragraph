@@ -4,7 +4,7 @@ export function money(v: number | string | null | undefined, opts: { cents?: boo
   if (v == null || v === "") return "—";
   const n = Number(v);
   if (opts.compact && Math.abs(n) >= 10000) {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(n);
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", minimumFractionDigits: 0, maximumFractionDigits: 1 }).format(n);
   }
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: opts.cents ? 2 : 0 }).format(n);
 }

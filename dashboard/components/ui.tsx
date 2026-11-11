@@ -234,7 +234,7 @@ export function ProjectCard({ project, clients, todos }: { project: Project; cli
 
 export function Board({ kind, stages, projects, clients, todos }: { kind: Kind; stages: { value: string; label: string }[]; projects: Project[]; clients: Client[]; todos: Todo[] }) {
   return (
-    <div className="board" style={{ gridAutoColumns: `minmax(230px, ${stages.length <= 2 ? "420px" : "1fr"})` }}>
+    <div className="board" style={{ gridAutoColumns: `minmax(${stages.length > 4 ? 190 : 230}px, ${stages.length <= 2 ? "420px" : "1fr"})` }}>
       {stages.map((s) => {
         const list = projects.filter((p) => p.kind === kind && p.stage === s.value);
         return (
