@@ -15,23 +15,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const logo = (
     <Link href="/" aria-label="Paragraph — Dashboard">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo-white.png" alt="Paragraph" width={150} height={45} />
+      <img src="/logo-white.png" alt="Paragraph" width={132} height={40} />
     </Link>
   );
   return (
     <div className="shell">
       <TzCookie current={store.get("tz")?.value ?? ""} />
-      <nav className="side" aria-label="Sections">
-        <div className="brand">{logo}<div className="brand-sub">Studio dashboard</div></div>
-        <NavLinks counts={counts} />
-        <div className="side-foot">
-          {me.name ?? me.email} · {tz.split("/").pop()?.replace(/_/g, " ")}<br />
-          <form action="/auth/signout" method="post"><button type="submit">Sign out</button></form>
-        </div>
-      </nav>
       <header className="topbar">
-        <div className="topbar-row">{logo}</div>
-        <nav className="tabs" aria-label="Sections"><NavLinks counts={counts} /></nav>
+        <div className="topbar-in">
+          <div className="topbar-row">{logo}</div>
+          <nav className="tabs" aria-label="Sections"><NavLinks counts={counts} /></nav>
+          <form action="/auth/signout" method="post" className="topbar-user">
+            <span>{me.name ?? me.email}</span>
+            <button type="submit">Sign out</button>
+          </form>
+        </div>
       </header>
       <main className="main" id="main">
         <div className="wrap">
