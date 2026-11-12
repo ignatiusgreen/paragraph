@@ -359,3 +359,67 @@ pre { background: var(--dusk); color: #e6eeee; padding: 14px; overflow-x: auto; 
 .widget.linked > .card { transition: box-shadow 0.12s; }
 .widget.linked:hover > .card { box-shadow: 0 0 0 2px var(--dusk); }
 .widget.linked dialog { cursor: auto; }
+
+/* ---------- Phones: considerably larger type, simpler panels ---------- */
+@media (max-width: 720px) {
+  body { font-size: 18px; line-height: 1.45; }
+  .small, .hero-sub { font-size: 16.5px; }
+  .tiny, .tile-note, .item .meta, .legend { font-size: 15px; }
+  .eyebrow, .tile-label, .field > label, .field > .label, .group-label, th, .col-head { font-size: 13.5px; }
+  .card-title, .dialog-head h2 { font-size: 18px; }
+  .card { padding: 22px 20px; gap: 18px; }
+  .hero { padding: 24px 20px; }
+  .hero h1 { font-size: clamp(42px, 12.5vw, 64px); }
+  .big { font-size: 68px; }
+  .mid, .tile-value { font-size: 36px; }
+  .clock { font-size: 88px; }
+  .btn { font-size: 16px; padding: 12px 18px; }
+  .btn.sm { font-size: 15px; padding: 9px 13px; }
+  .chip { font-size: 13px; padding: 3px 8px; }
+  .seg a { font-size: 16px; padding: 10px 14px; }
+  .check, .notice, .empty, .note p, .strip-item, .pcard .logline, .swatches .custom { font-size: 16.5px; }
+  .pcard .title { font-size: 19px; }
+  .note h3 { font-size: 30px; }
+  table { font-size: 16.5px; }
+  input[type="checkbox"] { width: 24px; height: 24px; }
+  /* 16px or more also stops iOS zooming the page when a field is focused */
+  input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], input[type="time"],
+  input[type="url"], input[type="month"], input:not([type]), select, textarea { font-size: 17px; min-height: 48px; }
+  .item { padding: 14px 0; gap: 14px; }
+  .tiles { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+
+  /* top bar: logo with the eye and sign-out on one row, sections underneath */
+  .topbar-row { order: 1; }
+  .eye { order: 2; margin-top: 10px; }
+  .topbar-user { order: 3; font-size: 15px; }
+  .topbar-user button { font-size: 15px; }
+  .tabs { order: 4; }
+  .tabs .navlink { font-size: 17px; padding: 13px 11px; }
+  .topbar-row img { width: 138px; }
+
+  /* weather: today plus the next two days */
+  .wx { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .wx .d:nth-child(n + 4) { display: none; }
+  .wx .d { font-size: 16px; padding: 12px 4px; }
+  .wx .icon { font-size: 28px; }
+  .wx .hi { font-size: 20px; }
+
+  /* calendars */
+  .minical { font-size: 17px; }
+  .minical .dow { font-size: 14px; }
+  .minical .d { padding: 9px 0 12px; }
+  .card:has(> .cal), .card:has(> .chart) { overflow-x: auto; }
+  .cal { min-width: 760px; }
+  .cal .day { min-height: 96px; padding: 5px; }
+  .cal .dow, .cal .daynum { font-size: 14px; }
+  .ev { font-size: 14px; padding: 4px 6px; }
+  .chart { min-width: 680px; }
+
+  .mosaic { grid-auto-rows: 150px; }
+  .mosaic .cap { font-size: 13.5px; }
+  .widget-bar { font-size: 14px; }
+  .widget-bar select { font-size: 15px; min-height: 34px; }
+  .widget-bar button { width: 38px; height: 34px; }
+  code, pre { font-size: 14px; }
+  .linksfield .linkrow { grid-template-columns: 1fr; }
+}
