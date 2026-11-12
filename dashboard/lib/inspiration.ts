@@ -13,7 +13,7 @@ export const DEFAULT_SOURCES: Source[] = [
   { label: "Art Institute of Chicago", url: "https://api.artic.edu/api/v1/exhibitions", weight: 2 },
   { label: "The Met", url: "https://collectionapi.metmuseum.org/public/collection/v1/search", weight: 2 },
   { label: "Cleveland Museum of Art", url: "https://openaccess-api.clevelandart.org/api/artworks/", weight: 2 },
-  { label: "FILM-GRAB (film stills)", url: "https://film-grab.com/feed/", weight: 2 },
+  { label: "FILM-GRAB (film stills)", url: "https://film-grab.com/feed/", weight: 3 },
 ];
 
 const UA = "Mozilla/5.0 (compatible; StudioDashboard/1.0; +image-panel)";
