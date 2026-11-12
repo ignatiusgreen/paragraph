@@ -16,41 +16,50 @@ export const DEFAULT_SOURCES: Source[] = [
   { label: "FILM-GRAB (film stills)", url: "https://film-grab.com/feed/", weight: 3 },
 ];
 
-const UA = "Mozilla/5.0 (compatible; StudioDashboard/1.0; +image-panel)";
+const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15";
+const rand = (n: number) => Math.floor(Math.random() * n);
 const request = (url: string) =>
-  fetch(url, { next: { revalidate: 21600 }, signal: AbortSignal.timeout(7000), headers: { "user-agent": UA, accept: "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8" } });
+  fetch(url, { next: { revalidate: 21600 }, signal: AbortSignal.timeout(7000), headers: { "user-agent": UA, accept: "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8", "accept-language": "en-US,en;q=0.9" } });
 const getJson = async (url: string) => {
   const res = await request(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 };
-const day = () => Math.floor(Date.now() / 86400000);
 
 // ---------------- Museums with open APIs ----------------
-/** Exhibitions on view now at the Art Institute of Chicago. */
+/** Art Institute of Chicago: exhibitions on view now, plus a random page of artworks from the collection. */
 async function artInstitute(credit: string): Promise<Inspiration[]> {
-  const j = await getJson("https://api.artic.edu/api/v1/exhibitions?limit=40&fields=id,title,image_url,web_url,aic_start_at,aic_end_at");
   const now = Date.now();
-  return (j.data ?? [])
-    .filter((e: any) => e.image_url && (!e.aic_start_at || +new Date(e.aic_start_at) <= now) && (!e.aic_end_at || +new Date(e.aic_end_at) >= now))
-    .map((e: any) => ({ image: e.image_url, title: e.title, credit: `${credit} · on view`, url: e.web_url ?? null }));
+  const [shows, works] = await Promise.all([
+    getJson("https://api.artic.edu/api/v1/exhibitions?limit=40&fields=id,title,image_url,web_url,aic_start_at,aic_end_at").catch(() => ({ data: [] })),
+    getJson(`https://api.artic.edu/api/v1/artworks?page=${1 + rand(40)}&limit=24&fields=id,title,image_id,artist_title`).catch(() => ({ data: [] })),
+  ]);
+  return [
+    ...(shows.data ?? [])
+      .filter((e: any) => e.image_url && (!e.aic_start_at || +new Date(e.aic_start_at) <= now) && (!e.aic_end_at || +new Date(e.aic_end_at) >= now))
+      .map((e: any) => ({ image: e.image_url, title: e.title, credit: `${credit} · on view`, url: e.web_url ?? null })),
+    ...(works.data ?? []).filter((w: any) => w.image_id).map((w: any) => ({
+      image: `https://www.artic.edu/iiif/2/${w.image_id}/full/843,/0/default.jpg`, title: w.title,
+      credit: [w.artist_title, credit].filter(Boolean).join(" · "), url: `https://www.artic.edu/artworks/${w.id}`,
+    })),
+  ];
 }
 
-/** Highlights currently on view at The Met; a different handful each day. */
+/** Highlights currently on view at The Met: a different random handful on every load. */
 async function met(credit: string): Promise<Inspiration[]> {
   const j = await getJson("https://collectionapi.metmuseum.org/public/collection/v1/search?isHighlight=true&isOnView=true&hasImages=true&q=*");
   const ids: number[] = j.objectIDs ?? [];
   if (!ids.length) return [];
-  const pick = Array.from({ length: 6 }, (_, i) => ids[(day() * 7919 + i * 104729) % ids.length]);
+  const pick = [...new Set(Array.from({ length: 10 }, () => ids[rand(ids.length)]))];
   const objs = await Promise.all(pick.map((id) => getJson(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`).catch(() => null)));
   return objs.filter((o) => o?.primaryImageSmall).map((o) => ({
     image: o.primaryImageSmall, title: o.title, credit: [o.artistDisplayName, credit].filter(Boolean).join(" · "), url: o.objectURL ?? null,
   }));
 }
 
-/** Works on view at the Cleveland Museum of Art; a different page each day. */
+/** Works on view at the Cleveland Museum of Art: a random page on every load. */
 async function cleveland(credit: string): Promise<Inspiration[]> {
-  const j = await getJson(`https://openaccess-api.clevelandart.org/api/artworks/?has_image=1&currently_on_view&limit=12&skip=${(day() % 40) * 12}`);
+  const j = await getJson(`https://openaccess-api.clevelandart.org/api/artworks/?has_image=1&currently_on_view&limit=24&skip=${rand(40) * 24}`);
   return (j.data ?? []).filter((a: any) => a?.images?.web?.url).map((a: any) => ({
     image: a.images.web.url, title: a.title, credit: [a.creators?.[0]?.description?.split(" (")[0], credit].filter(Boolean).join(" · "), url: a.url ?? null,
   }));
@@ -128,13 +137,50 @@ function fromPage(html: string, base: string, credit: string): Inspiration[] {
   return out;
 }
 
+/** Image addresses that appear anywhere in a page's code (data blobs, CSS backgrounds), for sites that build their pages in the browser. */
+function fromCode(html: string, base: string, credit: string): Inspiration[] {
+  const text = html.replace(/\\u002F/gi, "/").replace(/\\\//g, "/").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+  const out: Inspiration[] = [];
+  const seen = new Set<string>();
+  for (const m of text.matchAll(/https?:\/\/[^\s"'<>()\\]+?\.(?:jpe?g|png|webp)(?:\?[^\s"'<>()\\]*)?/gi)) {
+    const image = m[0];
+    if (JUNK.test(image) || /[-_/](?:\d{2,3})x(?:\d{2,3})\.|thumb|[?&]w=(?:\d{1,2}|1\d{2})(?:&|$)|social|share|og[-_]|apple-touch|sprite/i.test(image)) continue;
+    // One entry per picture: sites list the same image at many sizes.
+    const key = image.split("?")[0].replace(/[-_]\d{2,4}x\d{2,4}(?=\.\w+$)/, "").replace(/\/(?:w|h|c|q|f|fl|g|ar|dpr)_[^/]+(?=\/)/g, "");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ image, title: credit, credit, url: base });
+    if (out.length >= 40) break;
+  }
+  return out;
+}
+
+/** WordPress sites expose their recent posts, with each post's main image, as JSON. */
+async function fromWordPress(base: string, credit: string): Promise<Inspiration[]> {
+  const j = await getJson(`${new URL(base).origin}/wp-json/wp/v2/posts?per_page=40&_embed=wp:featuredmedia`);
+  if (!Array.isArray(j)) return [];
+  return j.map((post: any) => {
+    const media = post?._embedded?.["wp:featuredmedia"]?.[0];
+    const image = media?.media_details?.sizes?.large?.source_url ?? media?.source_url ?? post?.jetpack_featured_media_url ?? "";
+    return { image, title: short(decode(post?.title?.rendered ?? "")) || credit, credit, url: post?.link ?? base };
+  }).filter((i: Inspiration) => i.image && !JUNK.test(i.image));
+}
+
 async function generic(src: Source): Promise<Inspiration[]> {
   const res = await request(src.url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const text = await res.text();
   const head = text.slice(0, 600).toLowerCase();
-  const items = head.includes("<rss") || head.includes("<feed") || head.includes("<rdf") ? fromFeed(text, src.url, src.label) : fromPage(text, src.url, src.label);
-  return items.slice(0, 24);
+  const feed = head.includes("<rss") || head.includes("<feed") || head.includes("<rdf");
+  let items = feed ? fromFeed(text, src.url, src.label) : fromPage(text, src.url, src.label);
+  const add = (more: Inspiration[]) => {
+    const have = new Set(items.map((i) => i.image.split("?")[0]));
+    items = [...items, ...more.filter((i) => !have.has(i.image.split("?")[0]))];
+  };
+  // Thin results: look for image addresses in the page's code, then try the site's WordPress post list.
+  if (items.length < 8 && !feed) add(fromCode(text, src.url, src.label));
+  if (items.length < 8) add(await fromWordPress(src.url, src.label).catch(() => []));
+  return items.slice(0, 40);
 }
 
 /** Fetch one source. Never throws: a failure comes back as `error`. */
