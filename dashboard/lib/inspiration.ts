@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 
 export type Inspiration = { image: string; title: string; credit: string; url: string | null };
 /** A place to pull images from. `weight` 3 = favour, 2 = normal, 1 = occasionally. */
@@ -6,6 +7,50 @@ export type Source = { label: string; url: string; weight: number };
 export type SourceResult = { source: Source; items: Inspiration[]; error: string | null };
 
 /** Kansas City first, then other museums with open collections, then film stills. Editable in Settings. */
+/** Magazines and journals whose feeds carry an image with each story. Added to the built-in list at Normal weight. */
+export const MAGAZINES: Source[] = [
+  // Art + design
+  { label: "Colossal", url: "https://www.thisiscolossal.com/feed/", weight: 2 },
+  { label: "Hyperallergic", url: "https://hyperallergic.com/feed/", weight: 2 },
+  { label: "ARTnews", url: "https://www.artnews.com/feed/", weight: 2 },
+  { label: "Artnet News", url: "https://news.artnet.com/feed", weight: 2 },
+  { label: "It's Nice That", url: "https://www.itsnicethat.com/?format=rss", weight: 2 },
+  { label: "Juxtapoz", url: "https://www.juxtapoz.com/news/?format=feed&type=rss", weight: 2 },
+  { label: "Booooooom", url: "https://www.booooooom.com/feed/", weight: 2 },
+  { label: "Creative Boom", url: "https://www.creativeboom.com/feed/", weight: 2 },
+  { label: "Designboom", url: "https://www.designboom.com/feed/", weight: 2 },
+  { label: "Dezeen", url: "https://www.dezeen.com/feed/", weight: 2 },
+  { label: "Aesthetica", url: "https://aestheticamagazine.com/feed/", weight: 2 },
+  { label: "The Guardian — Art & design", url: "https://www.theguardian.com/artanddesign/rss", weight: 2 },
+  { label: "The New York Times — Art & design", url: "https://rss.nytimes.com/services/xml/rss/nyt/ArtandDesign.xml", weight: 2 },
+  // Photography
+  { label: "Aperture", url: "https://aperture.org/feed/", weight: 2 },
+  { label: "British Journal of Photography", url: "https://www.1854.photography/feed/", weight: 2 },
+  { label: "Feature Shoot", url: "https://www.featureshoot.com/feed/", weight: 2 },
+  { label: "The Guardian — Photography", url: "https://www.theguardian.com/artanddesign/photography/rss", weight: 2 },
+  // Film
+  { label: "Little White Lies", url: "https://lwlies.com/feed/", weight: 2 },
+  { label: "Film Comment", url: "https://www.filmcomment.com/feed/", weight: 2 },
+  { label: "Filmmaker Magazine", url: "https://filmmakermagazine.com/feed/", weight: 2 },
+  { label: "The Film Stage", url: "https://thefilmstage.com/feed/", weight: 2 },
+  { label: "MUBI Notebook", url: "https://mubi.com/en/notebook/posts.atom", weight: 2 },
+  { label: "IndieWire", url: "https://www.indiewire.com/feed/", weight: 2 },
+  { label: "The Guardian — Film", url: "https://www.theguardian.com/film/rss", weight: 2 },
+  { label: "The New York Times — Movies", url: "https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml", weight: 2 },
+  // Fashion + culture
+  { label: "Vogue", url: "https://www.vogue.com/feed/rss", weight: 2 },
+  { label: "Dazed", url: "https://www.dazeddigital.com/rss", weight: 2 },
+  { label: "AnOther Magazine", url: "https://www.anothermag.com/rss", weight: 2 },
+  { label: "i-D", url: "https://i-d.co/feed/", weight: 2 },
+  { label: "W Magazine", url: "https://www.wmagazine.com/rss", weight: 2 },
+  { label: "Hypebeast", url: "https://hypebeast.com/feed", weight: 2 },
+  { label: "Wallpaper*", url: "https://www.wallpaper.com/feeds.xml", weight: 2 },
+  { label: "The Guardian — Fashion", url: "https://www.theguardian.com/fashion/rss", weight: 2 },
+  { label: "The New York Times — Fashion", url: "https://rss.nytimes.com/services/xml/rss/nyt/FashionandStyle.xml", weight: 2 },
+  { label: "The Paris Review", url: "https://www.theparisreview.org/blog/feed/", weight: 2 },
+];
+
+/** Kansas City first, then museums with open collections, film stills, and the magazines above. Editable in Settings. */
 export const DEFAULT_SOURCES: Source[] = [
   { label: "Nelson-Atkins Museum of Art", url: "https://nelson-atkins.org/exhibitions/", weight: 3 },
   { label: "Kemper Museum of Contemporary Art", url: "https://www.kemperart.org/exhibitions", weight: 3 },
@@ -14,12 +59,13 @@ export const DEFAULT_SOURCES: Source[] = [
   { label: "The Met", url: "https://collectionapi.metmuseum.org/public/collection/v1/search", weight: 2 },
   { label: "Cleveland Museum of Art", url: "https://openaccess-api.clevelandart.org/api/artworks/", weight: 2 },
   { label: "FILM-GRAB (film stills)", url: "https://film-grab.com/feed/", weight: 3 },
+  ...MAGAZINES,
 ];
 
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15";
 const rand = (n: number) => Math.floor(Math.random() * n);
 const request = (url: string) =>
-  fetch(url, { next: { revalidate: 21600 }, signal: AbortSignal.timeout(7000), headers: { "user-agent": UA, accept: "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8", "accept-language": "en-US,en;q=0.9" } });
+  fetch(url, { next: { revalidate: 21600 }, signal: AbortSignal.timeout(5000), headers: { "user-agent": UA, accept: "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8", "accept-language": "en-US,en;q=0.9" } });
 const getJson = async (url: string) => {
   const res = await request(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -186,19 +232,38 @@ async function generic(src: Source): Promise<Inspiration[]> {
   return items.slice(0, 40);
 }
 
+/**
+ * A web page or feed, remembered for an hour whether it worked or not. Without this, a site that is slow
+ * or blocking us would be retried (and waited for) on every dashboard load.
+ */
+const cachedGeneric = (source: Source) =>
+  unstable_cache(
+    async (): Promise<{ items: Inspiration[]; error: string | null }> => {
+      try {
+        return { items: await generic(source), error: null };
+      } catch (e) {
+        return { items: [], error: explain(e) };
+      }
+    },
+    ["inspiration-source-v1", source.url, source.label],
+    { revalidate: 3600 },
+  )();
+const explain = (e: unknown) => {
+  const msg = (e as Error).message ?? "";
+  return /abort|timeout/i.test(msg) ? "Timed out" : /invalid url/i.test(msg) ? "Not a valid address" : /fetch failed/i.test(msg) ? "Couldn't reach the site" : msg;
+};
+
 /** Fetch one source. Never throws: a failure comes back as `error`. */
 export async function fetchSource(source: Source): Promise<SourceResult> {
   try {
     const host = new URL(source.url).hostname;
-    const items =
-      host === "api.artic.edu" ? await artInstitute(source.label)
-      : host === "collectionapi.metmuseum.org" ? await met(source.label)
-      : host === "openaccess-api.clevelandart.org" ? await cleveland(source.label)
-      : await generic(source);
-    return { source, items, error: null };
+    // The museum APIs are quick and pick at random on each call; everything else goes through the hourly cache.
+    if (host === "api.artic.edu") return { source, items: await artInstitute(source.label), error: null };
+    if (host === "collectionapi.metmuseum.org") return { source, items: await met(source.label), error: null };
+    if (host === "openaccess-api.clevelandart.org") return { source, items: await cleveland(source.label), error: null };
+    return { source, ...(await cachedGeneric(source)) };
   } catch (e) {
-    const msg = (e as Error).message;
-    return { source, items: [], error: /abort|timeout/i.test(msg) ? "Timed out" : /invalid url/i.test(msg) ? "Not a valid address" : msg };
+    return { source, items: [], error: explain(e) };
   }
 }
 
@@ -215,12 +280,19 @@ export type SourceStatus = { label: string; url: string; weight: number; count: 
  * sources fill more of it, and no source may take more than its cap (Occasionally 2, Normal 4, Favor 6)
  * even when the others come back empty. Each source is shuffled first, so every load is a new selection.
  */
-export async function getInspiration(sources: Source[], limit = 16): Promise<{ items: Inspiration[]; status: SourceStatus[] }> {
+export async function getInspiration(
+  sources: Source[],
+  opts: { limit?: number; skip?: (image: string) => boolean } = {},
+): Promise<{ items: Inspiration[]; status: SourceStatus[]; available: number }> {
+  const { limit = 16, skip } = opts;
   const [results, stills] = await Promise.all([Promise.all(sources.map(fetchSource)), filmStills().catch(() => [])]);
+  // `skip` leaves out images already shown today. Sources of equal weight go in a random order each time.
+  const fresh = (items: Inspiration[]) => shuffle(skip ? items.filter((i) => !skip(i.image)) : items);
   const lists = [
-    ...results.filter((r) => r.items.length).sort((a, b) => b.source.weight - a.source.weight).map((r) => ({ weight: r.source.weight, items: shuffle(r.items), taken: 0 })),
-    ...(stills.length ? [{ weight: 2, items: shuffle(stills), taken: 0 }] : []),
-  ];
+    ...shuffle(results).map((r) => ({ weight: r.source.weight, items: fresh(r.items), taken: 0 })),
+    ...(stills.length ? [{ weight: 2, items: fresh(stills), taken: 0 }] : []),
+  ].filter((l) => l.items.length).sort((a, b) => b.weight - a.weight);
+  const available = lists.reduce((n, l) => n + l.items.length, 0);
   const out: Inspiration[] = [];
   const seen = new Set<string>();
   const open = () => lists.filter((l) => l.items.length && l.taken < l.weight * 2);
@@ -234,7 +306,7 @@ export async function getInspiration(sources: Source[], limit = 16): Promise<{ i
   const status = results.map((r) => ({
     label: r.source.label, url: r.source.url, weight: r.source.weight, count: r.items.length, error: r.error, sample: r.items[0]?.image ?? null,
   }));
-  return { items: out, status };
+  return { items: out, status, available };
 }
 /** A fresh random order (Fisher–Yates), so the panel changes on every page load. */
 export function shuffle<T>(items: T[]) {

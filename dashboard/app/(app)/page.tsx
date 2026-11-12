@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { loadPrivacy } from "@/lib/privacy";
+import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { after } from "next/server";
 import { hasServiceKey, setSetting } from "@/lib/integrations";
@@ -37,7 +38,20 @@ export default async function Dashboard() {
   ]);
   const feeds = Array.isArray(settings.feeds) && settings.feeds.length ? (settings.feeds as string[]) : DEFAULT_FEEDS;
   const sources = readSources(settings.inspiration_sources);
-  const [news, { items: inspiration, status: sourceStatus }] = await Promise.all([getNews(feeds, 7), getInspiration(sources)]);
+  // Images already shown today are left out, so a reload or Shuffle always brings new ones.
+  const seenToday = settings.inspiration_seen as { date?: string; ids?: string[] } | undefined;
+  const shown = new Set(seenToday?.date === t ? seenToday.ids ?? [] : []);
+  const imageId = (url: string) => createHash("sha1").update(url).digest("hex").slice(0, 12);
+  let startedOver = false;
+  const [news, firstDraw] = await Promise.all([getNews(feeds, 7), getInspiration(sources, { skip: (url) => shown.has(imageId(url)) })]);
+  let draw = firstDraw;
+  // Once nearly everything has been shown, start the day's rotation again.
+  if (shown.size && draw.items.length < 6) {
+    shown.clear();
+    startedOver = true;
+    draw = await getInspiration(sources);
+  }
+  const { items: inspiration, status: sourceStatus } = draw;
   // Keep a record of what each source returned (at most every ten minutes), so problems can be diagnosed.
   const lastStatus = settings.inspiration_status as { at?: string } | undefined;
   if (hasServiceKey() && (!lastStatus?.at || Date.now() - +new Date(lastStatus.at) > 600_000)) {
@@ -64,10 +78,16 @@ export default async function Dashboard() {
   const hour = Number(now.slice(0, 2));
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   // A different mix on every load: up to four of your pins plus images from the sources, in random order.
+  const freshPins = pins.filter((p) => !shown.has(imageId(p.image_url)));
   const images = shuffle([
-    ...shuffle(pins).slice(0, 4).map((p) => ({ image: p.image_url, title: p.caption ?? "", credit: "Pinned", url: p.source_url, pin: p })),
+    ...shuffle(freshPins).slice(0, 4).map((p) => ({ image: p.image_url, title: p.caption ?? "", credit: "Pinned", url: p.source_url, pin: p })),
     ...inspiration.map((i) => ({ ...i, pin: null as Pin | null })),
   ].slice(0, 11));
+  // Remember what this load showed, before the page is sent, so the next load can't repeat it.
+  if (hasServiceKey() && images.length) {
+    const ids = [...new Set([...shown, ...images.map((i) => imageId(i.image))])].slice(-4000);
+    await setSetting("inspiration_seen", { date: t, ids }).catch(() => {});
+  }
   const selling = gear.filter((g) => g.list === "sell" && g.sell_status !== "sold");
   const buying = gear.filter((g) => g.list === "buy");
 
@@ -265,7 +285,7 @@ export default async function Dashboard() {
           ) : <p className="small muted">None of the image sources returned anything just now. Check them in Settings, or pin your own with “+ Pin image”.</p>}
           <div className="row between" style={{ alignItems: "flex-start", flexWrap: "nowrap" }}>
             <p className="tiny muted grow">
-              Your pins and images from {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 8).join(", ") || "your sources"}.{silent.length ? ` Returning nothing right now: ${silent.map((x) => x.label.trim()).join(", ")}.` : ""} <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
+              No image repeats on the same day. Now showing: {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 6).join(", ") || "your pins"}.{startedOver ? " Everything has been shown once today, so the rotation started over." : ""}{silent.length ? ` ${silent.length} of ${sourceStatus.length} sources returned nothing (see Settings).` : ""} <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
             </p>
             <ShuffleButton />
           </div>
