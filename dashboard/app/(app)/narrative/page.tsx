@@ -1,8 +1,10 @@
 import { Board, NewProject, PageHead } from "@/components/ui";
+import { loadPrivacy } from "@/lib/privacy";
 import { getClients, getProjects, getTodos } from "@/lib/data";
 import { STAGES } from "@/lib/types";
 
 export default async function Narrative() {
+  await loadPrivacy();
   const [projects, clients, todos] = await Promise.all([getProjects(), getClients(), getTodos()]);
   return (
     <>

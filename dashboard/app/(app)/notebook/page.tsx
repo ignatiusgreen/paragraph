@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { loadPrivacy } from "@/lib/privacy";
 import { Card, Check, Empty, F, PageHead, projectOptions, RowForm } from "@/components/ui";
 import { ImageField, LinksField, Modal, Submit, TodoCheck } from "@/components/client";
 import { syncNotebookNow } from "@/app/(app)/actions";
@@ -37,6 +38,7 @@ function NoteFields({ note, projects, date, tags }: { note?: Note; projects: Pro
 }
 
 export default async function Notebook({ searchParams }: { searchParams: Promise<{ tag?: string }> }) {
+  await loadPrivacy();
   const { tag } = await searchParams;
   const [notes, projects, todos, tz, google, docUrl] = await Promise.all([getNotes(), getProjects(), getTodos(), getTz(), getGoogle(), notebookDocUrl()]);
   const t = today(tz);

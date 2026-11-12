@@ -111,7 +111,14 @@ export async function saveSettings(f: FormData) {
   for (const [k, v] of f.entries()) {
     if (!k.startsWith("set:")) continue;
     const key = k.slice(4), raw = String(v).trim();
-    const value = key === "feeds" ? raw.split(/\s+/).filter((u) => /^https?:\/\//.test(u)) : key === "cash_on_hand" ? (raw === "" ? null : Number(raw.replace(/[$,\s]/g, ""))) : raw;
+    let value: unknown = raw;
+    if (key === "feeds") value = raw.split(/\s+/).filter((u) => /^https?:\/\//.test(u));
+    else if (key === "cash_on_hand") value = raw === "" ? null : Number(raw.replace(/[$,\s]/g, ""));
+    else if (key === "inspiration_sources") {
+      // A JSON list of { label, url, weight }; "reset" goes back to the built-in list.
+      if (f.get("reset_sources") === "on") { await supabase.from("settings").delete().eq("key", key); continue; }
+      try { value = (JSON.parse(raw) as { label: string; url: string; weight: number }[]).filter((x) => /^https?:\/\//.test(x?.url ?? "")).slice(0, 40); } catch { continue; }
+    }
     const { error } = await supabase.from("settings").upsert({ key, value, updated_at: new Date().toISOString() });
     if (error) await flash(`Couldn't save: ${error.message}`);
   }

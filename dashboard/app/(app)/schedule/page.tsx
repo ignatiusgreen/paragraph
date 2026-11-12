@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { loadPrivacy } from "@/lib/privacy";
 import { Card, Empty, EventFields, eventWhen, PageHead, RowForm, TodoFields } from "@/components/ui";
 import { Modal, Submit } from "@/components/client";
 import { syncCalendarNow } from "@/app/(app)/actions";
@@ -8,6 +9,7 @@ import { addDays, addMonths, fmtDate, fmtTime, monthGrid, relDay, today } from "
 import type { Event } from "@/lib/types";
 
 export default async function Schedule({ searchParams }: { searchParams: Promise<{ m?: string }> }) {
+  await loadPrivacy();
   const tz = await getTz();
   const t = today(tz);
   const { m } = await searchParams;

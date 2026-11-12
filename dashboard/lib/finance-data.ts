@@ -1,4 +1,5 @@
 import "server-only";
+import { isPrivate } from "./privacy";
 import { getProjects, getSettings, getTz, rows } from "./data";
 import { burn, pipeline, projection, runway } from "./finance";
 import { today } from "./format";
@@ -28,4 +29,4 @@ export async function financeSummary() {
     outWithPitches: runway(series.map((m) => m.withPitches)),
   };
 }
-export const months = (n: number | null) => (n == null ? "—" : n >= 24 ? "24+" : n.toFixed(1));
+export const months = (n: number | null) => (isPrivate() ? "••" : n == null ? "—" : n >= 24 ? "24+" : n.toFixed(1));

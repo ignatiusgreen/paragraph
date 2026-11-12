@@ -1,7 +1,13 @@
 export const DEFAULT_TZ = "America/New_York";
 
+/** Private mode: the server registers a check here so every money figure can be masked for the current request. */
+let masked: () => boolean = () => false;
+export const setMoneyMask = (fn: () => boolean) => { masked = fn; };
+export const MASK = "$•••";
+
 export function money(v: number | string | null | undefined, opts: { cents?: boolean; compact?: boolean } = {}) {
   if (v == null || v === "") return "—";
+  if (masked()) return MASK;
   const n = Number(v);
   if (opts.compact && Math.abs(n) >= 10000) {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", minimumFractionDigits: 0, maximumFractionDigits: 1 }).format(n);

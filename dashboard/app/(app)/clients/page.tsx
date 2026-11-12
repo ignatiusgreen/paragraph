@@ -1,4 +1,5 @@
 import { Board, Card, Empty, F, NewProject, PageHead, RowForm } from "@/components/ui";
+import { loadPrivacy } from "@/lib/privacy";
 import { Modal, Submit } from "@/components/client";
 import { syncQboNow } from "@/app/(app)/actions";
 import { getClients, getProjects, getTodos } from "@/lib/data";
@@ -7,6 +8,7 @@ import { money } from "@/lib/format";
 import { STAGES } from "@/lib/types";
 
 export default async function Clients() {
+  await loadPrivacy();
   const [projects, clients, todos, qbo] = await Promise.all([getProjects(), getClients(), getTodos(), getQbo()]);
   const mine = projects.filter((p) => p.kind === "client");
   const live = mine.filter((p) => p.stage !== "delivered");

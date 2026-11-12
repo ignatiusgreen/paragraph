@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { loadPrivacy } from "@/lib/privacy";
 import { Card, Check, Empty, F, PageHead, projectOptions, TodoItem } from "@/components/ui";
 import { Submit } from "@/components/client";
 import { saveRow } from "@/app/(app)/actions";
@@ -8,6 +9,7 @@ import { addDays, today } from "@/lib/format";
 import { REMINDERS, type Todo } from "@/lib/types";
 
 export default async function Todos({ searchParams }: { searchParams: Promise<{ show?: string; project?: string }> }) {
+  await loadPrivacy();
   const { show = "open", project } = await searchParams;
   const [todos, projects, tz, google] = await Promise.all([getTodos(), getProjects(), getTz(), getGoogle()]);
   const t = today(tz);

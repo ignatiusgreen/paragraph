@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NavLinks } from "@/components/Nav";
 import { Flash } from "@/components/Flash";
-import { TzCookie } from "@/components/client";
+import { PrivacyToggle, TzCookie } from "@/components/client";
 import { getMe, getTodos, getTz } from "@/lib/data";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -25,6 +25,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="topbar-in">
           <div className="topbar-row">{logo}</div>
           <nav className="tabs" aria-label="Sections"><NavLinks counts={counts} /></nav>
+          <PrivacyToggle hidden={store.get("hide_money")?.value === "1"} />
           <form action="/auth/signout" method="post" className="topbar-user">
             <span>{me.name ?? me.email}</span>
             <button type="submit">Sign out</button>

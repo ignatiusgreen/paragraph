@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { loadPrivacy } from "@/lib/privacy";
 import { headers } from "next/headers";
 import { Card, Empty, eventWhen, PageHead, RowForm, TodoFields, TodoItem, F } from "@/components/ui";
 import { Clock, ImageField, Modal, Weather } from "@/components/client";
@@ -6,7 +7,7 @@ import { WidgetGrid } from "@/components/WidgetGrid";
 import { getEvents, getNotes, getProjects, getSettings, getTodos, getTz, rows } from "@/lib/data";
 import { financeSummary, months } from "@/lib/finance-data";
 import { DEFAULT_FEEDS, getNews } from "@/lib/feeds";
-import { getInspiration } from "@/lib/inspiration";
+import { getInspiration, readSources } from "@/lib/inspiration";
 import { addDays, fmtDate, money, monthGrid, nowTime, relDay, today } from "@/lib/format";
 import { KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
 
@@ -18,6 +19,7 @@ const ago = (iso: string | null) => {
 };
 
 export default async function Dashboard() {
+  await loadPrivacy();
   const tz = await getTz();
   // Vercel tells us roughly where the request came from; the weather panel uses it until the browser shares a precise location.
   const h = await headers();
@@ -32,7 +34,8 @@ export default async function Dashboard() {
     rows<Pin>("pins", "created_at", false), getSettings(), financeSummary(),
   ]);
   const feeds = Array.isArray(settings.feeds) && settings.feeds.length ? (settings.feeds as string[]) : DEFAULT_FEEDS;
-  const [news, inspiration] = await Promise.all([getNews(feeds, 7), getInspiration()]);
+  const sources = readSources(settings.inspiration_sources);
+  const [news, inspiration] = await Promise.all([getNews(feeds, 7), getInspiration(sources)]);
 
   const open = todos.filter((x) => !x.done);
   const urgent = open.filter((x) => x.urgent);
@@ -242,8 +245,10 @@ export default async function Dashboard() {
                 </a>
               ))}
             </div>
-          ) : <p className="small muted">Museum and film images couldn’t be loaded just now. Pin your own with “+ Pin image”.</p>}
-          <p className="tiny muted">Exhibitions on view at the Art Institute of Chicago, highlights on view at The Met{process.env.TMDB_API_KEY ? ", stills from films trending this week" : ""}, and your pins.</p>
+          ) : <p className="small muted">None of the image sources returned anything just now. Check them in Settings, or pin your own with “+ Pin image”.</p>}
+          <p className="tiny muted">
+            Your pins, then images from {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 8).join(", ") || "your sources"}. <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
+          </p>
         </Card>
         ) },
       ]} />

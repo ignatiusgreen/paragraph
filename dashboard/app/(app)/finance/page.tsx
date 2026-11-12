@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { loadPrivacy } from "@/lib/privacy";
 import { Card, Empty, F, PageHead, RowForm } from "@/components/ui";
 import { Modal, Submit } from "@/components/client";
 import { LineChart } from "@/components/charts";
@@ -38,6 +39,7 @@ function OverheadTable({ title, items, total }: { title: string; items: Overhead
 }
 
 export default async function Finance() {
+  const hidden = await loadPrivacy();
   const f = await financeSummary();
   const outLabel = (i: number | null) => (i == null ? "Positive through the next 12 months" : `Runs out in ${fmtDate(f.series[i].month, "month")}`);
   return (
@@ -78,7 +80,7 @@ export default async function Finance() {
             </table>
           ) : (
             <form action={saveSettings} className="quick">
-              <div className="field wide"><label htmlFor="cash">Cash on hand</label><input id="cash" name="set:cash_on_hand" inputMode="decimal" defaultValue={f.manualCash ?? ""} placeholder="0" /></div>
+              <div className="field wide"><label htmlFor="cash">Cash on hand</label><input id="cash" name="set:cash_on_hand" inputMode="decimal" defaultValue={hidden ? "" : f.manualCash ?? ""} disabled={hidden} placeholder="0" /></div>
               <Submit>Save</Submit>
             </form>
           )}
@@ -106,7 +108,7 @@ export default async function Finance() {
         </Card>
 
         <Card className="s12" title="Cash projection, next 12 months">
-          {f.known ? (
+          {hidden ? <Empty>Hidden while private mode is on. Click the eye in the top bar to show financial data.</Empty> : f.known ? (
             <>
               <LineChart label="Projected month-end cash for the next 12 months" months={f.series.map((m) => m.month + "-01")}
                 series={[
@@ -152,7 +154,7 @@ export default async function Finance() {
                       <td className="num">{money(p.project.budget)}</td>
                       <td className="num">{money(p.project.hard_costs ?? 0)}</td>
                       <td className="num">{money(p.remaining)}</td>
-                      <td className="num">{p.probability}%</td>
+                      <td className="num">{hidden ? "••" : `${p.probability}%`}</td>
                       <td className="num"><strong>{money(p.weighted)}</strong></td>
                     </tr>
                   ))}

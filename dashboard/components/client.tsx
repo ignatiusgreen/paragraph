@@ -276,3 +276,47 @@ export function ColorField({ name, label, defaultValue }: { name: string; label:
     </div>
   );
 }
+
+type SourceRow = { label: string; url: string; weight: number };
+
+/** Editable list of image sources (name, page or feed address, how much to favour it), sent as JSON. */
+export function SourcesField({ name, defaultValue }: { name: string; defaultValue: SourceRow[] }) {
+  const [rows, setRows] = useState<SourceRow[]>(defaultValue);
+  const update = (i: number, patch: Partial<SourceRow>) => setRows(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+  return (
+    <div className="field">
+      <input type="hidden" name={name} value={JSON.stringify(rows.filter((r) => r.url.trim()))} />
+      {rows.map((r, i) => (
+        <div className="sourcerow" key={i}>
+          <input aria-label={`Source ${i + 1} name`} placeholder="Name" value={r.label} onChange={(e) => update(i, { label: e.target.value })} />
+          <input aria-label={`Source ${i + 1} address`} type="url" placeholder="https://… (exhibitions page or RSS feed)" value={r.url} onChange={(e) => update(i, { url: e.target.value })} />
+          <select aria-label={`How often to show source ${i + 1}`} value={r.weight} onChange={(e) => update(i, { weight: Number(e.target.value) })}>
+            <option value={3}>Favor</option><option value={2}>Normal</option><option value={1}>Occasionally</option>
+          </select>
+          <button type="button" className="btn ghost sm" aria-label={`Remove source ${i + 1}`} onClick={() => setRows(rows.filter((_, j) => j !== i))}>×</button>
+        </div>
+      ))}
+      <div><button type="button" className="btn ghost sm" onClick={() => setRows([...rows, { label: "", url: "", weight: 2 }])}>+ Add source</button></div>
+    </div>
+  );
+}
+
+/** Eye button: hides every money figure (for working in public), remembered on this device. */
+export function PrivacyToggle({ hidden }: { hidden: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const toggle = () => {
+    document.cookie = `hide_money=${hidden ? 0 : 1}; path=/; max-age=31536000; samesite=lax`;
+    start(() => router.refresh());
+  };
+  return (
+    <button type="button" className="eye" onClick={toggle} disabled={pending} aria-pressed={hidden}
+      aria-label={hidden ? "Financial data is hidden. Show it" : "Hide financial data"} title={hidden ? "Financial data is hidden — click to show" : "Hide financial data"}>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+        <circle cx="12" cy="12" r="3" />
+        {hidden ? <path d="M4 4l16 16" /> : null}
+      </svg>
+    </button>
+  );
+}

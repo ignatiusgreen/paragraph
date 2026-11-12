@@ -1,4 +1,5 @@
 import { Card, Check, Empty, F, PageHead, RowForm } from "@/components/ui";
+import { loadPrivacy } from "@/lib/privacy";
 import { Modal, Submit } from "@/components/client";
 import { Spark } from "@/components/charts";
 import { importContacts, snapshotMetricsNow } from "@/app/(app)/actions";
@@ -40,6 +41,7 @@ function GiftFields({ gift, year }: { gift?: Gift; year: number }) {
 }
 
 export default async function BizDev() {
+  await loadPrivacy();
   const [leads, metrics, contacts, gifts, tz] = await Promise.all([
     rows<Lead>("leads"), rows<Metric>("metrics", "recorded_on"), rows<Contact>("contacts", "email"), rows<Gift>("gifts", "recipient"), getTz(),
   ]);

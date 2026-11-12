@@ -1,5 +1,7 @@
 import { Card, PageHead } from "@/components/ui";
-import { Submit, TokenForm } from "@/components/client";
+import { loadPrivacy } from "@/lib/privacy";
+import { SourcesField, Submit, TokenForm } from "@/components/client";
+import { fetchSource, readSources } from "@/lib/inspiration";
 import { disconnect, revokeAgentToken, saveSettings } from "@/app/(app)/actions";
 import { adminDb } from "@/lib/supabase/admin";
 import { getSettings, getTz } from "@/lib/data";
@@ -13,10 +15,13 @@ import type { QboSnapshot } from "@/lib/qbo";
 const Status = ({ ok, children }: { ok: boolean; children: React.ReactNode }) => <span className={`chip${ok ? " leaf" : ""}`}>{ok ? "✓ " : ""}{children}</span>;
 
 export default async function Settings() {
+  await loadPrivacy();
   const [settings, google, qbo, tz] = await Promise.all([getSettings(), getGoogle(), getQbo(), getTz()]);
   const tokens = hasServiceKey() ? (await adminDb().from("agent_tokens").select("id,name,last_used_at,created_at").order("created_at")).data ?? [] : [];
   const feeds = Array.isArray(settings.feeds) && settings.feeds.length ? (settings.feeds as string[]) : DEFAULT_FEEDS;
   const snap = settings.qbo_snapshot as QboSnapshot | undefined;
+  const sources = readSources(settings.inspiration_sources);
+  const checks = await Promise.all(sources.map(fetchSource));
   const url = appUrl();
   return (
     <>
@@ -89,6 +94,33 @@ export default async function Settings() {
             <div className="form-foot"><span /><Submit>Save</Submit></div>
           </form>
         </Card>
+
+        <section className="card s12" id="inspiration">
+          <div className="card-head"><h2 className="card-title">Visual inspiration sources</h2></div>
+          <p className="small muted">The dashboard panel mixes images from these places. Add any museum or gallery page that shows exhibition images, or an RSS feed. “Favor” sources fill about three times as much of the panel as “Occasionally” ones. Images refresh every six hours.</p>
+          <form action={saveSettings} className="stack">
+            <SourcesField key={JSON.stringify(sources)} name="set:inspiration_sources" defaultValue={sources} />
+            <div className="form-foot">
+              <label className="check"><input type="checkbox" name="reset_sources" />Go back to the built-in list</label>
+              <Submit>Save sources</Submit>
+            </div>
+          </form>
+          <div className="tablewrap">
+            <table>
+              <thead><tr><th>Source</th><th>Right now</th><th>Example</th></tr></thead>
+              <tbody>
+                {checks.map((c) => (
+                  <tr key={c.source.url}>
+                    <td>{c.source.label}<div className="tiny muted" style={{ overflowWrap: "anywhere" }}>{c.source.url}</div></td>
+                    <td>{c.items.length ? <Status ok>{c.items.length} image{c.items.length === 1 ? "" : "s"}</Status> : <span className="chip urgent">{c.error ? `Failed: ${c.error}` : "No images found"}</span>}</td>
+                    <td className="muted small">{c.items[0]?.title ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="tiny muted">A source that finds no images usually builds its page in the browser or blocks automated visits; try a different page on the same site, or its RSS feed. ShotDeck needs a signed-in subscription and has no public feed, so it can’t be pulled in automatically; save stills from it and add them with “+ Pin image” on the dashboard.</p>
+        </section>
 
         <Card className="s6" title="Analytics + images">
           <div className="list">

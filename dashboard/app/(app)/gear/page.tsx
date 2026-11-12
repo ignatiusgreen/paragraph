@@ -1,4 +1,5 @@
 import { Card, Empty, F, PageHead, RowForm } from "@/components/ui";
+import { loadPrivacy } from "@/lib/privacy";
 import { ImageField, Modal } from "@/components/client";
 import { rows } from "@/lib/data";
 import { fmtDate, label, money } from "@/lib/format";
@@ -55,6 +56,7 @@ const Name = ({ g }: { g: Gear }) => (
 );
 
 export default async function GearPage() {
+  await loadPrivacy();
   const gear = await rows<Gear>("gear", "name");
   const inv = gear.filter((g) => g.list === "inventory"), sell = gear.filter((g) => g.list === "sell"), buy = gear.filter((g) => g.list === "buy");
   const order = { high: 0, medium: 1, low: 2 } as Record<string, number>;

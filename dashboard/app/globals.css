@@ -337,3 +337,12 @@ pre { background: var(--dusk); color: #e6eeee; padding: 14px; overflow-x: auto; 
 .widget-bar button { background: rgba(255, 255, 255, 0.14); color: #fff; border: 0; width: 30px; height: 28px; cursor: pointer; font-size: 14px; }
 .widget-bar button:disabled { opacity: 0.35; cursor: default; }
 .widget-bar select { width: auto; min-height: 28px; padding: 2px 6px; font-size: 12px; border: 0; }
+
+.sourcerow { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2.4fr) 130px auto; gap: 6px; margin-bottom: 6px; }
+@media (max-width: 720px) { .sourcerow { grid-template-columns: 1fr 1fr; } }
+
+/* private-mode eye button in the top bar */
+.eye { flex: none; display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid transparent; color: #c9d3d4; padding: 6px 8px; cursor: pointer; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.eye:hover { color: #fff; }
+.eye[aria-pressed="true"] { background: var(--forsythia); color: var(--dusk); }
+@media (max-width: 1279px) { .eye { margin-top: 8px; } }
