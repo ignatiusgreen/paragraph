@@ -161,13 +161,13 @@ export function readSources(setting: unknown): Source[] {
 
 /**
  * A mixed set of images for the panel. Each round takes `weight` images from every source, so favoured
- * sources fill more of it; the starting point in each source moves on every day.
+ * sources fill more of it. Each source is shuffled first, so every page load shows a different selection.
  */
 export async function getInspiration(sources: Source[], limit = 16): Promise<Inspiration[]> {
   const [results, stills] = await Promise.all([Promise.all(sources.map(fetchSource)), filmStills().catch(() => [])]);
   const lists = [
-    ...results.filter((r) => r.items.length).sort((a, b) => b.source.weight - a.source.weight).map((r) => ({ weight: r.source.weight, items: rotate(r.items) })),
-    ...(stills.length ? [{ weight: 2, items: rotate(stills) }] : []),
+    ...results.filter((r) => r.items.length).sort((a, b) => b.source.weight - a.source.weight).map((r) => ({ weight: r.source.weight, items: shuffle(r.items) })),
+    ...(stills.length ? [{ weight: 2, items: shuffle(stills) }] : []),
   ];
   const out: Inspiration[] = [];
   const seen = new Set<string>();
@@ -180,7 +180,12 @@ export async function getInspiration(sources: Source[], limit = 16): Promise<Ins
   }
   return out;
 }
-function rotate<T>(items: T[]) {
-  const k = items.length ? day() % items.length : 0;
-  return [...items.slice(k), ...items.slice(0, k)];
+/** A fresh random order (Fisher–Yates), so the panel changes on every page load. */
+export function shuffle<T>(items: T[]) {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }

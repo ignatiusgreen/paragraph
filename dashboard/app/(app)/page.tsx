@@ -7,7 +7,7 @@ import { WidgetGrid } from "@/components/WidgetGrid";
 import { getEvents, getNotes, getProjects, getSettings, getTodos, getTz, rows } from "@/lib/data";
 import { financeSummary, months } from "@/lib/finance-data";
 import { DEFAULT_FEEDS, getNews } from "@/lib/feeds";
-import { getInspiration, readSources } from "@/lib/inspiration";
+import { getInspiration, readSources, shuffle } from "@/lib/inspiration";
 import { addDays, fmtDate, money, monthGrid, nowTime, relDay, today } from "@/lib/format";
 import { KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
 
@@ -47,10 +47,11 @@ export default async function Dashboard() {
   const openLeads = leads.filter((l) => !["won", "lost"].includes(l.status));
   const hour = Number(nowTime(tz).slice(0, 2));
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const images = [
-    ...pins.map((p) => ({ image: p.image_url, title: p.caption ?? "", credit: "Pinned", url: p.source_url, pin: p })),
+  // A different mix on every load: up to four of your pins plus images from the sources, in random order.
+  const images = shuffle([
+    ...shuffle(pins).slice(0, 4).map((p) => ({ image: p.image_url, title: p.caption ?? "", credit: "Pinned", url: p.source_url, pin: p })),
     ...inspiration.map((i) => ({ ...i, pin: null as Pin | null })),
-  ].slice(0, 11);
+  ].slice(0, 11));
   const selling = gear.filter((g) => g.list === "sell" && g.sell_status !== "sold");
   const buying = gear.filter((g) => g.list === "buy");
 
@@ -247,7 +248,7 @@ export default async function Dashboard() {
             </div>
           ) : <p className="small muted">None of the image sources returned anything just now. Check them in Settings, or pin your own with “+ Pin image”.</p>}
           <p className="tiny muted">
-            Your pins, then images from {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 8).join(", ") || "your sources"}. <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
+            Your pins and images from {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 8).join(", ") || "your sources"}. <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
           </p>
         </Card>
         ) },
