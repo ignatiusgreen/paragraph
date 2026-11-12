@@ -336,7 +336,11 @@ pre { background: var(--dusk); color: #e6eeee; padding: 14px; overflow-x: auto; 
 .widget > .card { flex: 1; }
 .widget.editing { outline: 2px dashed var(--line-strong); outline-offset: 3px; }
 .widget.dragging { opacity: 0.45; }
-.arrange-bar { justify-content: flex-end; margin: -6px 0; }
+.arrange-bar { justify-content: flex-end; }
+/* While arranging, the bar (hint, Reset, Done) stays in view at the bottom of the window. */
+.arrange-bar.on { position: sticky; bottom: 12px; z-index: 15; background: var(--dusk); color: #fff; padding: 10px 12px; }
+.arrange-bar.on .btn { background: #fff; color: var(--dusk); border-color: #fff; }
+.arrange-bar.on .btn.ghost { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.45); }
 .widget-bar { display: flex; align-items: center; gap: 6px; background: var(--dusk); color: #fff; padding: 6px 8px; cursor: grab; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; user-select: none; -webkit-user-select: none; }
 .widget-bar:active { cursor: grabbing; }
 .widget-bar .grip { font-size: 16px; line-height: 1; }

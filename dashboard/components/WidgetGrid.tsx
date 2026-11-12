@@ -48,11 +48,6 @@ export function WidgetGrid({ items, saved }: { items: Item[]; saved: Slot[] | nu
 
   return (
     <>
-      <div className="row arrange-bar">
-        {editing ? <span className="small">Drag a widget by its bar, or use the arrows. Changes save as you go.</span> : null}
-        {editing ? <button type="button" className="btn ghost sm" onClick={() => apply(items.map(({ id, span }) => ({ id, span })))}>Reset layout</button> : null}
-        <button type="button" className={`btn sm${editing ? "" : " ghost"}`} aria-pressed={editing} onClick={() => setEditing(!editing)}>{editing ? "Done" : "Arrange widgets"}</button>
-      </div>
       <div className="grid stretch">
         {layout.map((slot, i) => {
           const item = byId.get(slot.id);
@@ -91,6 +86,11 @@ export function WidgetGrid({ items, saved }: { items: Item[]; saved: Slot[] | nu
             </div>
           );
         })}
+      </div>
+      <div className={`row arrange-bar${editing ? " on" : ""}`}>
+        {editing ? <span className="small">Drag a widget by its bar, or use the arrows. Changes save as you go.</span> : null}
+        {editing ? <button type="button" className="btn ghost sm" onClick={() => apply(items.map(({ id, span }) => ({ id, span })))}>Reset layout</button> : null}
+        <button type="button" className={`btn sm${editing ? "" : " ghost"}`} aria-pressed={editing} onClick={() => setEditing(!editing)}>{editing ? "Done" : "Arrange widgets"}</button>
       </div>
     </>
   );
