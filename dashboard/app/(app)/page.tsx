@@ -64,8 +64,8 @@ export default async function Dashboard() {
       </PageHead>
 
       <WidgetGrid saved={Array.isArray(settings.dashboard_layout) ? (settings.dashboard_layout as { id: string; span: string }[]) : null} items={[
-        { id: "now", label: "Now", span: "s4", node: (
-        <Card tone="dark" title="Now">
+        { id: "now", href: "/schedule", label: "Now", span: "s4", node: (
+        <Card tone="dark" title="Now" more="/schedule">
           <Clock />
           <hr className="rule" />
           <div>
@@ -81,7 +81,7 @@ export default async function Dashboard() {
         <Card tone="sky" title="This week's weather"><Weather approx={approx} /></Card>
         ) },
 
-        { id: "calendar", label: "Calendar", span: "s4", node: (
+        { id: "calendar", href: "/schedule", label: "Calendar", span: "s4", node: (
         <Card title={fmtDate(ym, "month")} more="/schedule">
           <div className="minical" role="img" aria-label={`Calendar for ${fmtDate(ym, "month")}; ${upcoming.length} upcoming events`}>
             {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={i} className="dow">{d}</div>)}
@@ -99,7 +99,7 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "todos", label: "To-dos", span: "s4", node: (
+        { id: "todos", href: "/todos", label: "To-dos", span: "s4", node: (
         <Card tone="sun" title="To-dos" more="/todos">
           <div className="row" style={{ gap: 18 }}>
             <div><div className="big">{open.length}</div><div className="small">open</div></div>
@@ -113,8 +113,8 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "projects", label: "Projects", span: "s8", node: (
-        <Card title="Projects">
+        { id: "projects", href: "/clients", label: "Projects", span: "s8", node: (
+        <Card title="Projects" more="/clients">
           {(["client", "documentary", "narrative"] as Kind[]).map((kind) => {
             const list = projects.filter((p) => p.kind === kind);
             return (
@@ -154,7 +154,7 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "finance", label: "Finance", span: "s4", node: (
+        { id: "finance", href: "/finance", label: "Finance", span: "s4", node: (
         <Card tone="teal" title="Finance" more="/finance">
           <div>
             <div className="big">{months(fin.monthsBooked)}<small>months of runway</small></div>
@@ -171,7 +171,7 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "bizdev", label: "New biz", span: "s4", node: (
+        { id: "bizdev", href: "/bizdev", label: "New biz", span: "s4", node: (
         <Card tone="pearl" title="New biz" more="/bizdev">
           <div className="row" style={{ gap: 18 }}>
             <div><div className="big">{openLeads.length}</div><div className="small muted">open leads</div></div>
@@ -185,7 +185,7 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "notebook", label: "Notebook + gear", span: "s4", node: (
+        { id: "notebook", href: "/notebook", label: "Notebook + gear", span: "s4", node: (
         <Card title="Notebook + gear" more="/notebook">
           <div className="list">
             {notes.slice(0, 3).map((n) => (

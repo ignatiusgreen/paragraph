@@ -1,8 +1,9 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { saveDashboardLayout } from "@/app/(app)/actions";
 
-type Item = { id: string; label: string; span: string; node: React.ReactNode };
+type Item = { id: string; label: string; span: string; href?: string; node: React.ReactNode };
 type Slot = { id: string; span: string };
 const SIZES = [["s4", "Narrow"], ["s6", "Half"], ["s8", "Wide"], ["s12", "Full width"]];
 
@@ -23,6 +24,14 @@ export function WidgetGrid({ items, saved }: { items: Item[]; saved: Slot[] | nu
   const latest = useRef(layout);
   const drag = useRef<string | null>(null);
   const byId = new Map(items.map((i) => [i.id, i]));
+  const router = useRouter();
+  /** Clicking empty space in a widget opens its section; links, buttons, checkboxes and dialogs inside keep working as usual. */
+  const open = (e: React.MouseEvent, href?: string) => {
+    if (!href || editing || e.defaultPrevented || e.button !== 0) return;
+    if ((e.target as HTMLElement).closest("a, button, input, select, textarea, label, summary, dialog")) return;
+    if (window.getSelection()?.toString()) return;
+    if (e.metaKey || e.ctrlKey) window.open(href, "_blank"); else router.push(href);
+  };
 
   const apply = (next: Slot[], save = true) => {
     latest.current = next;
@@ -51,7 +60,8 @@ export function WidgetGrid({ items, saved }: { items: Item[]; saved: Slot[] | nu
           return (
             <div
               key={slot.id}
-              className={`widget ${slot.span}${editing ? " editing" : ""}${dragging === slot.id ? " dragging" : ""}`}
+              className={`widget ${slot.span}${editing ? " editing" : ""}${dragging === slot.id ? " dragging" : ""}${item.href && !editing ? " linked" : ""}`}
+              onClick={(e) => open(e, item.href)}
               onDragOver={(e) => { if (drag.current) { e.preventDefault(); if (drag.current !== slot.id) move(drag.current, i, false); } }}
               onDrop={(e) => e.preventDefault()}
             >

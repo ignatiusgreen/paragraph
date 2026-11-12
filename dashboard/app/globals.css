@@ -346,3 +346,9 @@ pre { background: var(--dusk); color: #e6eeee; padding: 14px; overflow-x: auto; 
 .eye:hover { color: #fff; }
 .eye[aria-pressed="true"] { background: var(--forsythia); color: var(--dusk); }
 @media (max-width: 1279px) { .eye { margin-top: 8px; } }
+
+/* a widget whose empty space opens its section */
+.widget.linked { cursor: pointer; }
+.widget.linked > .card { transition: box-shadow 0.12s; }
+.widget.linked:hover > .card { box-shadow: 0 0 0 2px var(--dusk); }
+.widget.linked dialog { cursor: auto; }
