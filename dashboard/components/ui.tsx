@@ -27,8 +27,8 @@ export async function PageHead({ section, title, eyebrow, sub, children }: {
   const color = bg?.background_color && /^#[0-9a-f]{6}$/i.test(bg.background_color) ? bg.background_color : null;
   const dark = !!bgUrl || (color ? isDark(color) : false);
   const css = [
-    color ? `.main{background-color:${color}}` : "",
-    bgUrl ? `.main{background-image:linear-gradient(rgba(4,27,33,.62),rgba(4,27,33,.62)),url("${bgUrl}")}` : "",
+    color ? `.shell{background-color:${color}}` : "",
+    bgUrl ? `.shell{background-image:linear-gradient(rgba(4,27,33,.62),rgba(4,27,33,.62)),url("${bgUrl}")}` : "",
     dark ? ON_DARK : "",
   ].join("");
   return (
