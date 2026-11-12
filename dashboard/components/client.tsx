@@ -320,3 +320,14 @@ export function PrivacyToggle({ hidden }: { hidden: boolean }) {
     </button>
   );
 }
+
+/** Re-renders the dashboard, which draws a fresh random set of inspiration images. */
+export function ShuffleButton() {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  return (
+    <button type="button" className="btn sm" style={{ flex: "none" }} disabled={pending} onClick={() => start(() => router.refresh())}>
+      <span aria-hidden="true">⤨</span> {pending ? "Shuffling…" : "Shuffle"}
+    </button>
+  );
+}

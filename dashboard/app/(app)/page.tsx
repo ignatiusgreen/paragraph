@@ -2,7 +2,7 @@ import Link from "next/link";
 import { loadPrivacy } from "@/lib/privacy";
 import { headers } from "next/headers";
 import { Card, Empty, eventWhen, PageHead, RowForm, TodoFields, TodoItem, F } from "@/components/ui";
-import { Clock, ImageField, Modal, Weather } from "@/components/client";
+import { Clock, ImageField, Modal, ShuffleButton, Weather } from "@/components/client";
 import { WidgetGrid } from "@/components/WidgetGrid";
 import { getEvents, getNotes, getProjects, getSettings, getTodos, getTz, rows } from "@/lib/data";
 import { financeSummary, months } from "@/lib/finance-data";
@@ -255,9 +255,12 @@ export default async function Dashboard() {
               ))}
             </div>
           ) : <p className="small muted">None of the image sources returned anything just now. Check them in Settings, or pin your own with “+ Pin image”.</p>}
-          <p className="tiny muted">
-            Your pins and images from {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 8).join(", ") || "your sources"}. <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
-          </p>
+          <div className="row between" style={{ alignItems: "flex-start", flexWrap: "nowrap" }}>
+            <p className="tiny muted grow">
+              Your pins and images from {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 8).join(", ") || "your sources"}. <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
+            </p>
+            <ShuffleButton />
+          </div>
         </Card>
         ) },
       ]} />
