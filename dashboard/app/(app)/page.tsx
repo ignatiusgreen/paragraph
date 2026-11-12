@@ -41,11 +41,19 @@ export default async function Dashboard() {
   const urgent = open.filter((x) => x.urgent);
   const dueToday = open.filter((x) => x.due_date && x.due_date <= t);
   const top = [...open].sort((a, b) => Number(b.urgent) - Number(a.urgent) || (a.due_date ?? "9").localeCompare(b.due_date ?? "9")).slice(0, 6);
-  const upcoming = events.filter((e) => (e.end_date ?? e.date) >= t);
+  const now = nowTime(tz); // "HH:MM" in the viewer's time zone
+  // Still relevant: anything today that hasn't finished yet, and everything after today.
+  const upcoming = events.filter((e) => {
+    const last = e.end_date ?? e.date;
+    if (last !== t) return last > t;
+    return !e.start_time || (e.end_time ?? e.start_time).slice(0, 5) > now;
+  });
+  // "Next up" is strictly in the future: starts later today, or on a later day.
+  const next = events.find((e) => e.date > t || (e.date === t && !!e.start_time && e.start_time.slice(0, 5) > now));
   const week = upcoming.filter((e) => e.date <= addDays(t, 7));
   const busy = new Set([...events.map((e) => e.date), ...open.map((x) => x.due_date).filter(Boolean)]);
   const openLeads = leads.filter((l) => !["won", "lost"].includes(l.status));
-  const hour = Number(nowTime(tz).slice(0, 2));
+  const hour = Number(now.slice(0, 2));
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   // A different mix on every load: up to four of your pins plus images from the sources, in random order.
   const images = shuffle([
@@ -71,8 +79,8 @@ export default async function Dashboard() {
           <hr className="rule" />
           <div>
             <div className="eyebrow">Next up</div>
-            {upcoming[0] ? (
-              <p style={{ marginTop: 6 }}><strong>{upcoming[0].title}</strong><br /><span className="muted small">{relDay(upcoming[0].date, t)} · {eventWhen(upcoming[0])}{upcoming[0].location ? ` · ${upcoming[0].location}` : ""}</span></p>
+            {next ? (
+              <p style={{ marginTop: 6 }}><strong>{next.title}</strong><br /><span className="muted small">{relDay(next.date, t)} · {eventWhen(next)}{next.location ? ` · ${next.location}` : ""}</span></p>
             ) : <p className="muted small" style={{ marginTop: 6 }}>Nothing on the schedule.</p>}
           </div>
         </Card>
