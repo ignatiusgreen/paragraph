@@ -65,12 +65,15 @@ async function cleveland(credit: string): Promise<Inspiration[]> {
   }));
 }
 
-/** Stills from films trending this week (needs TMDB_API_KEY). */
+/** Film stills from TMDB (needs TMDB_API_KEY): this week's trending films plus a random page of the top-rated list. */
 async function filmStills(): Promise<Inspiration[]> {
   const key = process.env.TMDB_API_KEY;
   if (!key) return [];
-  const j = await getJson(`https://api.themoviedb.org/3/trending/movie/week?api_key=${key}`);
-  return (j.results ?? []).filter((m: any) => m.backdrop_path).slice(0, 8).map((m: any) => ({
+  const pages = await Promise.all([
+    getJson(`https://api.themoviedb.org/3/trending/movie/week?api_key=${key}`).catch(() => ({ results: [] })),
+    getJson(`https://api.themoviedb.org/3/movie/top_rated?api_key=${key}&page=${1 + rand(25)}`).catch(() => ({ results: [] })),
+  ]);
+  return pages.flatMap((j) => j.results ?? []).filter((m: any) => m.backdrop_path).map((m: any) => ({
     image: `https://image.tmdb.org/t/p/w780${m.backdrop_path}`, title: m.title, credit: "Film still · TMDB", url: `https://www.themoviedb.org/movie/${m.id}`,
   }));
 }
@@ -205,26 +208,33 @@ export function readSources(setting: unknown): Source[] {
     .map((s) => ({ label: String(s.label || new URL(s.url).hostname.replace(/^www\./, "")), url: s.url, weight: [1, 2, 3].includes(Number(s.weight)) ? Number(s.weight) : 2 }));
 }
 
+export type SourceStatus = { label: string; url: string; weight: number; count: number; error: string | null; sample: string | null };
+
 /**
  * A mixed set of images for the panel. Each round takes `weight` images from every source, so favoured
- * sources fill more of it. Each source is shuffled first, so every page load shows a different selection.
+ * sources fill more of it, and no source may take more than its cap (Occasionally 2, Normal 4, Favor 6)
+ * even when the others come back empty. Each source is shuffled first, so every load is a new selection.
  */
-export async function getInspiration(sources: Source[], limit = 16): Promise<Inspiration[]> {
+export async function getInspiration(sources: Source[], limit = 16): Promise<{ items: Inspiration[]; status: SourceStatus[] }> {
   const [results, stills] = await Promise.all([Promise.all(sources.map(fetchSource)), filmStills().catch(() => [])]);
   const lists = [
-    ...results.filter((r) => r.items.length).sort((a, b) => b.source.weight - a.source.weight).map((r) => ({ weight: r.source.weight, items: shuffle(r.items) })),
-    ...(stills.length ? [{ weight: 2, items: shuffle(stills) }] : []),
+    ...results.filter((r) => r.items.length).sort((a, b) => b.source.weight - a.source.weight).map((r) => ({ weight: r.source.weight, items: shuffle(r.items), taken: 0 })),
+    ...(stills.length ? [{ weight: 2, items: shuffle(stills), taken: 0 }] : []),
   ];
   const out: Inspiration[] = [];
   const seen = new Set<string>();
-  for (let round = 0; out.length < limit && lists.some((l) => l.items.length); round++) {
-    for (const l of lists) {
-      for (const item of l.items.splice(0, l.weight)) {
-        if (out.length < limit && !seen.has(item.image)) { seen.add(item.image); out.push(item); }
+  const open = () => lists.filter((l) => l.items.length && l.taken < l.weight * 2);
+  while (out.length < limit && open().length) {
+    for (const l of open()) {
+      for (const item of l.items.splice(0, Math.min(l.weight, l.weight * 2 - l.taken))) {
+        if (out.length < limit && !seen.has(item.image)) { seen.add(item.image); out.push(item); l.taken++; }
       }
     }
   }
-  return out;
+  const status = results.map((r) => ({
+    label: r.source.label, url: r.source.url, weight: r.source.weight, count: r.items.length, error: r.error, sample: r.items[0]?.image ?? null,
+  }));
+  return { items: out, status };
 }
 /** A fresh random order (Fisher–Yates), so the panel changes on every page load. */
 export function shuffle<T>(items: T[]) {

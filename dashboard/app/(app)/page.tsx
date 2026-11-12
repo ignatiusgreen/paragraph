@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { loadPrivacy } from "@/lib/privacy";
 import { headers } from "next/headers";
+import { after } from "next/server";
+import { hasServiceKey, setSetting } from "@/lib/integrations";
 import { Card, Empty, eventWhen, PageHead, RowForm, TodoFields, TodoItem, F } from "@/components/ui";
 import { Clock, ImageField, Modal, ShuffleButton, Weather } from "@/components/client";
 import { WidgetGrid } from "@/components/WidgetGrid";
@@ -35,7 +37,13 @@ export default async function Dashboard() {
   ]);
   const feeds = Array.isArray(settings.feeds) && settings.feeds.length ? (settings.feeds as string[]) : DEFAULT_FEEDS;
   const sources = readSources(settings.inspiration_sources);
-  const [news, inspiration] = await Promise.all([getNews(feeds, 7), getInspiration(sources)]);
+  const [news, { items: inspiration, status: sourceStatus }] = await Promise.all([getNews(feeds, 7), getInspiration(sources)]);
+  // Keep a record of what each source returned (at most every ten minutes), so problems can be diagnosed.
+  const lastStatus = settings.inspiration_status as { at?: string } | undefined;
+  if (hasServiceKey() && (!lastStatus?.at || Date.now() - +new Date(lastStatus.at) > 600_000)) {
+    after(() => setSetting("inspiration_status", { at: new Date().toISOString(), sources: sourceStatus }).catch(() => {}));
+  }
+  const silent = sourceStatus.filter((x) => !x.count);
 
   const open = todos.filter((x) => !x.done);
   const urgent = open.filter((x) => x.urgent);
@@ -257,7 +265,7 @@ export default async function Dashboard() {
           ) : <p className="small muted">None of the image sources returned anything just now. Check them in Settings, or pin your own with “+ Pin image”.</p>}
           <div className="row between" style={{ alignItems: "flex-start", flexWrap: "nowrap" }}>
             <p className="tiny muted grow">
-              Your pins and images from {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 8).join(", ") || "your sources"}. <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
+              Your pins and images from {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 8).join(", ") || "your sources"}.{silent.length ? ` Returning nothing right now: ${silent.map((x) => x.label.trim()).join(", ")}.` : ""} <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
             </p>
             <ShuffleButton />
           </div>
