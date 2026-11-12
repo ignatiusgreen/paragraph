@@ -423,3 +423,7 @@ pre { background: var(--dusk); color: #e6eeee; padding: 14px; overflow-x: auto; 
   code, pre { font-size: 14px; }
   .linksfield .linkrow { grid-template-columns: 1fr; }
 }
+
+/* anchors (e.g. /settings#appearance) stop below the sticky top bar */
+section[id] { scroll-margin-top: 112px; }
+@media (max-width: 1379px) { section[id] { scroll-margin-top: 180px; } }

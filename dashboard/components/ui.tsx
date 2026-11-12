@@ -2,7 +2,7 @@ import { ColorField, Delete, ImageField, LinksField, Modal, Submit, TodoCheck } 
 import { deleteRow, saveRow, saveSection } from "@/app/(app)/actions";
 import { getSection } from "@/lib/data";
 import { fmtDate, fmtTime, money, relDay } from "@/lib/format";
-import { GLOBAL_SECTION, KIND_LABEL, REMINDERS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Todo } from "@/lib/types";
+import { GLOBAL_SECTION, KIND_LABEL, REMINDERS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Section, type Todo } from "@/lib/types";
 
 /** Perceived brightness of a #rrggbb colour: true when white text reads better on it. */
 function isDark(hex: string) {
@@ -39,25 +39,24 @@ export async function PageHead({ section, title, eyebrow, sub, children }: {
         <h1>{title}.</h1>
         {sub ? <p className="hero-sub">{sub}</p> : null}
       </div>
-      <div className="hero-actions">
-        {children}
-        <Modal label="Appearance" title={`${title} — appearance`} className="btn ghost">
-          <form action={saveSection} className="stack">
-            <input type="hidden" name="key" value={section} />
-            <ImageField name="header_url" label="Header image (behind the title)" defaultValue={s?.header_url} folder="sections" />
-            <ImageField name="background_url" label="Background image (behind the whole page, darkened)" defaultValue={bgUrl} folder="sections" />
-            <ColorField name="background_color" label="Background color" defaultValue={color} />
-            <div className="field">
-              <label className="check"><input type="checkbox" name="everywhere" defaultChecked={!own} />Use this background on all pages</label>
-              <span className="tiny muted">{own
-                ? "This page has its own background. Tick the box to make it the background everywhere instead."
-                : "Untick to give only this page a different background. Pages with their own background keep it."}</span>
-            </div>
-            <div className="form-foot"><span /><Submit>Save</Submit></div>
-          </form>
-        </Modal>
-      </div>
+      {children ? <div className="hero-actions">{children}</div> : null}
     </header>
+  );
+}
+
+/** Appearance form for one page (or, with section = GLOBAL_SECTION, the background shared by every page). Used in Settings. */
+export function AppearanceForm({ section, current }: { section: string; current: Section | null }) {
+  const shared = section === GLOBAL_SECTION;
+  const color = current?.background_color && /^#[0-9a-f]{6}$/i.test(current.background_color) ? current.background_color : null;
+  return (
+    <form action={saveSection} className="stack">
+      <input type="hidden" name="key" value={section} />
+      {shared ? null : <ImageField name="header_url" label="Header image (behind the page title)" defaultValue={current?.header_url} folder="sections" />}
+      <ImageField name="background_url" label={shared ? "Background image (darkened so cards stand out)" : "This page's own background image"} defaultValue={current?.background_url} folder="sections" />
+      <ColorField name="background_color" label={shared ? "Background color" : "This page's own background color"} defaultValue={color} mintLabel={shared ? "Mint (default)" : "None (use the shared background)"} />
+      {shared ? null : <p className="tiny muted">Leave the image and color empty to use the background shared by all pages.</p>}
+      <div className="form-foot"><span /><Submit>Save</Submit></div>
+    </form>
   );
 }
 

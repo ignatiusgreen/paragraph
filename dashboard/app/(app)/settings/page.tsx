@@ -1,10 +1,11 @@
-import { Card, PageHead } from "@/components/ui";
+import { AppearanceForm, Card, PageHead } from "@/components/ui";
 import { loadPrivacy } from "@/lib/privacy";
-import { SourcesField, Submit, TokenForm } from "@/components/client";
+import { Modal, SourcesField, Submit, TokenForm } from "@/components/client";
 import { fetchSource, readSources } from "@/lib/inspiration";
 import { disconnect, revokeAgentToken, saveSettings } from "@/app/(app)/actions";
 import { adminDb } from "@/lib/supabase/admin";
-import { getSettings, getTz } from "@/lib/data";
+import { getSettings, getTz, rows } from "@/lib/data";
+import { GLOBAL_SECTION, type Section } from "@/lib/types";
 import { appUrl, hasServiceKey } from "@/lib/integrations";
 import { getGoogle, googleConfigured } from "@/lib/google";
 import { getQbo, qboConfigured } from "@/lib/qbo";
@@ -12,6 +13,10 @@ import { instagramConfigured, vimeoConfigured } from "@/lib/metrics";
 import { DEFAULT_FEEDS } from "@/lib/feeds";
 import type { QboSnapshot } from "@/lib/qbo";
 
+const PAGES = [
+  ["dashboard", "Dashboard"], ["todos", "To-dos"], ["schedule", "Schedule"], ["clients", "Client projects"], ["documentary", "Documentary"],
+  ["narrative", "Narrative"], ["bizdev", "New biz dev"], ["finance", "Finance"], ["gear", "Gear"], ["notebook", "Notebook"], ["settings", "Settings"],
+];
 const Status = ({ ok, children }: { ok: boolean; children: React.ReactNode }) => <span className={`chip${ok ? " leaf" : ""}`}>{ok ? "✓ " : ""}{children}</span>;
 
 export default async function Settings() {
@@ -24,6 +29,7 @@ export default async function Settings() {
   const snap = settings.qbo_snapshot as QboSnapshot | undefined;
   const sources = readSources(settings.inspiration_sources);
   const checks = await Promise.all(sources.map(fetchSource));
+  const looks = new Map((await rows<Section>("sections", "key")).map((r) => [r.key, r]));
   const url = appUrl();
   return (
     <>
@@ -89,6 +95,39 @@ export default async function Settings() {
             </div>
           </div>
         </Card>
+
+        <section className="card s12" id="appearance">
+          <div className="card-head"><h2 className="card-title">Appearance</h2></div>
+          <div className="grid">
+            <div className="s5 stack">
+              <div className="eyebrow">Background for all pages</div>
+              <AppearanceForm section={GLOBAL_SECTION} current={looks.get(GLOBAL_SECTION) ?? null} />
+            </div>
+            <div className="s7 stack">
+              <div className="eyebrow">Page by page</div>
+              <table>
+                <thead><tr><th>Page</th><th>Header image</th><th>Background</th><th /></tr></thead>
+                <tbody>
+                  {PAGES.map(([key, label]) => {
+                    const r = looks.get(key) ?? null;
+                    return (
+                      <tr key={key}>
+                        <td>{label}</td>
+                        <td className="muted">{r?.header_url ? "Set" : "None"}</td>
+                        <td className="muted">{r?.background_url ? "Own image" : r?.background_color ? `Own color ${r.background_color}` : "Shared"}</td>
+                        <td className="num">
+                          <Modal label="Edit" title={`${label} — appearance`} className="btn ghost sm" ariaLabel={`Edit appearance of ${label}`}>
+                            <AppearanceForm section={key} current={r} />
+                          </Modal>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
 
         <Card className="s6" title="Dashboard">
           <form action={saveSettings} className="stack">
