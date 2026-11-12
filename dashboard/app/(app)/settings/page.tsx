@@ -16,7 +16,9 @@ const Status = ({ ok, children }: { ok: boolean; children: React.ReactNode }) =>
 
 export default async function Settings() {
   await loadPrivacy();
-  const [settings, google, qbo, tz] = await Promise.all([getSettings(), getGoogle(), getQbo(), getTz()]);
+  // Reading the QuickBooks connection decrypts its tokens; if that fails (missing or wrong key), show why here.
+  const qboRead = getQbo().then((auth) => ({ auth, error: null as string | null })).catch((e: Error) => ({ auth: null, error: e.message }));
+  const [settings, google, { auth: qbo, error: qboError }, tz] = await Promise.all([getSettings(), getGoogle(), qboRead, getTz()]);
   const tokens = hasServiceKey() ? (await adminDb().from("agent_tokens").select("id,name,last_used_at,created_at").order("created_at")).data ?? [] : [];
   const feeds = Array.isArray(settings.feeds) && settings.feeds.length ? (settings.feeds as string[]) : DEFAULT_FEEDS;
   const snap = settings.qbo_snapshot as QboSnapshot | undefined;
@@ -40,9 +42,17 @@ export default async function Settings() {
             : <p className="small">Add <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> in Vercel first (SETUP.md, step 3).</p>}
         </Card>
 
-        <Card className="s6" title="QuickBooks" actions={<Status ok={!!qbo}>{qbo ? "Connected" : "Not connected"}</Status>}>
+        <Card className="s6" title="QuickBooks" actions={<Status ok={!!qbo}>{qbo ? "Connected" : qboError ? "Needs attention" : "Not connected"}</Status>}>
           <p className="small muted">Pulls the client list, bank balances, open invoices and monthly profit &amp; loss. Read-only: nothing is written to QuickBooks.</p>
-          {qbo ? (
+          {qboError ? (
+            <>
+              <div className="notice warn" role="alert">{qboError}</div>
+              <div className="row between">
+                <span className="small muted">A QuickBooks connection is stored but can’t be used.</span>
+                <form action={disconnect}><input type="hidden" name="provider" value="qbo" /><Submit className="btn ghost sm">Disconnect</Submit></form>
+              </div>
+            </>
+          ) : qbo ? (
             <div className="row between">
               <span className="small muted">{snap ? `Last synced ${new Date(snap.synced_at).toLocaleString("en-US", { timeZone: tz, month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}` : "Not synced yet"}</span>
               <form action={disconnect}><input type="hidden" name="provider" value="qbo" /><Submit className="btn ghost sm">Disconnect</Submit></form>

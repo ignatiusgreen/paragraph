@@ -2,6 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC = ["/login", "/auth", "/api/cron", "/api/mcp", "/api/agent"];
+// Legal pages need no sign-in. They return 404 by themselves until LEGAL_PAGES_LIVE is set.
+const PUBLIC_EXACT = ["/privacy", "/terms"];
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -21,7 +23,7 @@ export async function middleware(request: NextRequest) {
   );
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  if (!user && !PUBLIC.some((p) => path.startsWith(p))) {
+  if (!user && !PUBLIC.some((p) => path.startsWith(p)) && !PUBLIC_EXACT.includes(path)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";

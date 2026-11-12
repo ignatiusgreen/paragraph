@@ -1,0 +1,3 @@
+// The terms of use, shown verbatim on /terms. Edit the wording here.
+// DRAFT: the page stays hidden (404) until LEGAL_PAGES_LIVE is set in Vercel.
+export const TERMS_TEXT = `Terms of Use (draft). Paragraph Dashboard is a private internal business tool operated by Paragraph Films for its own use. It is provided as-is, without warranties of any kind, and may be changed or discontinued at any time. The dashboard only reads QuickBooks data and does not create or modify anything in it; QuickBooks data remains subject to Intuit's own terms. Access is limited to authorized users. Questions: jg@paragraphfilms.com.`;

@@ -1,7 +1,7 @@
 "use server";
 import { createHash, randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { after } from "next/server";
 import { db } from "@/lib/supabase/server";
 import { adminDb } from "@/lib/supabase/admin";
@@ -9,7 +9,8 @@ import { getMe, getTz } from "@/lib/data";
 import { readForm, TABLES } from "@/lib/schema";
 import { removeEvent, removeTodo, saveEvent, saveTodo } from "@/lib/core";
 import { pullCalendar, syncNotebook } from "@/lib/google";
-import { syncQbo } from "@/lib/qbo";
+import { disconnectMessage, disconnectQbo, syncQbo } from "@/lib/qbo";
+import { sameOrigin } from "@/lib/csrf";
 import { snapshotMetrics } from "@/lib/metrics";
 import { clearIntegration, hasServiceKey } from "@/lib/integrations";
 import { GLOBAL_SECTION, type Event, type Todo } from "@/lib/types";
@@ -162,7 +163,21 @@ export async function snapshotMetricsNow() {
 }
 export async function disconnect(f: FormData) {
   await guard();
-  await clearIntegration(String(f.get("provider")));
+  // Refuse anything that didn't come from this app's own pages.
+  if (!sameOrigin(await headers())) {
+    await flash("Couldn't disconnect: the request didn't come from this dashboard.");
+    return refresh();
+  }
+  const provider = String(f.get("provider"));
+  if (provider === "qbo") {
+    try {
+      await flash(disconnectMessage(await disconnectQbo()));
+    } catch (e) {
+      await flash(`Couldn't disconnect QuickBooks: ${(e as Error).message}`);
+    }
+    return refresh();
+  }
+  await clearIntegration(provider);
   refresh();
 }
 
