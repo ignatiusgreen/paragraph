@@ -467,3 +467,9 @@ select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
   select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="hidden"]) { height: 48px; }
   .widget-bar select { height: 34px; }
 }
+/* Personal column: the site's dark teal, with light text on the column itself (cards stay white) */
+.todo-col.personal { background: var(--teal); color: #fff; --muted: rgba(255, 255, 255, 0.78); --line-strong: rgba(255, 255, 255, 0.5); }
+.todo-col.personal .col-head { border-bottom-color: #fff; }
+.todo-col.personal .todo-card { color: var(--dusk); --muted: #55676b; --line-strong: rgba(4, 27, 33, 0.28); }
+.todo-col.personal .todo-add input[name="title"] { color: #fff; }
+.todo-col.personal .todo-add input[name="title"]:focus { color: var(--dusk); }

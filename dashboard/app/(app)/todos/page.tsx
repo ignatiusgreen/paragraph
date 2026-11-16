@@ -33,7 +33,7 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
     }))).filter((c) => c.todos.length || c.isNew), // a project started from this page keeps its empty column for two weeks
     { key: "general", title: "General", note: "No project", todos: rest.filter((x) => !x.project_id && !x.category), add: { project_id: "" } },
     { key: "operations", title: "Operations", note: "Business", todos: rest.filter((x) => !x.project_id && x.category === "operations"), add: { project_id: OPERATIONS } },
-    { key: "personal", title: "Personal", todos: rest.filter((x) => !x.project_id && x.category === "personal"), add: { project_id: PERSONAL } },
+    { key: "personal", title: "Personal", tone: "personal", todos: rest.filter((x) => !x.project_id && x.category === "personal"), add: { project_id: PERSONAL } },
   ] as Column[]).filter((c) => c.todos.length || ["urgent", "operations", "personal"].includes(c.key) || c.isNew);
   // To-dos tagged to a project that has since been archived or deleted still need a home.
   const placed = new Set(columns.flatMap((c) => c.todos.map((x) => x.id)));
