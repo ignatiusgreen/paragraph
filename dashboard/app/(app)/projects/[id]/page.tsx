@@ -72,7 +72,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             </AutoSelect>
           </form>
         }>
-          <Gantt projectId={project.id} items={timeline} todos={mine} events={schedule} today={t} phaseHints={stages.map((s) => s.label)} />
+          <Gantt owner={{ project_id: project.id }} items={timeline} todos={mine} events={schedule} today={t} phaseHints={stages.map((s) => s.label)} />
           {timeline.length ? (
             <div className="legend">
               <span><i style={{ background: "var(--saffron)" }} />Today</span>

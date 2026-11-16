@@ -12,6 +12,7 @@ export const SECTIONS = [
   { key: "narrative", href: "/narrative", label: "Narrative" },
   { sep: true },
   { key: "bizdev", href: "/bizdev", label: "New Biz" },
+  { key: "ops", href: "/ops", label: "Ops" },
   { key: "finance", href: "/finance", label: "Finance" },
   { key: "gear", href: "/gear", label: "Gear" },
   { key: "notebook", href: "/notebook", label: "Notebook" },

@@ -15,7 +15,7 @@ import type { QboSnapshot } from "@/lib/qbo";
 
 const PAGES = [
   ["dashboard", "Dashboard"], ["todos", "To-dos"], ["schedule", "Schedule"], ["clients", "Branded"], ["documentary", "Documentary"],
-  ["narrative", "Narrative"], ["bizdev", "New Biz"], ["finance", "Finance"], ["gear", "Gear"], ["notebook", "Notebook"], ["settings", "Settings"],
+  ["narrative", "Narrative"], ["bizdev", "New Biz"], ["ops", "Ops"], ["finance", "Finance"], ["gear", "Gear"], ["notebook", "Notebook"], ["settings", "Settings"],
 ];
 const Status = ({ ok, children }: { ok: boolean; children: React.ReactNode }) => <span className={`chip${ok ? " leaf" : ""}`}>{ok ? "✓ " : ""}{children}</span>;
 

@@ -36,8 +36,9 @@ export function TimelineFields({ item, kind, phases, today }: { item?: TimelineI
  * A project timeline: tasks as bars grouped and coloured by phase, milestones as vertical markers, a line for
  * today, and a row of dots for the project's to-do deadlines and scheduled events.
  */
-export function Gantt({ projectId, items, todos, events, today, phaseHints }: {
-  projectId: string; items: TimelineItem[]; todos: Todo[]; events: Event[]; today: string; phaseHints: string[];
+export function Gantt({ owner, items, todos, events, today, phaseHints }: {
+  /** Who the timeline belongs to: a project ({ project_id }) or a named scope ({ scope: "ops" }). */
+  owner: Record<string, string>; items: TimelineItem[]; todos: Todo[]; events: Event[]; today: string; phaseHints: string[];
 }) {
   const tasks = items.filter((i) => i.kind === "task").map((i) => ({ ...i, end: i.end_date && i.end_date >= i.start_date ? i.end_date : i.start_date }));
   const milestones = items.filter((i) => i.kind === "milestone").sort((a, b) => a.start_date.localeCompare(b.start_date));
@@ -49,7 +50,7 @@ export function Gantt({ projectId, items, todos, events, today, phaseHints }: {
   const knownPhases = [...new Set([...phaseNames.filter((p) => p !== "General"), ...phaseHints])];
   const add = (kind: "task" | "milestone", label: string, className = "btn sm") => (
     <Modal label={label} title={kind === "task" ? "New task" : "New milestone"} className={className}>
-      <RowForm table="timeline_items" hidden={{ project_id: projectId, kind }} submit="Add">
+      <RowForm table="timeline_items" hidden={{ ...owner, kind }} submit="Add">
         <TimelineFields kind={kind} phases={knownPhases} today={today} />
       </RowForm>
     </Modal>
