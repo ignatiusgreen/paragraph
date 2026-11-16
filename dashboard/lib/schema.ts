@@ -24,6 +24,7 @@ export const TABLES: Record<string, Record<string, FieldType>> = {
     image_url: "text", notes: "text",
   },
   pins: { image_url: "text", caption: "text", source_url: "text" },
+  industry_events: { title: "text", org: "text", kind: "text", date: "date", end_date: "date", url: "text", notes: "text" },
 };
 
 /** Build a row from the fields the form actually sent. Checkboxes are listed in a hidden `_bools` field. */

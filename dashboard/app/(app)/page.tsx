@@ -11,8 +11,24 @@ import { getEvents, getNotes, getProjects, getSettings, getTodos, getTz, rows } 
 import { financeSummary, months } from "@/lib/finance-data";
 import { DEFAULT_FEEDS, getNews } from "@/lib/feeds";
 import { getInspiration, readSources, shuffle } from "@/lib/inspiration";
+import { getFeedEvents } from "@/lib/industry";
 import { addDays, fmtDate, money, monthGrid, nowTime, relDay, today } from "@/lib/format";
-import { KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
+import { type IndustryEvent, KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
+
+const EVENT_KINDS = [{ value: "deadline", label: "Submission deadline" }, { value: "event", label: "Event" }];
+function IndustryFields({ event }: { event?: IndustryEvent }) {
+  return (
+    <div className="fgrid">
+      <F label="What" name="title" defaultValue={event?.title} required full placeholder="e.g. SXSW feature film — final deadline" />
+      <F label="Festival or organisation" name="org" defaultValue={event?.org} />
+      <F label="Type" name="kind" options={EVENT_KINDS} defaultValue={event?.kind ?? "deadline"} />
+      <F label="Date" name="date" type="date" defaultValue={event?.date} />
+      <F label="Last day (if it runs several days)" name="end_date" type="date" defaultValue={event?.end_date} />
+      <F label="Link" name="url" type="url" defaultValue={event?.url} full placeholder="https://…" />
+      <F label="Notes" name="notes" defaultValue={event?.notes} full />
+    </div>
+  );
+}
 
 const RAMP = ["#b0d4e4", "#7fb4c0", "#4b929b", "#04656b", "#114c5a", "#172b36", "#041b21"];
 const ago = (iso: string | null) => {
@@ -36,6 +52,18 @@ export default async function Dashboard() {
     getTodos(), getProjects(), getEvents(grid[0][0], addDays(t, 45)), getNotes(), rows<Lead>("leads"), rows<Gear>("gear"),
     rows<Pin>("pins", "created_at", false), getSettings(), financeSummary(),
   ]);
+  // Industry events: the ones kept by hand (festival deadlines) plus anything read from event feeds.
+  const [manualEvents, feedResults] = await Promise.all([rows<IndustryEvent>("industry_events", "date"), getFeedEvents().catch(() => [])]);
+  const known = new Set(manualEvents.map((e) => `${e.title.toLowerCase()}|${e.date}`));
+  const pulled = [...new Map(feedResults.flatMap((r) => r.events).map((e) => [`${e.title.toLowerCase()}|${e.date}`, e])).values()]
+    .filter((e) => !known.has(`${e.title.toLowerCase()}|${e.date}`));
+  const dated = [
+    ...manualEvents.filter((e) => e.date && (e.end_date ?? e.date) >= t).map((e) => ({ ...e, date: e.date!, row: e as IndustryEvent | null })),
+    ...pulled.filter((e) => (e.end_date ?? e.date) >= t).map((e) => ({ id: `${e.org}-${e.title}-${e.date}`, title: e.title, org: e.org, kind: "event" as const, date: e.date, end_date: e.end_date, url: e.url, notes: null, row: null as IndustryEvent | null })),
+  ].sort((a, b) => a.date.localeCompare(b.date));
+  const undated = manualEvents.filter((e) => !e.date);
+  const feedOrgs = [...new Set(feedResults.map((r) => r.feed.org))];
+  const quietOrgs = feedOrgs.filter((org) => !pulled.some((e) => e.org === org));
   const feeds = Array.isArray(settings.feeds) && settings.feeds.length ? (settings.feeds as string[]) : DEFAULT_FEEDS;
   const sources = readSources(settings.inspiration_sources);
   // Images already shown today are left out, so a reload or Shuffle always brings new ones.
@@ -43,7 +71,7 @@ export default async function Dashboard() {
   const shown = new Set(seenToday?.date === t ? seenToday.ids ?? [] : []);
   const imageId = (url: string) => createHash("sha1").update(url).digest("hex").slice(0, 12);
   let startedOver = false;
-  const [news, firstDraw] = await Promise.all([getNews(feeds, 7), getInspiration(sources, { skip: (url) => shown.has(imageId(url)) })]);
+  const [news, firstDraw] = await Promise.all([getNews(feeds, 4), getInspiration(sources, { skip: (url) => shown.has(imageId(url)) })]);
   let draw = firstDraw;
   // Once nearly everything has been shown, start the day's rotation again.
   if (shown.size && draw.items.length < 6) {
@@ -56,6 +84,7 @@ export default async function Dashboard() {
   const lastStatus = settings.inspiration_status as { at?: string } | undefined;
   if (hasServiceKey() && (!lastStatus?.at || Date.now() - +new Date(lastStatus.at) > 600_000)) {
     after(() => setSetting("inspiration_status", { at: new Date().toISOString(), sources: sourceStatus }).catch(() => {}));
+    after(() => setSetting("industry_feed_status", { at: new Date().toISOString(), feeds: feedResults.map((r) => ({ url: r.feed.url, count: r.events.length, error: r.error })) }).catch(() => {}));
   }
   const silent = sourceStatus.filter((x) => !x.count);
 
@@ -238,6 +267,55 @@ export default async function Dashboard() {
             ))}
             {!news.length ? <Empty>Headlines couldn’t be loaded just now. They refresh every half hour.</Empty> : null}
           </div>
+        </Card>
+        ) },
+
+        { id: "events", label: "Industry events", span: "s4", node: (
+        <Card title="Industry events" actions={
+          <Modal label="+ Add" title="New industry event or deadline" className="btn sm">
+            <RowForm table="industry_events" submit="Add"><IndustryFields /></RowForm>
+          </Modal>
+        }>
+          <ScrollList show={4} label="Industry events and deadlines">
+            {dated.map((e) => (
+              <div className="item" key={e.id}>
+                <div className="grow">
+                  {e.row ? (
+                    <Modal label={<span className="rowtitle">{e.title}</span>} title="Edit industry event" className="rowbtn" ariaLabel={`Edit ${e.title}`}>
+                      <RowForm table="industry_events" id={e.row.id} what="this entry"><IndustryFields event={e.row} /></RowForm>
+                    </Modal>
+                  ) : <div className="rowtitle">{e.title}</div>}
+                  <div className="meta">
+                    <span className={`chip${e.kind === "deadline" ? " urgent" : " sky"}`}>{e.kind === "deadline" ? "Deadline" : "Event"}</span>
+                    <span className="chip">{relDay(e.date, t)}{e.end_date && e.end_date !== e.date ? ` – ${fmtDate(e.end_date)}` : ""}</span>
+                    {e.org ? <span>{e.org}</span> : null}
+                    {e.url ? <a href={e.url} target="_blank" rel="noreferrer">Details ↗</a> : null}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {undated.map((e) => (
+              <div className="item" key={e.id}>
+                <div className="grow">
+                  <Modal label={<span className="rowtitle">{e.title}</span>} title="Edit industry event" className="rowbtn" ariaLabel={`Edit ${e.title}`}>
+                    <RowForm table="industry_events" id={e.id} what="this entry"><IndustryFields event={e} /></RowForm>
+                  </Modal>
+                  <div className="meta">
+                    <span className="chip outline">Date to confirm</span>
+                    {e.notes ? <span>{e.notes}</span> : null}
+                    {e.url ? <a href={e.url} target="_blank" rel="noreferrer">Check site ↗</a> : null}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </ScrollList>
+          {!dated.length && !undated.length ? <p className="small muted">Nothing listed. Add a deadline or event with “+ Add”.</p> : null}
+          {quietOrgs.length ? (
+            <p className="tiny muted">
+              No upcoming events could be read from {quietOrgs.join(", ")}.{" "}
+              {feedResults.filter((r) => quietOrgs.includes(r.feed.org)).slice(0, 1).map((r) => <a key={r.feed.url} href={r.feed.url} target="_blank" rel="noreferrer">Open their events page ↗</a>)}
+            </p>
+          ) : null}
         </Card>
         ) },
 

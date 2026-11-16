@@ -200,6 +200,35 @@ export const TOOLS: Tool[] = [
     },
   },
   {
+    name: "list_industry_events",
+    description: "Festival submission deadlines and industry events shown on the dashboard.",
+    inputSchema: { type: "object", properties: {} },
+    run: async () => {
+      const { data, error } = await adminDb().from("industry_events").select("*").order("date", { nullsFirst: false });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  },
+  {
+    name: "save_industry_event",
+    description: "Add a festival deadline or industry event to the dashboard, or update one (pass its id). Only record dates confirmed on the organiser's own site.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: str("Id of an existing entry to update"), title: str("What it is, e.g. 'Sundance feature film — late deadline'"), org: str("Festival or organisation"),
+        kind: { type: "string", enum: ["deadline", "event"] }, date: str(DATE), end_date: str(`Last day, for multi-day events. ${DATE}`), url: str("Link to the organiser's page"), notes: str("Notes"),
+      },
+    },
+    run: async (a) => {
+      const row = pick(a, ["title", "org", "kind", "date", "end_date", "url", "notes"]);
+      if (!a.id && !a.title) throw new Error('Missing "title"');
+      const q = a.id ? adminDb().from("industry_events").update(row).eq("id", a.id) : adminDb().from("industry_events").insert(row);
+      const { data, error } = await q.select().maybeSingle();
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  },
+  {
     name: "list_notes",
     description: "Recent notebook entries, optionally filtered by tag.",
     inputSchema: { type: "object", properties: { tag: str("Only notes with this tag") } },

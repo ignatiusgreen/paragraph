@@ -34,6 +34,7 @@ export type Gear = {
   sell_status: string | null; ebay_url: string | null; fb_url: string | null; buy_url: string | null; est_cost: number | null;
   priority: string | null; image_url: string | null; notes: string | null;
 };
+export type IndustryEvent = { id: string; title: string; org: string | null; kind: "deadline" | "event"; date: string | null; end_date: string | null; url: string | null; notes: string | null };
 export type Pin = { id: string; image_url: string; caption: string | null; source_url: string | null };
 /** Row in `sections` holding the background shared by every page. */
 export const GLOBAL_SECTION = "_global";
