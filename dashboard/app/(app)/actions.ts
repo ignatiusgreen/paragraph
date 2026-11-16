@@ -7,7 +7,7 @@ import { db } from "@/lib/supabase/server";
 import { adminDb } from "@/lib/supabase/admin";
 import { getMe, getTz } from "@/lib/data";
 import { readForm, TABLES } from "@/lib/schema";
-import { removeEvent, removeTodo, saveEvent, saveTodo } from "@/lib/core";
+import { removeEvent, removeTodo, saveEvent, saveTodo, syncLeadTodo } from "@/lib/core";
 import { pullCalendar, syncNotebook } from "@/lib/google";
 import { disconnectMessage, disconnectQbo, syncQbo } from "@/lib/qbo";
 import { sameOrigin } from "@/lib/csrf";
@@ -56,6 +56,9 @@ export async function saveRow(f: FormData) {
     error = e?.message; savedId = data?.id ?? id;
   }
 
+  // A lead's next step is kept on the to-do list, under New Biz.
+  if (!error && table === "leads" && savedId) warning = (await syncLeadTodo(supabase, savedId, tz)).warning;
+
   if (!error && table === "notes") {
     // "Add a to-do" on a note creates a linked to-do.
     const title = String(f.get("todo_title") ?? "").trim();
@@ -81,6 +84,12 @@ export async function deleteRow(f: FormData) {
   let error: string | undefined;
   if (table === "todos") error = (await removeTodo(supabase, id)).error;
   else if (table === "events") error = (await removeEvent(supabase, id)).error;
+  else if (table === "leads") {
+    // Take the lead's open next-step to-do with it.
+    const { data: linked } = await supabase.from("todos").select("id").eq("lead_id", id).eq("done", false);
+    for (const t of linked ?? []) await removeTodo(supabase, t.id);
+    error = (await supabase.from("leads").delete().eq("id", id)).error?.message;
+  }
   else error = (await supabase.from(table).delete().eq("id", id)).error?.message;
   if (table === "notes") notebookSoon();
   if (error) await flash(`Couldn't delete: ${error}`);

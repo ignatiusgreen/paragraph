@@ -3,7 +3,7 @@ import { loadPrivacy } from "@/lib/privacy";
 import { Modal, Submit } from "@/components/client";
 import { Spark } from "@/components/charts";
 import { importContacts, snapshotMetricsNow } from "@/app/(app)/actions";
-import { getTz, rows } from "@/lib/data";
+import { getTodos, getTz, rows } from "@/lib/data";
 import { instagramConfigured, vimeoConfigured } from "@/lib/metrics";
 import { fmtDate, label, money, num, relDay, today } from "@/lib/format";
 import type { Contact, Gift, Lead, Metric } from "@/lib/types";
@@ -24,7 +24,7 @@ function LeadFields({ lead }: { lead?: Lead }) {
       <F label="Name" name="name" defaultValue={lead?.name} required /><F label="Company" name="company" defaultValue={lead?.company} />
       <F label="Email" name="email" type="email" defaultValue={lead?.email} /><F label="Where it came from" name="source" defaultValue={lead?.source} placeholder="Referral, festival, cold outreach…" />
       <F label="Status" name="status" options={STATUSES} defaultValue={lead?.status ?? "lead"} /><F label="Estimated value" name="est_value" type="number" defaultValue={lead?.est_value} />
-      <F label="Next step" name="next_step" defaultValue={lead?.next_step} /><F label="By" name="next_on" type="date" defaultValue={lead?.next_on} />
+      <F label="Next step (becomes a to-do)" name="next_step" defaultValue={lead?.next_step} /><F label="By" name="next_on" type="date" defaultValue={lead?.next_on} />
       <F label="Notes" name="notes" type="textarea" defaultValue={lead?.notes} full rows={3} />
     </div>
   );
@@ -42,9 +42,10 @@ function GiftFields({ gift, year }: { gift?: Gift; year: number }) {
 
 export default async function BizDev() {
   await loadPrivacy();
-  const [leads, metrics, contacts, gifts, tz] = await Promise.all([
-    rows<Lead>("leads"), rows<Metric>("metrics", "recorded_on"), rows<Contact>("contacts", "email"), rows<Gift>("gifts", "recipient"), getTz(),
+  const [leads, metrics, contacts, gifts, tz, todos] = await Promise.all([
+    rows<Lead>("leads"), rows<Metric>("metrics", "recorded_on"), rows<Contact>("contacts", "email"), rows<Gift>("gifts", "recipient"), getTz(), getTodos(),
   ]);
+  const onList = new Set(todos.filter((x) => x.lead_id && !x.done).map((x) => x.lead_id));
   const t = today(tz), year = Number(t.slice(0, 4));
   const open = leads.filter((l) => !["won", "lost"].includes(l.status));
   const subscribed = contacts.filter((c) => c.subscribed);
@@ -70,7 +71,7 @@ export default async function BizDev() {
                       <div className="tiny muted">{[l.company, l.email].filter(Boolean).join(" · ")}</div>
                     </td>
                     <td><span className={`chip${l.status === "won" ? " leaf" : l.status === "lost" ? "" : l.status === "proposal" ? " sun" : " sky"}`}>{label(l.status)}</span></td>
-                    <td>{l.next_step ?? <span className="muted">—</span>}{l.next_on ? <div className={`tiny${l.next_on < t && open.includes(l) ? "" : " muted"}`}>{l.next_on < t && open.includes(l) ? "Overdue · " : ""}{relDay(l.next_on, t)}</div> : null}</td>
+                    <td>{l.next_step ?? <span className="muted">—</span>}{onList.has(l.id) ? <a className="chip sun" href="/todos" style={{ marginLeft: 8 }} title="This next step is on your to-do list">To-do</a> : null}{l.next_on ? <div className={`tiny${l.next_on < t && open.includes(l) ? "" : " muted"}`}>{l.next_on < t && open.includes(l) ? "Overdue · " : ""}{relDay(l.next_on, t)}</div> : null}</td>
                     <td className="muted">{l.source ?? "—"}</td>
                     <td className="num">{money(l.est_value)}</td>
                   </tr>

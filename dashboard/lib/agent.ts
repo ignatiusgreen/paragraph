@@ -58,7 +58,7 @@ const todoProps = {
   remind_minutes: { type: "integer", description: "Reminder this many minutes before the deadline (e.g. 60, 1440 for a day)" },
   project: str("Title (or part of the title) of the project to tag"),
   project_id: str("Id of the project to tag (alternative to `project`)"),
-  category: { type: "string", enum: ["operations", "personal"], description: "For to-dos not tied to a project: file under the Operations column (business operations) or the Personal column" },
+  category: { type: "string", enum: ["newbiz", "operations", "personal"], description: "For to-dos not tied to a project: file under the New Biz column (leads and outreach), the Operations column (business operations) or the Personal column" },
 };
 const eventProps = {
   title: str("Event title"),

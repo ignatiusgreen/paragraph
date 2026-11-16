@@ -2,7 +2,7 @@ import { ColorField, Delete, ImageField, LinksField, Modal, Submit, TodoCheck } 
 import { deleteRow, saveRow, saveSection } from "@/app/(app)/actions";
 import { getSection } from "@/lib/data";
 import { fmtDate, fmtTime, money, relDay } from "@/lib/format";
-import { GLOBAL_SECTION, KIND_LABEL, listValue, REMINDERS, TODO_LISTS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Section, type Todo } from "@/lib/types";
+import { categoryLabel, GLOBAL_SECTION, KIND_LABEL, listValue, REMINDERS, TODO_LISTS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Section, type Todo } from "@/lib/types";
 
 /** Perceived brightness of a #rrggbb colour: true when white text reads better on it. */
 function isDark(hex: string) {
@@ -173,7 +173,7 @@ export function TodoItem({ todo, projects, today, synced, hideProject }: { todo:
           {todo.due_date ? <span className={`chip${late ? " late" : ""}`}>{late ? "Overdue · " : ""}{relDay(todo.due_date, today)}{todo.due_time ? ` ${fmtTime(todo.due_time)}` : ""}</span> : null}
           {hideProject ? null : project
             ? <span className={`chip ${KIND_CHIP[project.kind]}`} title={`${KIND_LABEL[project.kind]} project`}>{project.title}</span>
-            : todo.category ? <span className={`chip ${todo.category === "operations" ? "outline" : "teal"}`}>{todo.category === "operations" ? "Operations" : "Personal"}</span> : null}
+            : todo.category ? <span className={`chip ${todo.category === "personal" ? "teal" : todo.category === "newbiz" ? "sun" : "outline"}`}>{categoryLabel(todo.category)}</span> : null}
           {todo.remind_minutes != null ? <span title="Reminder set">⏰ {REMINDERS.find((r) => r.value === String(todo.remind_minutes))?.label ?? `${todo.remind_minutes} min before`}</span> : null}
           {synced && todo.gcal_event_id ? <span title="On Google Calendar">▣ Calendar</span> : null}
           {todo.source === "agent" ? <span title="Added by the AI assistant">✦ AI</span> : null}

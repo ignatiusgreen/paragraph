@@ -485,3 +485,7 @@ select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
 .todo-col.kind-documentary .col-head { border-bottom: 4px solid var(--leaf); }
 .todo-col.kind-narrative .col-head { border-bottom: 4px solid var(--dusk); }
 .kind-key { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
+
+/* New Biz to-dos */
+.todo-col.newbiz .col-head { border-bottom: 4px solid var(--sun); }
+.sun .chip.sun, .todo-col.urgent .chip.sun { box-shadow: inset 0 0 0 1.5px var(--dusk); }

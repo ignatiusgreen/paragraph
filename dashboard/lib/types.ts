@@ -8,7 +8,7 @@ export type Project = {
   probability: number | null; expected_on: string | null; archived: boolean; created_at: string;
 };
 export type Todo = {
-  id: string; title: string; notes: string | null; project_id: string | null; note_id: string | null; urgent: boolean; category: "personal" | "operations" | null;
+  id: string; title: string; notes: string | null; project_id: string | null; note_id: string | null; urgent: boolean; category: TodoCategory | null; lead_id: string | null;
   due_date: string | null; due_time: string | null; remind_minutes: number | null; done: boolean; done_at: string | null;
   gcal_event_id: string | null; source: string; created_at: string;
 };
@@ -65,12 +65,16 @@ export const stageLabel = (kind: Kind, stage: string) => STAGES[kind].find((s) =
 export const KIND_PATH: Record<Kind, string> = { client: "/clients", documentary: "/documentary", narrative: "/narrative" };
 export const KIND_LABEL: Record<Kind, string> = { client: "Branded", documentary: "Documentary", narrative: "Narrative" };
 /** Project-picker values for to-dos with no project that belong to a named list (the Operations and Personal columns). */
+export type TodoCategory = "personal" | "operations" | "newbiz";
+export const NEWBIZ = "__newbiz";
 export const OPERATIONS = "__operations";
 export const PERSONAL = "__personal";
-export const TODO_LISTS: Record<string, { category: "personal" | "operations"; label: string }> = {
+export const TODO_LISTS: Record<string, { category: TodoCategory; label: string }> = {
+  [NEWBIZ]: { category: "newbiz", label: "New Biz" },
   [OPERATIONS]: { category: "operations", label: "Operations" },
   [PERSONAL]: { category: "personal", label: "Personal" },
 };
+export const categoryLabel = (category: string | null | undefined) => Object.values(TODO_LISTS).find((l) => l.category === category)?.label ?? "";
 export const listValue = (category: string | null | undefined) => Object.keys(TODO_LISTS).find((k) => TODO_LISTS[k].category === category);
 export const NOTE_TAGS = ["film", "random", "new biz", "documentary"];
 export const REMINDERS = [

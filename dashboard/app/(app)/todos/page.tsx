@@ -6,7 +6,7 @@ import { createProjectFromTodos, saveRow } from "@/app/(app)/actions";
 import { getProjects, getSettings, getTodos, getTz } from "@/lib/data";
 import { getGoogle } from "@/lib/google";
 import { addDays, today } from "@/lib/format";
-import { KIND_LABEL, OPERATIONS, PERSONAL, REMINDERS, type Kind, type Todo } from "@/lib/types";
+import { KIND_LABEL, NEWBIZ, OPERATIONS, PERSONAL, REMINDERS, type Kind, type Todo } from "@/lib/types";
 
 type Column = { key: string; title: string; note?: string; tone?: string; todos: Todo[]; add: Record<string, string>; isNew?: boolean };
 
@@ -32,13 +32,14 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
       isNew: pinned.includes(p.id) && p.created_at.slice(0, 10) >= addDays(t, -14),
     }))).filter((c) => c.todos.length || c.isNew), // a project started from this page keeps its empty column for two weeks
     { key: "general", title: "General", note: "No project", todos: rest.filter((x) => !x.project_id && !x.category), add: { project_id: "" } },
+    { key: "newbiz", title: "New Biz", note: "Leads", tone: "newbiz", todos: rest.filter((x) => !x.project_id && x.category === "newbiz"), add: { project_id: NEWBIZ } },
     { key: "operations", title: "Operations", note: "Business", todos: rest.filter((x) => !x.project_id && x.category === "operations"), add: { project_id: OPERATIONS } },
     { key: "personal", title: "Personal", tone: "personal", todos: rest.filter((x) => !x.project_id && x.category === "personal"), add: { project_id: PERSONAL } },
   ] as Column[]).filter((c) => c.todos.length || ["urgent", "operations", "personal"].includes(c.key) || c.isNew);
   // To-dos tagged to a project that has since been archived or deleted still need a home.
   const placed = new Set(columns.flatMap((c) => c.todos.map((x) => x.id)));
   const stray = open.filter((x) => !placed.has(x.id));
-  if (stray.length) columns.splice(columns.length - 2, 0, { key: "other", title: "Other projects", note: "Archived", todos: stray, add: { project_id: "" } });
+  if (stray.length) columns.splice(columns.findIndex((c) => c.key === "operations"), 0, { key: "other", title: "Other projects", note: "Archived", todos: stray, add: { project_id: "" } });
 
   return (
     <>
