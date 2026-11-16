@@ -473,3 +473,6 @@ select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
 .todo-col.personal .todo-card { color: var(--dusk); --muted: #55676b; --line-strong: rgba(4, 27, 33, 0.28); }
 .todo-col.personal .todo-add input[name="title"] { color: #fff; }
 .todo-col.personal .todo-add input[name="title"]:focus { color: var(--dusk); }
+
+/* a list that shows a few items and scrolls for the rest (dashboard to-dos) */
+.scroll-list { overflow-y: auto; max-height: 330px; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(4, 27, 33, 0.45) transparent; padding-right: 6px; }

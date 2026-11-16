@@ -1,5 +1,5 @@
 "use client";
-import { useActionState, useEffect, useOptimistic, useRef, useState, useTransition } from "react";
+import { useActionState, useEffect, useLayoutEffect, useOptimistic, useRef, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import { browserDb } from "@/lib/supabase/browser";
@@ -329,5 +329,29 @@ export function ShuffleButton() {
     <button type="button" className="btn sm" style={{ flex: "none" }} disabled={pending} onClick={() => start(() => router.refresh())}>
       <span aria-hidden="true">⤨</span> {pending ? "Shuffling…" : "Shuffle"}
     </button>
+  );
+}
+
+/** A list that shows its first `show` items and scrolls for the rest. The height is measured, since items vary. */
+export function ScrollList({ show, label, children }: { show: number; label: string; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const item = el.children[show - 1] as HTMLElement | undefined;
+      setHeight(el.children.length > show && item ? item.offsetTop + item.offsetHeight : null);
+    };
+    measure();
+    const watch = new ResizeObserver(measure);
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, [show, children]);
+  return (
+    <div ref={ref} className="list scroll-list" role="group" aria-label={label} tabIndex={height ? 0 : undefined}
+      style={{ maxHeight: height ?? undefined, position: "relative" }}>
+      {children}
+    </div>
   );
 }

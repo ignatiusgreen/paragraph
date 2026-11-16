@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { after } from "next/server";
 import { hasServiceKey, setSetting } from "@/lib/integrations";
 import { Card, Empty, eventWhen, PageHead, RowForm, TodoFields, TodoItem, F } from "@/components/ui";
-import { Clock, ImageField, Modal, ShuffleButton, Weather } from "@/components/client";
+import { Clock, ImageField, Modal, ScrollList, ShuffleButton, Weather } from "@/components/client";
 import { WidgetGrid } from "@/components/WidgetGrid";
 import { getEvents, getNotes, getProjects, getSettings, getTodos, getTz, rows } from "@/lib/data";
 import { financeSummary, months } from "@/lib/finance-data";
@@ -62,7 +62,7 @@ export default async function Dashboard() {
   const open = todos.filter((x) => !x.done);
   const urgent = open.filter((x) => x.urgent);
   const dueToday = open.filter((x) => x.due_date && x.due_date <= t);
-  const top = [...open].sort((a, b) => Number(b.urgent) - Number(a.urgent) || (a.due_date ?? "9").localeCompare(b.due_date ?? "9")).slice(0, 6);
+  const top = [...open].sort((a, b) => Number(b.urgent) - Number(a.urgent) || (a.due_date ?? "9").localeCompare(b.due_date ?? "9")).slice(0, 60);
   const now = nowTime(tz); // "HH:MM" in the viewer's time zone
   // Still relevant: anything today that hasn't finished yet, and everything after today.
   const upcoming = events.filter((e) => {
@@ -143,10 +143,12 @@ export default async function Dashboard() {
             <div><div className="mid">{urgent.length}</div><div className="small">urgent</div></div>
             <div><div className="mid">{dueToday.length}</div><div className="small">due or overdue</div></div>
           </div>
-          <div className="list">
+          {/* Three to-dos are visible; the rest scroll inside the card. */}
+          <ScrollList show={3} label="Open to-dos">
             {top.map((x) => <TodoItem key={x.id} todo={x} projects={projects} today={t} />)}
-            {!top.length ? <p className="small">Nothing open. Add one with “+ To-do”.</p> : null}
-          </div>
+          </ScrollList>
+          {!top.length ? <p className="small">Nothing open. Add one with “+ To-do”.</p> : null}
+          {top.length > 3 ? <p className="tiny" style={{ marginTop: -6 }}>Scroll for {top.length - 3} more</p> : null}
         </Card>
         ) },
 
