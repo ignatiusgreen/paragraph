@@ -41,6 +41,21 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
   const stray = open.filter((x) => !placed.has(x.id));
   if (stray.length) columns.splice(columns.findIndex((c) => c.key === "operations"), 0, { key: "other", title: "Other projects", note: "Archived", todos: stray, add: { project_id: "" } });
 
+  // Four stacks side by side. The first holds Urgent with Personal under it; every other panel goes onto
+  // whichever stack is currently shortest, so the page fills evenly instead of running off to the right.
+  const size = (c: Column) => 1.6 + c.todos.length;
+  const pick = (key: string) => columns.find((c) => c.key === key);
+  const stacks: Column[][] = [[pick("urgent"), pick("personal")].filter((c): c is Column => !!c), [], [], []];
+  const heights = stacks.map((st) => st.reduce((n, c) => n + size(c), 0));
+  for (const c of columns.filter((c) => c.key !== "urgent" && c.key !== "personal")) {
+    // Prefer the three right-hand stacks until one of them is taller than the first.
+    let to = 1;
+    for (let i = 2; i < 4; i++) if (heights[i] < heights[to]) to = i;
+    if (heights[0] < heights[to]) to = 0;
+    stacks[to].push(c);
+    heights[to] += size(c);
+  }
+
   return (
     <>
       <PageHead section="todos" title="To-dos" sub={google
@@ -90,8 +105,10 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
           </div>
         </Card>
       ) : (
-        <div className="board todo-board">
-          {columns.map((c) => (
+        <div className="todo-grid">
+          {stacks.map((stack, i) => (
+            <div className="todo-stack" key={i}>
+          {stack.map((c) => (
             <section className={`col todo-col${c.tone ? ` ${c.tone}` : ""}`} key={c.key} aria-label={`${c.title}: ${c.todos.length} to-do${c.todos.length === 1 ? "" : "s"}`}>
               <div className="col-head">
                 <span>{c.title}{c.note ? <span className="col-note"> · {c.note}</span> : null}</span>
@@ -111,6 +128,8 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
                 <input name="title" required placeholder="+ Add task" aria-label={`Add a to-do to ${c.title}`} />
               </form>
             </section>
+          ))}
+            </div>
           ))}
         </div>
       )}
