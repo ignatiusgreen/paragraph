@@ -12,8 +12,9 @@ import { financeSummary, months } from "@/lib/finance-data";
 import { DEFAULT_FEEDS, getNews } from "@/lib/feeds";
 import { getInspiration, readSources, shuffle } from "@/lib/inspiration";
 import { getFeedEvents } from "@/lib/industry";
+import { PortfolioGantt } from "@/components/PortfolioGantt";
 import { addDays, fmtDate, money, monthGrid, nowTime, relDay, today } from "@/lib/format";
-import { type IndustryEvent, KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
+import { type IndustryEvent, type TimelineItem, KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
 
 const EVENT_KINDS = [{ value: "deadline", label: "Submission deadline" }, { value: "event", label: "Event" }];
 function IndustryFields({ event }: { event?: IndustryEvent }) {
@@ -52,6 +53,9 @@ export default async function Dashboard() {
     getTodos(), getProjects(), getEvents(grid[0][0], addDays(t, 45)), getNotes(), rows<Lead>("leads"), rows<Gear>("gear"),
     rows<Pin>("pins", "created_at", false), getSettings(), financeSummary(),
   ]);
+  // The Projects panel: active work only. Narrative ideas still in Ideation are left out.
+  const activeProjects = projects.filter((p) => (p.kind === "client" ? p.stage !== "delivered" : p.kind === "narrative" ? ["in_development", "writing"].includes(p.stage) : true));
+  const timelineItems = await rows<TimelineItem>("timeline_items", "start_date");
   // Industry events: the ones kept by hand (festival deadlines) plus anything read from event feeds.
   const [manualEvents, feedResults] = await Promise.all([rows<IndustryEvent>("industry_events", "date"), getFeedEvents().catch(() => [])]);
   const known = new Set(manualEvents.map((e) => `${e.title.toLowerCase()}|${e.date}`));
@@ -181,31 +185,17 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "projects", href: "/clients", label: "Projects", span: "s8", node: (
-        <Card title="Projects" more="/clients">
-          {(["client", "documentary", "narrative"] as Kind[]).map((kind) => {
-            const list = projects.filter((p) => p.kind === kind);
-            return (
-              <div key={kind} className="stack" style={{ gap: 8 }}>
-                <div className="row between">
-                  <Link href={KIND_PATH[kind]} style={{ textDecoration: "none" }}><strong>{KIND_LABEL[kind]}</strong> <span className="muted">· {list.length}</span></Link>
-                  {kind === "client" ? <span className="small muted">{money(list.filter((p) => p.stage !== "delivered").reduce((s, p) => s + Number(p.budget ?? 0), 0), { compact: true })} in budgets not yet delivered</span> : null}
-                </div>
-                <div className="stagebar" aria-hidden="true">
-                  {list.length ? STAGES[kind].map((s, i) => {
-                    const n = list.filter((p) => p.stage === s.value).length;
-                    return n ? <span key={s.value} style={{ flex: n, background: RAMP[i] }} /> : null;
-                  }) : <span style={{ flex: 1, background: "var(--line)" }} />}
-                </div>
-                <div className="legend">
-                  {STAGES[kind].map((s, i) => (
-                    <span key={s.value}><i style={{ background: RAMP[i] }} />{s.label} <strong>{list.filter((p) => p.stage === s.value).length}</strong></span>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-          {!projects.length ? <p className="small muted">No projects yet. Add them under Branded, Documentary and Narrative.</p> : null}
+        { id: "projects", label: "Projects", span: "s8", node: (
+        <Card title={`Active projects · ${activeProjects.length}`}>
+          {/* Branded work not yet delivered, every documentary, and narrative projects in development or being written. */}
+          <PortfolioGantt projects={activeProjects} items={timelineItems} today={t} />
+          <div className="legend">
+            <span><i style={{ background: "var(--sky)" }} />Branded</span>
+            <span><i style={{ background: "var(--leaf)" }} />Documentary</span>
+            <span><i style={{ background: "var(--dusk)" }} />Narrative</span>
+            <span><i style={{ background: "var(--dusk)", transform: "rotate(45deg) scale(.8)" }} />Milestone</span>
+            <span className="muted">Each bar spans the project’s own timeline. Click one to open the project.</span>
+          </div>
         </Card>
         ) },
 

@@ -24,6 +24,7 @@ export const TABLES: Record<string, Record<string, FieldType>> = {
     image_url: "text", notes: "text",
   },
   pins: { image_url: "text", caption: "text", source_url: "text" },
+  timeline_items: { project_id: "text", kind: "text", title: "text", group_name: "text", start_date: "date", end_date: "date" },
   industry_events: { title: "text", org: "text", kind: "text", date: "date", end_date: "date", url: "text", notes: "text" },
 };
 

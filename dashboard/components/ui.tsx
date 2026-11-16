@@ -16,8 +16,10 @@ const ON_DARK = `.wrap{color:#fff;--muted:rgba(255,255,255,.8);--line:rgba(255,2
   + `.wrap>.row>.btn.ghost,.wrap>section>.btn.ghost{color:#fff}.col{background:rgba(255,255,255,.88)}`;
 
 /** Big page title, with the section's optional header and background images. */
-export async function PageHead({ section, title, eyebrow, sub, children, image }: {
+export async function PageHead({ section, title, eyebrow, sub, children, image, plain }: {
   section: string; title: string; eyebrow?: string; sub?: React.ReactNode; children?: React.ReactNode; image?: string | null;
+  /** Show the title as written, without the full stop that section titles carry. */
+  plain?: boolean;
 }) {
   const [s, shared] = await Promise.all([getSection(section), getSection(GLOBAL_SECTION)]);
   // A page uses its own background if it has one, otherwise the one shared by all pages.
@@ -37,7 +39,7 @@ export async function PageHead({ section, title, eyebrow, sub, children, image }
       {css ? <style>{css}</style> : null}
       <div>
         {eyebrow ? <div className="eyebrow">{eyebrow}</div> : null}
-        <h1>{title}.</h1>
+        <h1>{title}{plain ? "" : "."}</h1>
         {sub ? <p className="hero-sub">{sub}</p> : null}
       </div>
       {children ? <div className="hero-actions">{children}</div> : null}

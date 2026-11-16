@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import { loadPrivacy } from "@/lib/privacy";
 import { Card, Empty, EventFields, eventWhen, PageHead, ProjectFields, RowForm, TodoItem } from "@/components/ui";
 import { AutoSelect, Modal } from "@/components/client";
+import { Gantt } from "@/components/Gantt";
 import { saveRow } from "@/app/(app)/actions";
 import { db } from "@/lib/supabase/server";
 import { getClients, getEvents, getNotes, getProjects, getTodos, getTz } from "@/lib/data";
 import { getGoogle } from "@/lib/google";
 import { addDays, fmtDate, money, relDay, today } from "@/lib/format";
-import { KIND_LABEL, KIND_PATH, STAGES, stageLabel, type Project, type Todo } from "@/lib/types";
+import { KIND_LABEL, KIND_PATH, STAGES, stageLabel, type Project, type TimelineItem, type Todo } from "@/lib/types";
 
 const SECTION = { client: "clients", documentary: "documentary", narrative: "narrative" } as const;
 /** Urgent first, then soonest deadline, then oldest. */
@@ -22,16 +23,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const tz = await getTz();
   const t = today(tz);
   const supabase = await db();
-  const [{ data }, clients, todos, events, notes, projects, google] = await Promise.all([
+  const [{ data }, { data: timelineRows }, clients, todos, events, notes, projects, google] = await Promise.all([
     supabase.from("projects").select("*").eq("id", id).maybeSingle(),
+    supabase.from("timeline_items").select("*").eq("project_id", id).order("start_date"),
     getClients(), getTodos(), getEvents(addDays(t, -1), addDays(t, 365)), getNotes(), getProjects(), getGoogle(),
   ]);
   const project = data as Project | null;
   if (!project) notFound();
 
+  const timeline = (timelineRows ?? []) as TimelineItem[];
   const client = clients.find((c) => c.id === project.client_id);
   const stages = STAGES[project.kind];
-  const at = stages.findIndex((s) => s.value === project.stage);
   const mine = todos.filter((x) => x.project_id === project.id);
   const open = mine.filter((x) => !x.done).sort(byPriority);
   const done = mine.filter((x) => x.done).sort((a, b) => (b.done_at ?? "").localeCompare(a.done_at ?? ""));
@@ -48,8 +50,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <PageHead section={SECTION[project.kind]} image={project.image_url} title={project.title}
-        eyebrow={[KIND_LABEL[project.kind], client?.name, project.archived ? "Archived" : null].filter(Boolean).join(" · ")}
+      <PageHead section={SECTION[project.kind]} image={project.image_url} title={project.title} plain
+        eyebrow={[KIND_LABEL[project.kind], stageLabel(project.kind, project.stage), client?.name, project.archived ? "Archived" : null].filter(Boolean).join(" · ")}
         sub={project.logline ?? undefined}>
         <Link className="btn ghost" href={KIND_PATH[project.kind]}>‹ All {KIND_LABEL[project.kind].toLowerCase()}</Link>
         <Modal label="Edit project" title={project.title}>
@@ -60,30 +62,32 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       </PageHead>
 
       <div className="grid stretch">
-        <Card className="s8" title="Status">
-          <ol className="steps" aria-label={`Stage: ${stageLabel(project.kind, project.stage)}`}>
-            {stages.map((s, i) => (
-              <li key={s.value} className={i < at ? "past" : i === at ? "now" : ""} aria-current={i === at ? "step" : undefined}>
-                <span>{s.label}</span>
-              </li>
-            ))}
-          </ol>
-          <form action={saveRow} className="quick" style={{ alignItems: "center" }}>
+        <Card className="s12" title="Timeline" actions={
+          <form action={saveRow} className="row" style={{ gap: 8, flexWrap: "nowrap" }}>
             <input type="hidden" name="_table" value="projects" />
             <input type="hidden" name="_id" value={project.id} />
-            <label htmlFor="stage" className="small muted">Move to</label>
-            <div style={{ flex: "0 1 260px" }}>
-              <AutoSelect id="stage" name="stage" defaultValue={project.stage} aria-label="Stage">
-                {stages.map((s) => <option key={s.value} value={s.value}>{s.group ? `${s.group}: ` : ""}{s.label}</option>)}
-              </AutoSelect>
-            </div>
+            <label htmlFor="stage" className="small muted">Stage</label>
+            <AutoSelect id="stage" name="stage" defaultValue={project.stage} aria-label="Stage" style={{ width: 230 }}>
+              {stages.map((s) => <option key={s.value} value={s.value}>{s.group ? `${s.group}: ` : ""}{s.label}</option>)}
+            </AutoSelect>
           </form>
+        }>
+          <Gantt projectId={project.id} items={timeline} todos={mine} events={schedule} today={t} phaseHints={stages.map((s) => s.label)} />
+          {timeline.length ? (
+            <div className="legend">
+              <span><i style={{ background: "var(--saffron)" }} />Today</span>
+              <span><i style={{ background: "var(--dusk)" }} />Milestone</span>
+              <span><i style={{ background: "var(--saffron)", borderRadius: "50%" }} />To-do deadline</span>
+              <span><i style={{ background: "#4f7bc4", borderRadius: "50%" }} />Scheduled event</span>
+              <span className="muted">Click a bar or milestone to edit it.</span>
+            </div>
+          ) : null}
           {project.notes ? <p style={{ whiteSpace: "pre-wrap" }}>{project.notes}</p> : null}
           {project.links?.length ? (
             <div className="row" style={{ gap: 6 }}>
               {project.links.map((l, i) => <a key={i} className="chip sky" href={l.url} target="_blank" rel="noreferrer">{l.label || "Link"} ↗</a>)}
             </div>
-          ) : <p className="small muted">No documents linked yet. Add them with “Edit project”.</p>}
+          ) : null}
         </Card>
 
         <Card tone="dark" className="s4" title="Next steps">
@@ -95,7 +99,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           {open.length > 3 ? <p className="tiny muted">{open.length - 3} more below</p> : null}
         </Card>
 
-        <Card className="s6" title={`To-dos · ${open.length} open`}>
+        <Card className="s4" title={`To-dos · ${open.length} open`}>
           <div className="list">
             {open.map((x) => <TodoItem key={x.id} todo={x} projects={projects} hideProject today={t} synced={!!google} />)}
           </div>
@@ -116,7 +120,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           ) : null}
         </Card>
 
-        <Card className="s6" title="Schedule + deadlines" actions={
+        <Card className="s4" title="Schedule + deadlines" actions={
           <Modal label="+ Event" title={`New event for ${project.title}`} className="btn sm">
             <RowForm table="events" submit="Add event"><EventFields projects={projects} date={t} event={{ project_id: project.id } as never} /></RowForm>
           </Modal>

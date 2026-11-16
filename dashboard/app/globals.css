@@ -509,3 +509,64 @@ a.pcard { text-decoration: none; color: inherit; }
 .dark .chip.urgent, .teal .chip.urgent, .noir .chip.urgent { background: var(--saffron); color: var(--dusk); }
 .dark .chip.late, .teal .chip.late, .noir .chip.late { background: var(--danger); color: #fff; }
 .tiles.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* ---------- Project timeline (Gantt) ---------- */
+.gantt-scroll { overflow-x: auto; }
+.gantt { position: relative; min-width: 980px; --glabel: 200px; font-size: 13px; isolation: isolate; border: 1px solid var(--line); }
+.gantt-guides { position: absolute; left: var(--glabel); right: 0; top: 0; bottom: 0; pointer-events: none; }
+.gantt-guides > span { position: absolute; top: 0; bottom: 0; }
+.g-band { background: rgba(4, 27, 33, 0.04); z-index: 0; }
+.g-week { width: 1px; background: rgba(4, 27, 33, 0.09); z-index: 0; }
+.g-mile { width: 2px; margin-left: -1px; background: var(--dusk); z-index: 3; top: 52px !important; }
+.g-today { width: 2px; margin-left: -1px; background: var(--saffron); z-index: 3; top: 30px !important; }
+.g-row, .g-phase { display: grid; grid-template-columns: var(--glabel) minmax(0, 1fr); position: relative; z-index: 1; }
+.g-label { padding: 0 10px; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: #fff; border-right: 1px solid var(--line); }
+.g-track { position: relative; height: 34px; }
+.g-months .g-track { height: 30px; background: var(--dusk); }
+.g-months .g-label { background: var(--dusk); border-right-color: rgba(255, 255, 255, 0.2); padding: 0 8px; }
+.g-months .g-label .btn { padding: 3px 8px; font-size: 11px; background: #fff; color: var(--dusk); border-color: #fff; }
+.g-months .g-label .btn.ghost { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.5); }
+.g-month { position: absolute; top: 0; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; border-left: 1px solid rgba(255, 255, 255, 0.22); overflow: hidden; white-space: nowrap; }
+.g-weeks .g-track { height: 22px; background: var(--pearl); }
+.g-weeks .g-label { background: var(--pearl); font-size: 10px; }
+.g-weeknum { position: absolute; top: 0; line-height: 22px; text-align: center; font-size: 10px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.g-miles { border-bottom: 1px solid var(--line); }
+.g-miles .g-track { height: 50px; }
+.g-flag, .g-bar-btn { background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; position: static; text-align: left; }
+.g-flag > span { position: absolute; top: 5px; padding-left: 6px; white-space: nowrap; font-size: 12px; font-weight: 600; z-index: 4; }
+.g-flag.low > span { top: 27px; }
+.g-flag.flip > span { transform: translateX(-100%); padding: 0 6px 0 0; }
+.g-flag i { font-style: normal; font-size: 10px; }
+.g-flag small { font-weight: 500; color: var(--muted); margin-left: 3px; }
+.g-flag:hover > span, .g-flag:focus-visible > span { text-decoration: underline; }
+.g-todaytag { position: absolute; bottom: 3px; transform: translateX(-50%); background: var(--saffron); color: var(--dusk); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 5px; z-index: 4; }
+.g-phase { border-bottom: 1px solid var(--line); }
+.g-phase-name { background: color-mix(in srgb, var(--phase) 16%, #fff); border-left: 6px solid var(--phase); border-right: 1px solid var(--line); padding: 9px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.g-phase-name strong { font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; overflow-wrap: anywhere; }
+.g-phase-name span { font-size: 11px; color: var(--muted); }
+.g-phase-rows { background: color-mix(in srgb, var(--phase) 6%, transparent); min-width: 0; }
+.g-task + .g-task { border-top: 1px solid rgba(4, 27, 33, 0.06); }
+.g-bar { position: absolute; top: 6px; height: 22px; line-height: 22px; background: var(--phase); color: #fff; font-size: 12px; font-weight: 600; padding: 0 8px; white-space: nowrap; overflow: hidden; border-radius: 3px; z-index: 2; }
+.g-after { position: absolute; top: 6px; line-height: 22px; margin-left: 5px; padding: 0 4px; font-size: 12px; font-weight: 500; white-space: nowrap; z-index: 4; background: rgba(255, 255, 255, 0.82); }
+.g-after.before { margin: 0 5px 0 0; }
+.g-bar-btn:hover .g-bar { filter: brightness(0.9); }
+.g-bar-btn:focus-visible { outline: none; }
+.g-bar-btn:focus-visible .g-bar { outline: 2px solid var(--dusk); outline-offset: 2px; }
+.g-dots .g-track { height: 28px; }
+.g-dot { position: absolute; top: 8px; width: 12px; height: 12px; border-radius: 50%; transform: translateX(-50%); border: 2px solid #fff; z-index: 2; }
+.g-dot.due { background: var(--saffron); }
+.g-dot.event { background: #4f7bc4; }
+.gantt-empty { border: 1px dashed var(--line-strong); padding: 26px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; color: var(--muted); }
+
+/* all-projects timeline on the dashboard */
+.gantt.portfolio { min-width: 640px; --glabel: 132px; }
+.gantt.portfolio .g-today { top: 30px !important; }
+.gantt.portfolio .g-bar { color: var(--btext, #fff); }
+.g-bar-link { text-decoration: none; color: inherit; }
+.g-bar-link:hover .g-bar { filter: brightness(0.93); }
+.g-bar-link:focus-visible { outline: none; }
+.g-bar-link:focus-visible .g-bar { outline: 2px solid var(--dusk); outline-offset: 2px; }
+.g-untimed { position: absolute; left: 8px; top: 6px; line-height: 22px; font-size: 12px; color: var(--muted); text-decoration: none; white-space: nowrap; z-index: 2; }
+.g-untimed strong { color: var(--ink); font-weight: 600; }
+.g-untimed:hover { text-decoration: underline; }
+.g-diamond { position: absolute; top: 11px; width: 11px; height: 11px; background: var(--dusk); border: 2px solid #fff; transform: translateX(-50%) rotate(45deg); z-index: 3; }
