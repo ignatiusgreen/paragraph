@@ -232,14 +232,17 @@ export function NewProject({ kind, clients, label = "Add project" }: { kind: Kin
   );
 }
 
-export function ProjectCard({ project, clients, todos }: { project: Project; clients: Client[]; todos: Todo[] }) {
+export function ProjectCard({ project, clients, todos, list }: { project: Project; clients: Client[]; todos: Todo[]; list?: boolean }) {
   const client = clients.find((c) => c.id === project.client_id);
   const open = todos.filter((t) => t.project_id === project.id && !t.done).length;
   return (
     <div>
-      <Modal className="pcard" title={project.title} ariaLabel={`Edit ${project.title}`} label={
+      <Modal className={`pcard${list ? " listed" : ""}`} title={project.title} ariaLabel={`Edit ${project.title}`} label={
         <>
-          <span className="art" style={project.image_url ? { backgroundImage: `url("${project.image_url}")` } : undefined}>{project.image_url ? "" : project.title.slice(0, 1)}</span>
+          {/* List view: no artwork block; a small thumbnail only when the project has key art. */}
+          {list
+            ? (project.image_url ? <span className="thumb" style={{ backgroundImage: `url("${project.image_url}")` }} /> : null)
+            : <span className="art" style={project.image_url ? { backgroundImage: `url("${project.image_url}")` } : undefined}>{project.image_url ? "" : project.title.slice(0, 1)}</span>}
           <span className="body">
             {client ? <span className="eyebrow">{client.name}</span> : null}
             <span className="title">{project.title}</span>
@@ -263,16 +266,16 @@ export function ProjectCard({ project, clients, todos }: { project: Project; cli
   );
 }
 
-export function Board({ kind, stages, projects, clients, todos }: { kind: Kind; stages: { value: string; label: string }[]; projects: Project[]; clients: Client[]; todos: Todo[] }) {
+export function Board({ kind, stages, projects, clients, todos, list }: { kind: Kind; stages: { value: string; label: string }[]; projects: Project[]; clients: Client[]; todos: Todo[]; list?: boolean }) {
   return (
-    <div className="board" style={{ gridAutoColumns: `minmax(${stages.length > 4 ? 190 : 230}px, ${stages.length <= 2 ? "420px" : "1fr"})` }}>
+    <div className={`board${list ? " listed" : ""}`} style={{ gridAutoColumns: `minmax(${stages.length > 4 ? 190 : 230}px, ${stages.length <= 2 && !list ? "420px" : "1fr"})` }}>
       {stages.map((s) => {
-        const list = projects.filter((p) => p.kind === kind && p.stage === s.value);
+        const items = projects.filter((p) => p.kind === kind && p.stage === s.value);
         return (
           <div className="col" key={s.value}>
-            <div className="col-head"><span>{s.label}</span><span>{list.length}</span></div>
-            {list.map((p) => <ProjectCard key={p.id} project={p} clients={clients} todos={todos} />)}
-            {!list.length ? <span className="tiny muted">Nothing here yet.</span> : null}
+            <div className="col-head"><span>{s.label}</span><span>{items.length}</span></div>
+            {items.map((p) => <ProjectCard key={p.id} project={p} clients={clients} todos={todos} list={list} />)}
+            {!items.length ? <span className="tiny muted">Nothing here yet.</span> : null}
           </div>
         );
       })}

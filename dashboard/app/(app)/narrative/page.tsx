@@ -11,7 +11,7 @@ export default async function Narrative() {
       <PageHead section="narrative" title="Narrative" sub="Scripted projects in development and on the page right now.">
         <NewProject kind="narrative" clients={clients} />
       </PageHead>
-      <Board kind="narrative" stages={STAGES.narrative} projects={projects} clients={clients} todos={todos} />
+      <Board kind="narrative" stages={STAGES.narrative} projects={projects} clients={clients} todos={todos} list />
     </>
   );
 }

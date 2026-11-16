@@ -443,3 +443,12 @@ section[id] { scroll-margin-top: 112px; }
 .todo-add input[name="title"] { border: 1px dashed var(--line-strong); background: transparent; min-height: 40px; }
 .todo-add input[name="title"]:focus { background: #fff; border-style: solid; }
 .todo-add input[name="title"]::placeholder { color: var(--muted); }
+
+/* project boards shown as lists (Narrative): compact rows, no artwork block */
+.board.listed .col { gap: 6px; }
+.pcard.listed { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; }
+.pcard.listed .thumb { width: 64px; height: 40px; flex: none; background: var(--noir) center/cover; }
+.pcard.listed .body { padding: 0; gap: 4px; flex: 1; min-width: 0; }
+.pcard.listed .title { font-size: 16px; }
+.pcard.listed .logline { -webkit-line-clamp: 2; }
+.board.listed .plinks { padding: 0 14px 10px; margin-top: -4px; }
