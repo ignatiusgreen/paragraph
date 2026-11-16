@@ -318,11 +318,6 @@ tfoot td { font-weight: 600; border-top: 1px solid var(--line-strong); border-bo
 code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
 pre { background: var(--dusk); color: #e6eeee; padding: 14px; overflow-x: auto; margin: 0; white-space: pre-wrap; word-break: break-all; }
 
-/* project strip on the dashboard */
-.strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-.strip-item { text-decoration: none; display: flex; flex-direction: column; gap: 3px; font-size: 14px; line-height: 1.25; min-width: 0; }
-.strip-item .art { aspect-ratio: 16 / 9; background: var(--noir) center/cover; margin-bottom: 5px; display: flex; align-items: flex-end; padding: 8px; color: rgba(255, 255, 255, 0.5); font: italic 20px/1 var(--serif); }
-.strip-item:hover strong { text-decoration: underline; }
 
 /* background colour picker */
 .swatches { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
@@ -381,7 +376,7 @@ pre { background: var(--dusk); color: #e6eeee; padding: 14px; overflow-x: auto; 
   .btn.sm { font-size: 15px; padding: 9px 13px; }
   .chip { font-size: 13px; padding: 3px 8px; }
   .seg a { font-size: 16px; padding: 10px 14px; }
-  .check, .notice, .empty, .note p, .strip-item, .pcard .logline, .swatches .custom { font-size: 16.5px; }
+  .check, .notice, .empty, .note p, .pcard .logline, .swatches .custom { font-size: 16.5px; }
   .pcard .title { font-size: 19px; }
   .note h3 { font-size: 30px; }
   table { font-size: 16.5px; }

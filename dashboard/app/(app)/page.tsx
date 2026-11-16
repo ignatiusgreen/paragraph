@@ -174,20 +174,7 @@ export default async function Dashboard() {
               </div>
             );
           })}
-          {projects.length ? (
-            <>
-              <hr className="rule" />
-              <div className="strip">
-                {[...projects].sort((a, b) => Number(!!b.image_url) - Number(!!a.image_url) || b.created_at.localeCompare(a.created_at)).slice(0, 6).map((p) => (
-                  <Link key={p.id} href={KIND_PATH[p.kind]} className="strip-item">
-                    <span className="art" style={p.image_url ? { backgroundImage: `url("${p.image_url}")` } : undefined}>{p.image_url ? "" : p.title.slice(0, 1)}</span>
-                    <strong>{p.title}</strong>
-                    <span className="tiny muted">{KIND_LABEL[p.kind]} · {stageLabel(p.kind, p.stage)}</span>
-                  </Link>
-                ))}
-              </div>
-            </>
-          ) : <p className="small muted">No projects yet. Add them under Branded, Documentary and Narrative.</p>}
+          {!projects.length ? <p className="small muted">No projects yet. Add them under Branded, Documentary and Narrative.</p> : null}
         </Card>
         ) },
 
