@@ -580,3 +580,10 @@ a.pcard { text-decoration: none; color: inherit; }
 .widget > .stack-cards { flex: 1; display: flex; flex-direction: column; gap: var(--gap); min-width: 0; }
 .stack-cards > .card:last-child { flex: 1; }
 .widget.linked:hover > .stack-cards > .card { box-shadow: none; }
+
+/* Urgent column: to-dos sit straight on the yellow, separated by rules, like the dashboard To-dos card */
+.todo-col.urgent { padding: 16px 18px; gap: 0; --muted: rgba(4, 27, 33, 0.74); --line: rgba(4, 27, 33, 0.2); }
+.todo-col.urgent .col-head { margin-bottom: 12px; }
+.todo-col.urgent .todo-card { background: transparent; padding: 12px 0; }
+.todo-col.urgent .todo-card + .todo-card { border-top: 1px solid var(--line); }
+.todo-col.urgent .todo-add { margin-top: 10px; }
