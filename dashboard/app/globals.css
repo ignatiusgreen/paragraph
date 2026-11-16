@@ -476,3 +476,12 @@ select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
 
 /* a list that shows a few items and scrolls for the rest (dashboard to-dos) */
 .scroll-list { overflow-y: auto; max-height: 330px; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(4, 27, 33, 0.45) transparent; padding-right: 6px; }
+
+/* project tags and board columns colour-coded by kind: Branded sky, Documentary green, Narrative dark */
+.chip.dusk { background: var(--dusk); color: #fff; }
+.chip.outline { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; }
+.dark .chip.dusk, .teal .chip.dusk { background: #fff; color: var(--dusk); }
+.todo-col.kind-client .col-head { border-bottom: 4px solid var(--sky); }
+.todo-col.kind-documentary .col-head { border-bottom: 4px solid var(--leaf); }
+.todo-col.kind-narrative .col-head { border-bottom: 4px solid var(--dusk); }
+.kind-key { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }

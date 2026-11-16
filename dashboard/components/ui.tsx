@@ -137,6 +137,9 @@ export function Check({ label, name, defaultChecked }: { label: string; name: st
 export const projectOptions = (projects: Project[]) =>
   projects.map((p) => ({ value: p.id, label: p.title, group: KIND_LABEL[p.kind] }));
 
+/** Chip colour for a project tag, by the kind of project: Branded sky blue, Documentary green, Narrative dark. */
+export const KIND_CHIP: Record<Kind, string> = { client: "sky", documentary: "leaf", narrative: "dusk" };
+
 /** Project choices for a to-do: Operations and Personal first, then the projects. */
 export const todoProjectOptions = (projects: Project[]) => [...Object.entries(TODO_LISTS).map(([value, l]) => ({ value, label: l.label })), ...projectOptions(projects)];
 
@@ -168,7 +171,9 @@ export function TodoItem({ todo, projects, today, synced, hideProject }: { todo:
         <div className="meta">
           {todo.urgent && !todo.done ? <span className="chip urgent">Urgent</span> : null}
           {todo.due_date ? <span className={`chip${late ? " late" : ""}`}>{late ? "Overdue · " : ""}{relDay(todo.due_date, today)}{todo.due_time ? ` ${fmtTime(todo.due_time)}` : ""}</span> : null}
-          {hideProject ? null : project ? <span className="chip sky">{project.title}</span> : todo.category ? <span className="chip leaf">{todo.category === "operations" ? "Operations" : "Personal"}</span> : null}
+          {hideProject ? null : project
+            ? <span className={`chip ${KIND_CHIP[project.kind]}`} title={`${KIND_LABEL[project.kind]} project`}>{project.title}</span>
+            : todo.category ? <span className={`chip ${todo.category === "operations" ? "outline" : "teal"}`}>{todo.category === "operations" ? "Operations" : "Personal"}</span> : null}
           {todo.remind_minutes != null ? <span title="Reminder set">⏰ {REMINDERS.find((r) => r.value === String(todo.remind_minutes))?.label ?? `${todo.remind_minutes} min before`}</span> : null}
           {synced && todo.gcal_event_id ? <span title="On Google Calendar">▣ Calendar</span> : null}
           {todo.source === "agent" ? <span title="Added by the AI assistant">✦ AI</span> : null}

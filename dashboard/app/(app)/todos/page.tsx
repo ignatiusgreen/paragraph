@@ -28,7 +28,7 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
   const columns = ([
     { key: "urgent", title: "Urgent", tone: "urgent", todos: open.filter((x) => x.urgent), add: { urgent: "on" } },
     ...kinds.flatMap((kind) => projects.filter((p) => p.kind === kind).map((p) => ({
-      key: p.id, title: p.title, note: KIND_LABEL[kind], todos: rest.filter((x) => x.project_id === p.id), add: { project_id: p.id },
+      key: p.id, title: p.title, note: KIND_LABEL[kind], tone: `kind-${kind}`, todos: rest.filter((x) => x.project_id === p.id), add: { project_id: p.id },
       isNew: pinned.includes(p.id) && p.created_at.slice(0, 10) >= addDays(t, -14),
     }))).filter((c) => c.todos.length || c.isNew), // a project started from this page keeps its empty column for two weeks
     { key: "general", title: "General", note: "No project", todos: rest.filter((x) => !x.project_id && !x.category), add: { project_id: "" } },
@@ -65,6 +65,9 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
           <Link href="/todos" aria-current={show !== "done"}>Open · {open.length}</Link>
           <Link href="/todos?show=done" aria-current={show === "done"}>Done · {done.length}</Link>
         </nav>
+        <div className="kind-key" aria-label="Project tag colours">
+          <span className="chip sky">Branded</span><span className="chip leaf">Documentary</span><span className="chip dusk">Narrative</span>
+        </div>
         <Modal label="+ New project" title="New project" className="btn ghost">
           <form action={createProjectFromTodos} className="stack">
             <div className="fgrid">
