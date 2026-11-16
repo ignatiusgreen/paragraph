@@ -159,13 +159,6 @@ export default async function Dashboard() {
               <div key={d} className={`d${d.slice(0, 7) !== ym ? " out" : ""}${d === t ? " today" : ""}${busy.has(d) ? " has" : ""}`}>{Number(d.slice(8))}</div>
             ))}
           </div>
-          <div className="list">
-            {upcoming.slice(0, 3).map((e) => (
-              <div className="item" key={e.id}>
-                <div className="grow"><div className="rowtitle">{e.title}</div><div className="meta">{relDay(e.date, t)} · {eventWhen(e)}</div></div>
-              </div>
-            ))}
-          </div>
         </Card>
         ) },
 
@@ -247,7 +240,8 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "news", label: "Industry news", span: "s4", node: (
+        { id: "news", label: "Industry news + events", span: "s4", node: (
+        <div className="stack-cards">
         <Card className="news" title="Industry news">
           <div className="list">
             {news.map((a) => (
@@ -258,9 +252,6 @@ export default async function Dashboard() {
             {!news.length ? <Empty>Headlines couldn’t be loaded just now. They refresh every half hour.</Empty> : null}
           </div>
         </Card>
-        ) },
-
-        { id: "events", label: "Industry events", span: "s4", node: (
         <Card title="Industry events" actions={
           <Modal label="+ Add" title="New industry event or deadline" className="btn sm">
             <RowForm table="industry_events" submit="Add"><IndustryFields /></RowForm>
@@ -307,6 +298,7 @@ export default async function Dashboard() {
             </p>
           ) : null}
         </Card>
+        </div>
         ) },
 
         { id: "inspiration", label: "Visual inspiration", span: "s8", node: (
