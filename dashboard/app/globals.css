@@ -587,3 +587,50 @@ a.pcard { text-decoration: none; color: inherit; }
 .todo-col.urgent .todo-card { background: transparent; padding: 12px 0; }
 .todo-col.urgent .todo-card + .todo-card { border-top: 1px solid var(--line); }
 .todo-col.urgent .todo-add { margin-top: 10px; }
+
+/* Every to-do panel: to-dos sit straight on the panel, separated by rules (no white boxes) */
+.todo-col { background: #fff; padding: 16px 18px; gap: 0; }
+.todo-col .col-head { margin-bottom: 12px; }
+.todo-col .todo-card { background: transparent; padding: 12px 0; }
+.todo-col .todo-card + .todo-card { border-top: 1px solid var(--line); }
+.todo-col .todo-add { margin-top: 10px; }
+.todo-col > .tiny { padding: 2px 0 4px; }
+.todo-col.urgent { background: var(--forsythia); }
+/* Personal: light text on the dark teal */
+.todo-col.personal { background: var(--teal); color: #fff; --muted: rgba(255, 255, 255, 0.8); --line: rgba(255, 255, 255, 0.24); --line-strong: rgba(255, 255, 255, 0.5); }
+.todo-col.personal .todo-card { color: #fff; --muted: rgba(255, 255, 255, 0.8); --line-strong: rgba(255, 255, 255, 0.5); }
+.todo-col.personal .chip { background: rgba(255, 255, 255, 0.16); color: #fff; }
+.todo-col.personal .chip.urgent { background: var(--saffron); color: var(--dusk); }
+.todo-col.personal .chip.late { background: var(--danger); color: #fff; }
+.todo-col.personal .item.done .rowtitle { color: rgba(255, 255, 255, 0.7); }
+.todo-col.personal :focus-visible { outline-color: var(--forsythia); }
+
+/* Date and time fields: dark teal digits, including Safari's pale placeholder date in an empty field */
+input[type="date"], input[type="time"], input[type="month"] { color: var(--teal); -webkit-text-fill-color: var(--teal); font-weight: 500; }
+input[type="date"]::-webkit-datetime-edit, input[type="time"]::-webkit-datetime-edit, input[type="month"]::-webkit-datetime-edit,
+input::-webkit-datetime-edit-fields-wrapper, input::-webkit-datetime-edit-text,
+input::-webkit-datetime-edit-month-field, input::-webkit-datetime-edit-day-field, input::-webkit-datetime-edit-year-field,
+input::-webkit-datetime-edit-hour-field, input::-webkit-datetime-edit-minute-field, input::-webkit-datetime-edit-second-field,
+input::-webkit-datetime-edit-ampm-field, input::-webkit-datetime-edit-meridiem-field {
+  color: var(--teal) !important; -webkit-text-fill-color: var(--teal); opacity: 1;
+}
+
+/* Checkboxes: square, in the site's own style (not the browser's rounded default) */
+input[type="checkbox"] {
+  -webkit-appearance: none; appearance: none; width: 20px; height: 20px; flex: none; margin: 0; padding: 0; border-radius: 0; cursor: pointer;
+  border: 1.5px solid rgba(4, 27, 33, 0.55); background: #fff center / 14px 14px no-repeat; vertical-align: middle;
+}
+input[type="checkbox"]:hover { border-color: var(--dusk); }
+input[type="checkbox"]:checked {
+  background-color: var(--dusk); border-color: var(--dusk);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M2.5 7.4l3 3 6-6.6' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+input[type="checkbox"]:disabled { opacity: 0.5; cursor: default; }
+.check { align-items: center; gap: 9px; cursor: pointer; }
+/* in a row of fields, a checkbox lines up with the fields' vertical centre */
+.quick > .check { height: 42px; }
+@media (max-width: 720px) { input[type="checkbox"] { width: 24px; height: 24px; background-size: 16px 16px; } .quick > .check { height: 48px; } }
+/* panels are solid, whatever the page background */
+.todo-grid .todo-col { background: #fff; }
+.todo-grid .todo-col.urgent { background: var(--forsythia); }
+.todo-grid .todo-col.personal { background: var(--teal); }
