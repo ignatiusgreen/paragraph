@@ -447,3 +447,23 @@ section[id] { scroll-margin-top: 112px; }
 .pcard.listed .title { font-size: 16px; }
 .pcard.listed .logline { -webkit-line-clamp: 2; }
 .board.listed .plinks { padding: 0 14px 10px; margin-top: -4px; }
+
+/* ---------- Menus and date/time fields: one look in every browser ---------- */
+/* Safari draws its own rounded, shorter menus unless the native look is switched off. */
+select {
+  -webkit-appearance: none; appearance: none; border-radius: 0; line-height: 1.3; padding-right: 32px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23041b21' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; background-size: 12px 8px;
+}
+input[type="date"], input[type="time"], input[type="month"] { -webkit-appearance: none; appearance: none; border-radius: 0; line-height: 1.3; }
+/* Safari centres and tints the value inside date and time fields; keep it left-aligned in the normal text colour. */
+input::-webkit-date-and-time-value { text-align: left; }
+input::-webkit-datetime-edit { color: var(--dusk); padding: 0; }
+.widget-bar select { padding-right: 28px; background-position: right 8px center; }
+/* Same height for every single-line field, whatever its type. */
+select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="hidden"]) { height: 42px; }
+.widget-bar select { height: 28px; }
+@media (max-width: 720px) {
+  select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="hidden"]) { height: 48px; }
+  .widget-bar select { height: 34px; }
+}
