@@ -7,9 +7,9 @@ The studio dashboard for Paragraph Films, served at dashboard.paragraphfilms.com
 | **Dashboard** | Clock, this week's weather, calendar, to-dos, projects by stage, runway, leads, industry news, visual inspiration |
 | **To-dos** | Tasks with project tag, urgent flag, deadline and reminder; mirrored to Google Calendar |
 | **Schedule** | Month calendar, two-way sync with Google Calendar |
-| **Client projects** | Bidding → delivered board, budgets, hard costs, document links; client list from QuickBooks |
+| **Branded** | Bidding → delivered board, budgets, hard costs, document links; client list from QuickBooks |
 | **Documentary / Narrative** | Stage boards with key art |
-| **New biz dev** | Leads, marketing analytics (website, Vimeo, LinkedIn, Instagram), newsletter list, holiday gifts |
+| **New Biz** | Leads, marketing analytics (website, Vimeo, LinkedIn, Instagram), newsletter list, holiday gifts |
 | **Finance** | Cash, overhead (salary, op ex), projected revenue, burn rate and runway |
 | **Gear** | Inventory, sell list (eBay, Facebook Marketplace), purchase list |
 | **Notebook** | Tagged notes with links, image, linked project and to-dos; written to a Google Doc with a tab per tag |

@@ -8,7 +8,7 @@ export type Project = {
   probability: number | null; expected_on: string | null; archived: boolean; created_at: string;
 };
 export type Todo = {
-  id: string; title: string; notes: string | null; project_id: string | null; note_id: string | null; urgent: boolean; personal: boolean;
+  id: string; title: string; notes: string | null; project_id: string | null; note_id: string | null; urgent: boolean; category: "personal" | "operations" | null;
   due_date: string | null; due_time: string | null; remind_minutes: number | null; done: boolean; done_at: string | null;
   gcal_event_id: string | null; source: string; created_at: string;
 };
@@ -63,9 +63,15 @@ export const STAGES: Record<Kind, { group?: string; value: string; label: string
 };
 export const stageLabel = (kind: Kind, stage: string) => STAGES[kind].find((s) => s.value === stage)?.label ?? stage;
 export const KIND_PATH: Record<Kind, string> = { client: "/clients", documentary: "/documentary", narrative: "/narrative" };
-export const KIND_LABEL: Record<Kind, string> = { client: "Client", documentary: "Documentary", narrative: "Narrative" };
-/** Value the project picker uses for "Personal" (a to-do with no project that belongs in the Personal column). */
+export const KIND_LABEL: Record<Kind, string> = { client: "Branded", documentary: "Documentary", narrative: "Narrative" };
+/** Project-picker values for to-dos with no project that belong to a named list (the Operations and Personal columns). */
+export const OPERATIONS = "__operations";
 export const PERSONAL = "__personal";
+export const TODO_LISTS: Record<string, { category: "personal" | "operations"; label: string }> = {
+  [OPERATIONS]: { category: "operations", label: "Operations" },
+  [PERSONAL]: { category: "personal", label: "Personal" },
+};
+export const listValue = (category: string | null | undefined) => Object.keys(TODO_LISTS).find((k) => TODO_LISTS[k].category === category);
 export const NOTE_TAGS = ["film", "random", "new biz", "documentary"];
 export const REMINDERS = [
   { value: "0", label: "At time of event" },

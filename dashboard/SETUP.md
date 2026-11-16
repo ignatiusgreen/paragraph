@@ -67,7 +67,7 @@ Tools: `get_summary`, `list_todos`, `add_todo`, `update_todo`, `delete_todo`, `l
 | `INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_USER_ID` | Daily Instagram followers and posts (Meta developer app with the Instagram Graph API; needs a Business or Creator account) |
 | `TMDB_API_KEY` | Film stills on the inspiration panel (themoviedb.org → Settings → API) |
 
-Website and LinkedIn numbers are entered by hand under New biz dev → Add numbers.
+Website and LinkedIn numbers are entered by hand under New Biz → Add numbers.
 
 ## Local development
 ```bash

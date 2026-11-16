@@ -187,7 +187,7 @@ export default async function Dashboard() {
                 ))}
               </div>
             </>
-          ) : <p className="small muted">No projects yet. Add them under Client projects, Documentary and Narrative.</p>}
+          ) : <p className="small muted">No projects yet. Add them under Branded, Documentary and Narrative.</p>}
         </Card>
         ) },
 
@@ -208,8 +208,8 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "bizdev", href: "/bizdev", label: "New biz", span: "s4", node: (
-        <Card tone="pearl" title="New biz" more="/bizdev">
+        { id: "bizdev", href: "/bizdev", label: "New Biz", span: "s4", node: (
+        <Card tone="pearl" title="New Biz" more="/bizdev">
           <div className="row" style={{ gap: 18 }}>
             <div><div className="big">{openLeads.length}</div><div className="small muted">open leads</div></div>
             <div><div className="mid">{money(openLeads.reduce((s, l) => s + Number(l.est_value ?? 0), 0), { compact: true })}</div><div className="small muted">estimated value</div></div>

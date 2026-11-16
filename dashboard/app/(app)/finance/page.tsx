@@ -165,7 +165,7 @@ export default async function Finance() {
                 </tfoot>
               </table>
             </div>
-          ) : <Empty>Projects with a budget show up here. Add budgets on the Client, Documentary and Narrative pages.</Empty>}
+          ) : <Empty>Projects with a budget show up here. Add budgets on the Branded, Documentary and Narrative pages.</Empty>}
           <p className="tiny muted">Booked means past bidding or pitching. Pitched work counts at its odds of landing (set on the project; bids default to 50%, pitches in finance to 25%). Amounts already invoiced are left out because they are in cash or receivables.</p>
         </Card>
 

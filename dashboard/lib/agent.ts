@@ -58,7 +58,7 @@ const todoProps = {
   remind_minutes: { type: "integer", description: "Reminder this many minutes before the deadline (e.g. 60, 1440 for a day)" },
   project: str("Title (or part of the title) of the project to tag"),
   project_id: str("Id of the project to tag (alternative to `project`)"),
-  personal: { type: "boolean", description: "File under the Personal column (for to-dos that aren't tied to a project)" },
+  category: { type: "string", enum: ["operations", "personal"], description: "For to-dos not tied to a project: file under the Operations column (business operations) or the Personal column" },
 };
 const eventProps = {
   title: str("Event title"),
@@ -106,7 +106,7 @@ export const TOOLS: Tool[] = [
     name: "add_todo",
     description: "Add a to-do. With a due date it also appears on the owner's Google Calendar.",
     inputSchema: { type: "object", properties: todoProps, required: ["title"] },
-    run: async (a) => unwrap(await saveTodo(adminDb(), null, { ...pick(a, ["title", "notes", "due_date", "due_time", "urgent", "remind_minutes", "personal"]), project_id: (await projectId(a)) ?? null, source: "agent" }, await tz())),
+    run: async (a) => unwrap(await saveTodo(adminDb(), null, { ...pick(a, ["title", "notes", "due_date", "due_time", "urgent", "remind_minutes", "category"]), project_id: (await projectId(a)) ?? null, source: "agent" }, await tz())),
   },
   {
     name: "update_todo",
@@ -114,7 +114,7 @@ export const TOOLS: Tool[] = [
     inputSchema: { type: "object", properties: { id: str("To-do id"), ...todoProps, done: { type: "boolean", description: "true to complete it" } }, required: ["id"] },
     run: async (a) => {
       const pid = await projectId(a);
-      return unwrap(await saveTodo(adminDb(), a.id, { ...pick(a, ["title", "notes", "due_date", "due_time", "urgent", "remind_minutes", "done", "personal"]), ...(pid !== undefined ? { project_id: pid } : {}) }, await tz()));
+      return unwrap(await saveTodo(adminDb(), a.id, { ...pick(a, ["title", "notes", "due_date", "due_time", "urgent", "remind_minutes", "done", "category"]), ...(pid !== undefined ? { project_id: pid } : {}) }, await tz()));
     },
   },
   {

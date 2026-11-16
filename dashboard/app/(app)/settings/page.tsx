@@ -14,8 +14,8 @@ import { DEFAULT_FEEDS } from "@/lib/feeds";
 import type { QboSnapshot } from "@/lib/qbo";
 
 const PAGES = [
-  ["dashboard", "Dashboard"], ["todos", "To-dos"], ["schedule", "Schedule"], ["clients", "Client projects"], ["documentary", "Documentary"],
-  ["narrative", "Narrative"], ["bizdev", "New biz dev"], ["finance", "Finance"], ["gear", "Gear"], ["notebook", "Notebook"], ["settings", "Settings"],
+  ["dashboard", "Dashboard"], ["todos", "To-dos"], ["schedule", "Schedule"], ["clients", "Branded"], ["documentary", "Documentary"],
+  ["narrative", "Narrative"], ["bizdev", "New Biz"], ["finance", "Finance"], ["gear", "Gear"], ["notebook", "Notebook"], ["settings", "Settings"],
 ];
 const Status = ({ ok, children }: { ok: boolean; children: React.ReactNode }) => <span className={`chip${ok ? " leaf" : ""}`}>{ok ? "✓ " : ""}{children}</span>;
 
@@ -176,7 +176,7 @@ export default async function Settings() {
             <div className="item"><div className="grow"><div className="rowtitle">Vimeo</div><div className="meta">Plays and followers, recorded daily</div></div><Status ok={vimeoConfigured()}>{vimeoConfigured() ? "Key set" : "Needs VIMEO_ACCESS_TOKEN"}</Status></div>
             <div className="item"><div className="grow"><div className="rowtitle">Instagram</div><div className="meta">Followers and posts, recorded daily</div></div><Status ok={instagramConfigured()}>{instagramConfigured() ? "Key set" : "Needs INSTAGRAM_ACCESS_TOKEN + INSTAGRAM_USER_ID"}</Status></div>
             <div className="item"><div className="grow"><div className="rowtitle">Film stills</div><div className="meta">Trending films on the inspiration panel (TMDB)</div></div><Status ok={!!process.env.TMDB_API_KEY}>{process.env.TMDB_API_KEY ? "Key set" : "Needs TMDB_API_KEY"}</Status></div>
-            <div className="item"><div className="grow"><div className="rowtitle">Website + LinkedIn</div><div className="meta">Entered by hand under New biz dev</div></div><span className="chip">Manual</span></div>
+            <div className="item"><div className="grow"><div className="rowtitle">Website + LinkedIn</div><div className="meta">Entered by hand under New Biz</div></div><span className="chip">Manual</span></div>
           </div>
         </Card>
       </div>

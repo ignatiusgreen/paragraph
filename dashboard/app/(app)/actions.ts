@@ -13,7 +13,7 @@ import { disconnectMessage, disconnectQbo, syncQbo } from "@/lib/qbo";
 import { sameOrigin } from "@/lib/csrf";
 import { snapshotMetrics } from "@/lib/metrics";
 import { clearIntegration, hasServiceKey } from "@/lib/integrations";
-import { PERSONAL, type Event, type Todo } from "@/lib/types";
+import { STAGES, TODO_LISTS, type Event, type Kind, type Todo } from "@/lib/types";
 
 async function guard() {
   const me = await getMe();
@@ -39,10 +39,11 @@ export async function saveRow(f: FormData) {
   let error: string | undefined, warning: string | undefined, savedId: string | null = id;
 
   if (table === "todos") {
-    // The project picker has a "Personal" choice: no project, but filed under the Personal column.
+    // The project picker also offers "Operations" and "Personal": no project, but filed under that column.
     if ("project_id" in row) {
-      row.personal = row.project_id === PERSONAL;
-      if (row.personal) row.project_id = null;
+      const list = TODO_LISTS[String(row.project_id)];
+      row.category = list?.category ?? null;
+      if (list) row.project_id = null;
     }
     const r = await saveTodo(supabase, id, row as Partial<Todo>, tz);
     error = r.error; warning = r.warning; savedId = r.row?.id ?? null;
@@ -207,5 +208,26 @@ export async function saveDashboardLayout(layout: { id: string; span: string }[]
   const value = layout.filter((l) => /^[a-z]+$/.test(l.id) && /^s(3|4|6|8|12)$/.test(l.span)).slice(0, 30);
   const { error } = await supabase.from("settings").upsert({ key: "dashboard_layout", value, updated_at: new Date().toISOString() });
   if (error) await flash(`Couldn't save the layout: ${error.message}`);
+  refresh();
+}
+
+/** "New project" on the To-dos page: a title and a type are enough; an optional first to-do goes into its column. */
+export async function createProjectFromTodos(f: FormData) {
+  const supabase = await guard();
+  const title = String(f.get("title") ?? "").trim();
+  const kind = String(f.get("kind")) as Kind;
+  if (!title || !STAGES[kind]) { await flash("Give the project a name and a type."); return refresh(); }
+  const { data, error } = await supabase.from("projects").insert({ kind, title, stage: STAGES[kind][0].value }).select("id").maybeSingle();
+  if (error || !data) { await flash(`Couldn't create the project: ${error?.message ?? "unknown error"}`); return refresh(); }
+  // Remember that this project was started from the board, so its column shows even before it has a to-do.
+  const { data: pinned } = await supabase.from("settings").select("value").eq("key", "todo_board_projects").maybeSingle();
+  const ids = [...(Array.isArray(pinned?.value) ? (pinned.value as string[]) : []), data.id].slice(-50);
+  await supabase.from("settings").upsert({ key: "todo_board_projects", value: ids, updated_at: new Date().toISOString() });
+  const first = String(f.get("todo_title") ?? "").trim();
+  if (first) {
+    const r = await saveTodo(supabase, null, { title: first, project_id: data.id }, await getTz());
+    if (r.error) await flash(`Project created, but the to-do couldn't be added: ${r.error}`);
+    else if (r.warning) await flash(r.warning);
+  }
   refresh();
 }

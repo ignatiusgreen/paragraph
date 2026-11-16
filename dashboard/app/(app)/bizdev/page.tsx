@@ -51,7 +51,7 @@ export default async function BizDev() {
   const years = [...new Set([year, ...gifts.map((g) => g.year)])].sort((a, b) => b - a);
   return (
     <>
-      <PageHead section="bizdev" title="New biz dev" sub="Leads, marketing numbers, the newsletter list and holiday gifts.">
+      <PageHead section="bizdev" title="New Biz" sub="Leads, marketing numbers, the newsletter list and holiday gifts.">
         <Modal label="+ Lead" title="New lead"><RowForm table="leads" submit="Add lead"><LeadFields /></RowForm></Modal>
       </PageHead>
 

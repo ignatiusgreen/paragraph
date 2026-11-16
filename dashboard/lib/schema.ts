@@ -10,7 +10,7 @@ export const TABLES: Record<string, Record<string, FieldType>> = {
   notes: { title: "text", body: "text", tags: "tags", links: "json", image_url: "text", project_id: "text", noted_on: "date" },
   todos: {
     title: "text", notes: "text", project_id: "text", note_id: "text", urgent: "bool", due_date: "date", due_time: "time",
-    remind_minutes: "int", done: "bool", personal: "bool",
+    remind_minutes: "int", done: "bool", category: "text",
   },
   events: { title: "text", date: "date", end_date: "date", start_time: "time", end_time: "time", location: "text", notes: "text", project_id: "text" },
   leads: { name: "text", company: "text", email: "text", source: "text", status: "text", est_value: "num", next_step: "text", next_on: "date", notes: "text" },

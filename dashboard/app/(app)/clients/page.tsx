@@ -15,7 +15,7 @@ export default async function Clients() {
   const sum = (k: "budget" | "hard_costs") => live.reduce((s, p) => s + Number(p[k] ?? 0), 0);
   return (
     <>
-      <PageHead section="clients" title="Client projects" sub="Bidding through delivery, with budgets, hard costs and production documents.">
+      <PageHead section="clients" title="Branded" sub="Bidding through delivery, with budgets, hard costs and production documents.">
         <NewProject kind="client" clients={clients} />
       </PageHead>
 
