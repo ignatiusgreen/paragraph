@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ColorField, Delete, ImageField, LinksField, Modal, Submit, TodoCheck } from "./client";
 import { deleteRow, saveRow, saveSection } from "@/app/(app)/actions";
-import { getSection } from "@/lib/data";
+import { getSection, getTodoBars } from "@/lib/data";
 import { fmtDate, fmtTime, money, relDay } from "@/lib/format";
 import { categoryLabel, GLOBAL_SECTION, KIND_LABEL, listValue, REMINDERS, TODO_LISTS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Section, type Todo } from "@/lib/types";
 
@@ -147,7 +147,11 @@ export const KIND_CHIP: Record<Kind, string> = { client: "sky", documentary: "le
 export const todoProjectOptions = (projects: Project[]) => [...Object.entries(TODO_LISTS).map(([value, l]) => ({ value, label: l.label })), ...projectOptions(projects)];
 
 // ---------------- To-dos ----------------
-export function TodoFields({ todo, projects }: { todo?: Todo; projects: Project[] }) {
+export async function TodoFields({ todo, projects }: { todo?: Todo; projects: Project[] }) {
+  // The bar this to-do already has on a timeline, if any.
+  const bar = todo ? (await getTodoBars()).get(todo.id) : undefined;
+  const start = bar?.start_date ?? "";
+  const end = bar?.end_date ?? todo?.due_date ?? "";
   return (
     <div className="fgrid">
       <F label="To-do" name="title" defaultValue={todo?.title} required full />
@@ -157,6 +161,17 @@ export function TodoFields({ todo, projects }: { todo?: Todo; projects: Project[
       <F label="Reminder" name="remind_minutes" options={REMINDERS} blank="No reminder" defaultValue={todo?.remind_minutes} />
       <F label="Notes" name="notes" type="textarea" defaultValue={todo?.notes} full rows={3} />
       <Check label="Urgent" name="urgent" defaultChecked={todo?.urgent} />
+      <fieldset className="full tl-fields">
+        <legend>Timeline</legend>
+        <input type="hidden" name="tl_present" value="1" />
+        <Check label="Show as a task on the Gantt chart" name="tl_on" defaultChecked={!!bar} />
+        <div className="fgrid">
+          <F label="Starts" name="tl_start" type="date" defaultValue={start} />
+          <F label="Ends" name="tl_end" type="date" defaultValue={end} />
+          <F label="Phase (optional)" name="tl_phase" defaultValue={bar?.group_name} full placeholder="e.g. Prep, Post, Finance" />
+        </div>
+        <span className="tiny muted">The bar goes on the timeline of this to-do’s project, or on the Ops timeline for Operations to-dos. Leave the dates empty to use today through the deadline.</span>
+      </fieldset>
     </div>
   );
 }

@@ -8,7 +8,8 @@ import { db } from "@/lib/supabase/server";
 import { adminDb } from "@/lib/supabase/admin";
 import { getMe, getTz } from "@/lib/data";
 import { readForm, TABLES } from "@/lib/schema";
-import { removeEvent, removeTodo, saveEvent, saveTodo, syncLeadTodo } from "@/lib/core";
+import { removeEvent, removeTodo, saveEvent, saveTodo, syncLeadTodo, syncTodoBar } from "@/lib/core";
+import { today } from "@/lib/format";
 import { pullCalendar, syncNotebook } from "@/lib/google";
 import { disconnectMessage, disconnectQbo, syncQbo } from "@/lib/qbo";
 import { sameOrigin } from "@/lib/csrf";
@@ -48,6 +49,13 @@ export async function saveRow(f: FormData) {
     }
     const r = await saveTodo(supabase, id, row as Partial<Todo>, tz);
     error = r.error; warning = r.warning; savedId = r.row?.id ?? null;
+    // The to-do form's Timeline section: keep (or remove) this to-do's bar on a Gantt chart.
+    if (r.row && f.has("tl_present")) {
+      const note = await syncTodoBar(supabase, r.row, {
+        on: f.get("tl_on") === "on", start: String(f.get("tl_start") ?? ""), end: String(f.get("tl_end") ?? ""), phase: String(f.get("tl_phase") ?? "").trim(), today: today(tz),
+      });
+      warning = warning ?? note;
+    }
   } else if (table === "events") {
     const r = await saveEvent(supabase, id, row as Partial<Event>, tz);
     error = r.error; warning = r.warning;

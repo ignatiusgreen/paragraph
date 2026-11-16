@@ -35,7 +35,7 @@ export type Gear = {
   priority: string | null; image_url: string | null; notes: string | null;
 };
 export type IndustryEvent = { id: string; title: string; org: string | null; kind: "deadline" | "event"; date: string | null; end_date: string | null; url: string | null; notes: string | null };
-export type TimelineItem = { id: string; project_id: string | null; scope: string | null; kind: "task" | "milestone"; title: string; group_name: string | null; start_date: string; end_date: string | null };
+export type TimelineItem = { id: string; project_id: string | null; scope: string | null; todo_id: string | null; kind: "task" | "milestone"; title: string; group_name: string | null; start_date: string; end_date: string | null };
 export type Pin = { id: string; image_url: string; caption: string | null; source_url: string | null };
 /** Row in `sections` holding the background shared by every page. */
 export const GLOBAL_SECTION = "_global";

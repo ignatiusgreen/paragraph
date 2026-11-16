@@ -58,6 +58,34 @@ export async function syncLeadTodo(sb: SupabaseClient, leadId: string, tz: strin
   return { warning: r.error ?? r.warning };
 }
 
+/**
+ * Put a to-do on a Gantt chart as a task bar (or take it off). The bar lives on the to-do's project timeline,
+ * or on the Ops timeline for Operations to-dos, and follows the to-do's title.
+ */
+export async function syncTodoBar(
+  sb: SupabaseClient, todo: Todo, opts: { on: boolean; start: string; end: string; phase: string; today: string },
+): Promise<string | undefined> {
+  const { data: existing } = await sb.from("timeline_items").select("id").eq("todo_id", todo.id).maybeSingle();
+  if (!opts.on) {
+    if (existing) await sb.from("timeline_items").delete().eq("id", existing.id);
+    return undefined;
+  }
+  const owner: { project_id: string | null; scope: string | null } | null =
+    todo.project_id ? { project_id: todo.project_id, scope: null } : todo.category === "operations" ? { project_id: null, scope: "ops" } : null;
+  if (!owner) {
+    if (existing) await sb.from("timeline_items").delete().eq("id", existing.id);
+    return "Saved. Only to-dos tagged to a project or to Operations can go on a Gantt chart, so no bar was added.";
+  }
+  const isDate = (v: string) => /^\d{4}-\d{2}-\d{2}$/.test(v);
+  // Blank dates: from today (or the deadline, if that is earlier) through the deadline.
+  let end = isDate(opts.end) ? opts.end : todo.due_date ?? (isDate(opts.start) ? opts.start : opts.today);
+  let start = isDate(opts.start) ? opts.start : end < opts.today ? end : opts.today;
+  if (end < start) [start, end] = [end, start];
+  const row = { ...owner, kind: "task", title: todo.title, group_name: opts.phase || null, start_date: start, end_date: end, todo_id: todo.id };
+  const { error } = existing ? await sb.from("timeline_items").update(row).eq("id", existing.id) : await sb.from("timeline_items").insert(row);
+  return error ? `Saved, but the timeline bar couldn't be updated: ${error.message}` : undefined;
+}
+
 export async function removeTodo(sb: SupabaseClient, id: string) {
   const { data } = await sb.from("todos").select("gcal_event_id").eq("id", id).maybeSingle();
   const { error } = await sb.from("todos").delete().eq("id", id);

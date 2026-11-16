@@ -43,7 +43,7 @@ export function Gantt({ owner, items, todos, events, today, phaseHints }: {
   const tasks = items.filter((i) => i.kind === "task").map((i) => ({ ...i, end: i.end_date && i.end_date >= i.start_date ? i.end_date : i.start_date }));
   const milestones = items.filter((i) => i.kind === "milestone").sort((a, b) => a.start_date.localeCompare(b.start_date));
   const dots = [
-    ...todos.filter((t) => !t.done && t.due_date).map((t) => ({ key: `t${t.id}`, date: t.due_date!, label: `To-do due: ${t.title}`, tone: "due" })),
+    ...todos.filter((t) => !t.done && t.due_date && !items.some((i) => i.todo_id === t.id)).map((t) => ({ key: `t${t.id}`, date: t.due_date!, label: `To-do due: ${t.title}`, tone: "due" })),
     ...events.map((e) => ({ key: `e${e.id}`, date: e.date, label: `Event: ${e.title}`, tone: "event" })),
   ];
   const phaseNames = [...new Set([...tasks].sort((a, b) => a.start_date.localeCompare(b.start_date)).map((t) => t.group_name?.trim() || "General"))];
@@ -134,7 +134,10 @@ export function Gantt({ owner, items, todos, events, today, phaseHints }: {
                 {rows.map((t) => {
                   const left = pct(t.start_date), width = Math.max(pct(addDays(t.end, 1)) - left, 0.7);
                   // The title sits inside the bar when it fits (assuming a chart about 760px wide), otherwise just after it.
-                  const inside = (width / 100) * 780 > t.title.length * 7.2 + 18;
+                  // A bar that stands for a to-do shows when that to-do is finished.
+                  const linked = t.todo_id ? todos.find((x) => x.id === t.todo_id) : undefined;
+                  const done = !!linked?.done;
+                  const inside = (width / 100) * 780 > t.title.length * 7.2 + 30;
                   // Near the right edge there is no room after the bar, so the title goes in front of it.
                   const before = !inside && left + width > 70;
                   return (
@@ -142,13 +145,14 @@ export function Gantt({ owner, items, todos, events, today, phaseHints }: {
                       <Modal className="g-bar-btn" title="Edit task" ariaLabel={`${t.title}: ${span(t.start_date, t.end)}`}
                         label={
                           <>
-                            <span className="g-bar" style={{ left: `${left}%`, width: `${width}%` }} title={`${t.title} · ${span(t.start_date, t.end)}`}>{inside ? t.title : ""}</span>
+                            <span className={`g-bar${done ? " done" : ""}`} style={{ left: `${left}%`, width: `${width}%` }} title={`${t.title} · ${span(t.start_date, t.end)}${linked ? (done ? " · to-do, done" : " · to-do") : ""}`}>{inside ? `${done ? "✓ " : linked ? "☐ " : ""}${t.title}` : ""}</span>
                             {inside ? null : before
-                              ? <span className="g-after before" style={{ right: `${100 - left}%` }}>{t.title}</span>
-                              : <span className="g-after" style={{ left: `${left + width}%` }}>{t.title}</span>}
+                              ? <span className="g-after before" style={{ right: `${100 - left}%` }}>{done ? "✓ " : linked ? "☐ " : ""}{t.title}</span>
+                              : <span className="g-after" style={{ left: `${left + width}%` }}>{done ? "✓ " : linked ? "☐ " : ""}{t.title}</span>}
                           </>
                         }>
                         <RowForm table="timeline_items" id={t.id} what="this task"><TimelineFields item={t} kind="task" phases={knownPhases} today={today} /></RowForm>
+                        {linked ? <p className="tiny muted">This bar belongs to the to-do “{linked.title}”{done ? " (done)" : ""}. Deleting the bar leaves the to-do in place.</p> : null}
                       </Modal>
                     </div>
                   );

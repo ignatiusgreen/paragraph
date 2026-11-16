@@ -3,7 +3,7 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { db } from "./supabase/server";
 import { DEFAULT_TZ } from "./format";
-import type { Client, Project, Section, Todo, Event, Note } from "./types";
+import type { Client, Project, Section, Todo, Event, Note, TimelineItem } from "./types";
 
 export const getMe = cache(async () => {
   const supabase = await db();
@@ -72,3 +72,10 @@ export async function rows<T>(table: string, order = "created_at", ascending = t
   const { data } = await supabase.from(table).select("*").order(order, { ascending });
   return (data ?? []) as T[];
 }
+
+/** Timeline bars that belong to to-dos, keyed by to-do id (loaded once per request). */
+export const getTodoBars = cache(async () => {
+  const supabase = await db();
+  const { data } = await supabase.from("timeline_items").select("*").not("todo_id", "is", null);
+  return new Map(((data ?? []) as TimelineItem[]).map((i) => [i.todo_id as string, i]));
+});
