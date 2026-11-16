@@ -1,31 +1,42 @@
 import Link from "next/link";
 import { loadPrivacy } from "@/lib/privacy";
-import { Card, Check, Empty, F, PageHead, projectOptions, TodoItem } from "@/components/ui";
+import { Card, Check, Empty, F, PageHead, TodoItem, todoProjectOptions } from "@/components/ui";
 import { Submit } from "@/components/client";
 import { saveRow } from "@/app/(app)/actions";
 import { getProjects, getTodos, getTz } from "@/lib/data";
 import { getGoogle } from "@/lib/google";
-import { addDays, today } from "@/lib/format";
-import { REMINDERS, type Todo } from "@/lib/types";
+import { today } from "@/lib/format";
+import { KIND_LABEL, PERSONAL, REMINDERS, type Kind, type Todo } from "@/lib/types";
 
-export default async function Todos({ searchParams }: { searchParams: Promise<{ show?: string; project?: string }> }) {
+type Column = { key: string; title: string; note?: string; tone?: string; todos: Todo[]; add: Record<string, string> };
+
+/** Soonest deadline first; to-dos with no deadline last. */
+const byDeadline = (a: Todo, b: Todo) => (a.due_date ?? "9999").localeCompare(b.due_date ?? "9999") || a.created_at.localeCompare(b.created_at);
+
+export default async function Todos({ searchParams }: { searchParams: Promise<{ show?: string }> }) {
   await loadPrivacy();
-  const { show = "open", project } = await searchParams;
+  const { show = "open" } = await searchParams;
   const [todos, projects, tz, google] = await Promise.all([getTodos(), getProjects(), getTz(), getGoogle()]);
   const t = today(tz);
-  const scoped = project ? todos.filter((x) => x.project_id === project) : todos;
-  const open = scoped.filter((x) => !x.done);
-  const list = show === "urgent" ? open.filter((x) => x.urgent) : show === "done" ? [] : open;
-  const done = scoped.filter((x) => x.done).sort((a, b) => (b.done_at ?? "").localeCompare(a.done_at ?? "")).slice(0, 40);
-  const groups: [string, Todo[]][] = [
-    ["Overdue", list.filter((x) => x.due_date && x.due_date < t)],
-    ["Today", list.filter((x) => x.due_date === t)],
-    ["Next 7 days", list.filter((x) => x.due_date && x.due_date > t && x.due_date <= addDays(t, 7))],
-    ["Later", list.filter((x) => x.due_date && x.due_date > addDays(t, 7))],
-    ["No deadline", list.filter((x) => !x.due_date)],
-  ];
-  const href = (s: string) => `/todos?show=${s}${project ? `&project=${project}` : ""}`;
-  const tagged = projects.filter((p) => todos.some((x) => x.project_id === p.id && !x.done));
+  const open = todos.filter((x) => !x.done);
+  const done = todos.filter((x) => x.done).sort((a, b) => (b.done_at ?? "").localeCompare(a.done_at ?? "")).slice(0, 60);
+
+  // Urgent to-dos sit in their own column on the left; everything else is filed by project, then General and Personal.
+  const rest = open.filter((x) => !x.urgent);
+  const kinds: Kind[] = ["client", "documentary", "narrative"];
+  const columns = ([
+    { key: "urgent", title: "Urgent", tone: "urgent", todos: open.filter((x) => x.urgent), add: { urgent: "on" } },
+    ...kinds.flatMap((kind) => projects.filter((p) => p.kind === kind).map((p) => ({
+      key: p.id, title: p.title, note: KIND_LABEL[kind], todos: rest.filter((x) => x.project_id === p.id), add: { project_id: p.id },
+    }))).filter((c) => c.todos.length),
+    { key: "general", title: "General", note: "No project", todos: rest.filter((x) => !x.project_id && !x.personal), add: { project_id: "" } },
+    { key: "personal", title: "Personal", todos: rest.filter((x) => !x.project_id && x.personal), add: { project_id: PERSONAL } },
+  ] as Column[]).filter((c) => c.todos.length || c.key === "urgent" || c.key === "personal");
+  // To-dos tagged to a project that has since been archived or deleted still need a home.
+  const placed = new Set(columns.flatMap((c) => c.todos.map((x) => x.id)));
+  const stray = open.filter((x) => !placed.has(x.id));
+  if (stray.length) columns.splice(columns.length - 1, 0, { key: "other", title: "Other projects", note: "Archived", todos: stray, add: { project_id: "" } });
+
   return (
     <>
       <PageHead section="todos" title="To-dos" sub={google
@@ -37,7 +48,7 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
           <input type="hidden" name="_table" value="todos" />
           <input type="hidden" name="_bools" value="urgent" />
           <div className="field wide"><label htmlFor="q-title">To-do</label><input id="q-title" name="title" required placeholder="What needs doing?" /></div>
-          <F label="Project" name="project_id" options={projectOptions(projects)} blank="No project" defaultValue={project} />
+          <F label="Project" name="project_id" options={todoProjectOptions(projects)} blank="No project" />
           <F label="Deadline" name="due_date" type="date" />
           <F label="Time" name="due_time" type="time" />
           <F label="Reminder" name="remind_minutes" options={REMINDERS} blank="None" />
@@ -46,39 +57,43 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
         </form>
       </Card>
 
-      <div className="row between">
-        <nav className="seg" aria-label="Filter">
-          <Link href={href("open")} aria-current={show === "open"}>Open · {open.length}</Link>
-          <Link href={href("urgent")} aria-current={show === "urgent"}>Urgent · {open.filter((x) => x.urgent).length}</Link>
-          <Link href={href("done")} aria-current={show === "done"}>Done</Link>
-        </nav>
-        {tagged.length || project ? (
-          <nav className="row" aria-label="Filter by project" style={{ gap: 6 }}>
-            {project ? <Link className="chip" href={`/todos?show=${show}`}>All projects ×</Link> : null}
-            {tagged.map((p) => <Link key={p.id} className={`chip${p.id === project ? " teal" : " sky"}`} href={`/todos?show=${show}&project=${p.id}`}>{p.title}</Link>)}
-          </nav>
-        ) : null}
-      </div>
+      <nav className="seg" aria-label="Show">
+        <Link href="/todos" aria-current={show !== "done"}>Open · {open.length}</Link>
+        <Link href="/todos?show=done" aria-current={show === "done"}>Done · {done.length}</Link>
+      </nav>
 
-      <Card>
-        {show === "done" ? (
+      {show === "done" ? (
+        <Card>
           <div className="list">
             {done.map((x) => <TodoItem key={x.id} todo={x} projects={projects} today={t} />)}
             {!done.length ? <Empty>Nothing completed yet.</Empty> : null}
           </div>
-        ) : list.length ? (
-          <div>
-            {groups.filter(([, g]) => g.length).map(([name, g]) => (
-              <div key={name}>
-                <div className="group-label">{name} · {g.length}</div>
-                <div className="list">
-                  {g.sort((a, b) => Number(b.urgent) - Number(a.urgent)).map((x) => <TodoItem key={x.id} todo={x} projects={projects} today={t} synced={!!google} />)}
-                </div>
+        </Card>
+      ) : (
+        <div className="board todo-board">
+          {columns.map((c) => (
+            <section className={`col todo-col${c.tone ? ` ${c.tone}` : ""}`} key={c.key} aria-label={`${c.title}: ${c.todos.length} to-do${c.todos.length === 1 ? "" : "s"}`}>
+              <div className="col-head">
+                <span>{c.title}{c.note ? <span className="col-note"> · {c.note}</span> : null}</span>
+                <span>{c.todos.length}</span>
               </div>
-            ))}
-          </div>
-        ) : <Empty>{show === "urgent" ? "Nothing urgent." : "No open to-dos. Add one above."}</Empty>}
-      </Card>
+              {[...c.todos].sort(byDeadline).map((x) => (
+                <div className="todo-card" key={x.id}>
+                  {/* In the Urgent column the project chip says where it belongs; elsewhere the column already does. */}
+                  <TodoItem todo={x} projects={projects} hideProject={c.key !== "urgent" && c.key !== "other"} today={t} synced={!!google} />
+                </div>
+              ))}
+              {!c.todos.length ? <span className="tiny muted">{c.key === "urgent" ? "Nothing urgent." : "Nothing here yet."}</span> : null}
+              <form action={saveRow} className="todo-add">
+                <input type="hidden" name="_table" value="todos" />
+                <input type="hidden" name="_bools" value="urgent" />
+                {Object.entries(c.add).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
+                <input name="title" required placeholder="+ Add task" aria-label={`Add a to-do to ${c.title}`} />
+              </form>
+            </section>
+          ))}
+        </div>
+      )}
     </>
   );
 }

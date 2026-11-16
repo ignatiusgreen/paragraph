@@ -2,7 +2,7 @@ import { ColorField, Delete, ImageField, LinksField, Modal, Submit, TodoCheck } 
 import { deleteRow, saveRow, saveSection } from "@/app/(app)/actions";
 import { getSection } from "@/lib/data";
 import { fmtDate, fmtTime, money, relDay } from "@/lib/format";
-import { GLOBAL_SECTION, KIND_LABEL, REMINDERS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Section, type Todo } from "@/lib/types";
+import { GLOBAL_SECTION, KIND_LABEL, PERSONAL, REMINDERS, STAGES, stageLabel, type Client, type Event, type Kind, type Project, type Section, type Todo } from "@/lib/types";
 
 /** Perceived brightness of a #rrggbb colour: true when white text reads better on it. */
 function isDark(hex: string) {
@@ -137,12 +137,15 @@ export function Check({ label, name, defaultChecked }: { label: string; name: st
 export const projectOptions = (projects: Project[]) =>
   projects.map((p) => ({ value: p.id, label: p.title, group: KIND_LABEL[p.kind] }));
 
+/** Project choices for a to-do: "Personal" first, then the projects. */
+export const todoProjectOptions = (projects: Project[]) => [{ value: PERSONAL, label: "Personal" }, ...projectOptions(projects)];
+
 // ---------------- To-dos ----------------
 export function TodoFields({ todo, projects }: { todo?: Todo; projects: Project[] }) {
   return (
     <div className="fgrid">
       <F label="To-do" name="title" defaultValue={todo?.title} required full />
-      <F label="Project" name="project_id" options={projectOptions(projects)} blank="No project" defaultValue={todo?.project_id} />
+      <F label="Project" name="project_id" options={todoProjectOptions(projects)} blank="No project" defaultValue={todo?.personal ? PERSONAL : todo?.project_id} />
       <F label="Deadline" name="due_date" type="date" defaultValue={todo?.due_date} />
       <F label="Time (optional)" name="due_time" type="time" defaultValue={todo?.due_time} />
       <F label="Reminder" name="remind_minutes" options={REMINDERS} blank="No reminder" defaultValue={todo?.remind_minutes} />
@@ -152,7 +155,7 @@ export function TodoFields({ todo, projects }: { todo?: Todo; projects: Project[
   );
 }
 
-export function TodoItem({ todo, projects, today, synced }: { todo: Todo; projects: Project[]; today: string; synced?: boolean }) {
+export function TodoItem({ todo, projects, today, synced, hideProject }: { todo: Todo; projects: Project[]; today: string; synced?: boolean; hideProject?: boolean }) {
   const project = projects.find((p) => p.id === todo.project_id);
   const late = !todo.done && todo.due_date && todo.due_date < today;
   return (
@@ -165,7 +168,7 @@ export function TodoItem({ todo, projects, today, synced }: { todo: Todo; projec
         <div className="meta">
           {todo.urgent && !todo.done ? <span className="chip urgent">Urgent</span> : null}
           {todo.due_date ? <span className={`chip${late ? " late" : ""}`}>{late ? "Overdue · " : ""}{relDay(todo.due_date, today)}{todo.due_time ? ` ${fmtTime(todo.due_time)}` : ""}</span> : null}
-          {project ? <span className="chip sky">{project.title}</span> : null}
+          {hideProject ? null : project ? <span className="chip sky">{project.title}</span> : todo.personal ? <span className="chip leaf">Personal</span> : null}
           {todo.remind_minutes != null ? <span title="Reminder set">⏰ {REMINDERS.find((r) => r.value === String(todo.remind_minutes))?.label ?? `${todo.remind_minutes} min before`}</span> : null}
           {synced && todo.gcal_event_id ? <span title="On Google Calendar">▣ Calendar</span> : null}
           {todo.source === "agent" ? <span title="Added by the AI assistant">✦ AI</span> : null}

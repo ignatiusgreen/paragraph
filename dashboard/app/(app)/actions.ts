@@ -13,7 +13,7 @@ import { disconnectMessage, disconnectQbo, syncQbo } from "@/lib/qbo";
 import { sameOrigin } from "@/lib/csrf";
 import { snapshotMetrics } from "@/lib/metrics";
 import { clearIntegration, hasServiceKey } from "@/lib/integrations";
-import type { Event, Todo } from "@/lib/types";
+import { PERSONAL, type Event, type Todo } from "@/lib/types";
 
 async function guard() {
   const me = await getMe();
@@ -39,6 +39,11 @@ export async function saveRow(f: FormData) {
   let error: string | undefined, warning: string | undefined, savedId: string | null = id;
 
   if (table === "todos") {
+    // The project picker has a "Personal" choice: no project, but filed under the Personal column.
+    if ("project_id" in row) {
+      row.personal = row.project_id === PERSONAL;
+      if (row.personal) row.project_id = null;
+    }
     const r = await saveTodo(supabase, id, row as Partial<Todo>, tz);
     error = r.error; warning = r.warning; savedId = r.row?.id ?? null;
   } else if (table === "events") {

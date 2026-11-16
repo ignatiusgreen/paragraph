@@ -431,3 +431,15 @@ pre { background: var(--dusk); color: #e6eeee; padding: 14px; overflow-x: auto; 
 /* anchors (e.g. /settings#appearance) stop below the sticky top bar */
 section[id] { scroll-margin-top: 112px; }
 @media (max-width: 1379px) { section[id] { scroll-margin-top: 180px; } }
+
+/* ---------- To-do board: one column per project, Urgent on the left, Personal on the right ---------- */
+.todo-board { grid-auto-columns: minmax(270px, 1fr); align-items: start; }
+.todo-col { background: rgba(255, 255, 255, 0.6); min-height: 0; }
+.todo-col.urgent { background: var(--forsythia); }
+.todo-col.urgent .col-head { border-bottom-color: var(--dusk); }
+.col-note { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--muted); }
+.todo-card { background: #fff; padding: 12px 14px; }
+.todo-card .item { padding: 0; border: 0; }
+.todo-add input[name="title"] { border: 1px dashed var(--line-strong); background: transparent; min-height: 40px; }
+.todo-add input[name="title"]:focus { background: #fff; border-style: solid; }
+.todo-add input[name="title"]::placeholder { color: var(--muted); }
