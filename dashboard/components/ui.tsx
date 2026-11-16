@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ColorField, Delete, ImageField, LinksField, Modal, Submit, TodoCheck } from "./client";
 import { deleteRow, saveRow, saveSection } from "@/app/(app)/actions";
 import { getSection } from "@/lib/data";
@@ -15,8 +16,8 @@ const ON_DARK = `.wrap{color:#fff;--muted:rgba(255,255,255,.8);--line:rgba(255,2
   + `.wrap>.row>.btn.ghost,.wrap>section>.btn.ghost{color:#fff}.col{background:rgba(255,255,255,.88)}`;
 
 /** Big page title, with the section's optional header and background images. */
-export async function PageHead({ section, title, eyebrow, sub, children }: {
-  section: string; title: string; eyebrow?: string; sub?: React.ReactNode; children?: React.ReactNode;
+export async function PageHead({ section, title, eyebrow, sub, children, image }: {
+  section: string; title: string; eyebrow?: string; sub?: React.ReactNode; children?: React.ReactNode; image?: string | null;
 }) {
   const [s, shared] = await Promise.all([getSection(section), getSection(GLOBAL_SECTION)]);
   // A page uses its own background if it has one, otherwise the one shared by all pages.
@@ -32,7 +33,7 @@ export async function PageHead({ section, title, eyebrow, sub, children }: {
     dark ? ON_DARK : "",
   ].join("");
   return (
-    <header className={`hero${s?.header_url ? " has-image" : ""}`} style={s?.header_url ? { backgroundImage: `url("${s.header_url}")` } : undefined}>
+    <header className={`hero${image || s?.header_url ? " has-image" : ""}`} style={image || s?.header_url ? { backgroundImage: `url("${image || s?.header_url}")` } : undefined}>
       {css ? <style>{css}</style> : null}
       <div>
         {eyebrow ? <div className="eyebrow">{eyebrow}</div> : null}
@@ -172,7 +173,7 @@ export function TodoItem({ todo, projects, today, synced, hideProject }: { todo:
           {todo.urgent && !todo.done ? <span className="chip urgent">Urgent</span> : null}
           {todo.due_date ? <span className={`chip${late ? " late" : ""}`}>{late ? "Overdue · " : ""}{relDay(todo.due_date, today)}{todo.due_time ? ` ${fmtTime(todo.due_time)}` : ""}</span> : null}
           {hideProject ? null : project
-            ? <span className={`chip ${KIND_CHIP[project.kind]}`} title={`${KIND_LABEL[project.kind]} project`}>{project.title}</span>
+            ? <Link href={`/projects/${project.id}`} className={`chip ${KIND_CHIP[project.kind]}`} title={`${KIND_LABEL[project.kind]} project: open its page`}>{project.title}</Link>
             : todo.category ? <span className={`chip ${todo.category === "personal" ? "teal" : todo.category === "newbiz" ? "sun" : "outline"}`}>{categoryLabel(todo.category)}</span> : null}
           {todo.remind_minutes != null ? <span title="Reminder set">⏰ {REMINDERS.find((r) => r.value === String(todo.remind_minutes))?.label ?? `${todo.remind_minutes} min before`}</span> : null}
           {synced && todo.gcal_event_id ? <span title="On Google Calendar">▣ Calendar</span> : null}
@@ -242,26 +243,22 @@ export function ProjectCard({ project, clients, todos, list }: { project: Projec
   const open = todos.filter((t) => t.project_id === project.id && !t.done).length;
   return (
     <div>
-      <Modal className={`pcard${list ? " listed" : ""}`} title={project.title} ariaLabel={`Edit ${project.title}`} label={
-        <>
-          {/* List view: no artwork block; a small thumbnail only when the project has key art. */}
-          {list
-            ? (project.image_url ? <span className="thumb" style={{ backgroundImage: `url("${project.image_url}")` }} /> : null)
-            : <span className="art" style={project.image_url ? { backgroundImage: `url("${project.image_url}")` } : undefined}>{project.image_url ? "" : project.title.slice(0, 1)}</span>}
-          <span className="body">
-            {client ? <span className="eyebrow">{client.name}</span> : null}
-            <span className="title">{project.title}</span>
-            {project.logline ? <span className="logline">{project.logline}</span> : null}
-            <span className="row" style={{ gap: 6 }}>
-              {project.budget != null ? <span className="chip">{money(project.budget, { compact: true })}</span> : null}
-              {project.hard_costs != null ? <span className="chip" title="Estimated hard costs">− {money(project.hard_costs, { compact: true })}</span> : null}
-              {open ? <span className="chip sun">{open} to-do{open === 1 ? "" : "s"}</span> : null}
-            </span>
+      <Link className={`pcard${list ? " listed" : ""}`} href={`/projects/${project.id}`} aria-label={`Open ${project.title}`}>
+        {/* List view: no artwork block; a small thumbnail only when the project has key art. */}
+        {list
+          ? (project.image_url ? <span className="thumb" style={{ backgroundImage: `url("${project.image_url}")` }} /> : null)
+          : <span className="art" style={project.image_url ? { backgroundImage: `url("${project.image_url}")` } : undefined}>{project.image_url ? "" : project.title.slice(0, 1)}</span>}
+        <span className="body">
+          {client ? <span className="eyebrow">{client.name}</span> : null}
+          <span className="title">{project.title}</span>
+          {project.logline ? <span className="logline">{project.logline}</span> : null}
+          <span className="row" style={{ gap: 6 }}>
+            {project.budget != null ? <span className="chip">{money(project.budget, { compact: true })}</span> : null}
+            {project.hard_costs != null ? <span className="chip" title="Estimated hard costs">− {money(project.hard_costs, { compact: true })}</span> : null}
+            {open ? <span className="chip sun">{open} to-do{open === 1 ? "" : "s"}</span> : null}
           </span>
-        </>
-      }>
-        <RowForm table="projects" id={project.id} bools={["archived"]} what="this project"><ProjectFields kind={project.kind} project={project} clients={clients} /></RowForm>
-      </Modal>
+        </span>
+      </Link>
       {project.links?.length ? (
         <div className="plinks">
           {project.links.map((l, i) => <a key={i} className="chip sky" href={l.url} target="_blank" rel="noreferrer">{l.label || "Link"} ↗</a>)}

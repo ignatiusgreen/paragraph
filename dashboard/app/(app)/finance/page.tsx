@@ -148,7 +148,7 @@ export default async function Finance() {
                 <tbody>
                   {[...f.pipe].sort((a, b) => Number(b.booked) - Number(a.booked) || b.weighted - a.weighted).map((p) => (
                     <tr key={p.project.id}>
-                      <td><Link href={KIND_PATH[p.project.kind]}><strong>{p.project.title}</strong></Link><div className="tiny muted">{KIND_LABEL[p.project.kind]}</div></td>
+                      <td><Link href={`/projects/${p.project.id}`}><strong>{p.project.title}</strong></Link><div className="tiny muted">{KIND_LABEL[p.project.kind]}</div></td>
                       <td><span className={`chip${p.booked ? " leaf" : " sun"}`}>{p.booked ? "Booked" : "Pitched"}</span> <span className="small muted">{stageLabel(p.project.kind, p.project.stage)}</span></td>
                       <td>{p.project.expected_on ? fmtDate(p.project.expected_on.slice(0, 7), "month") : <span className="muted">Not set</span>}</td>
                       <td className="num">{money(p.project.budget)}</td>

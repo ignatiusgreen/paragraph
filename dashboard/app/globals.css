@@ -494,3 +494,18 @@ select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
 /* New Biz to-dos */
 .todo-col.newbiz .col-head { border-bottom: 4px solid var(--sun); }
 .sun .chip.sun, .todo-col.urgent .chip.sun { box-shadow: inset 0 0 0 1.5px var(--dusk); }
+
+/* ---------- Project summary page ---------- */
+a.pcard { text-decoration: none; color: inherit; }
+.col-head a { text-decoration: none; }
+.col-head a:hover { text-decoration: underline; }
+/* stage stepper: finished stages filled, the current one highlighted */
+.steps { list-style: none; margin: 0; padding: 0; display: flex; gap: 3px; flex-wrap: wrap; }
+.steps li { flex: 1 1 110px; min-width: 0; padding: 10px 12px; background: rgba(4, 27, 33, 0.07); font-size: 13px; font-weight: 600; color: var(--muted); border-top: 4px solid transparent; }
+.steps li.past { background: var(--sky); color: var(--dusk); }
+.steps li.now { background: var(--dusk); color: #fff; border-top-color: var(--forsythia); }
+.steps li.now span::after { content: " · now"; font-weight: 500; opacity: 0.8; }
+/* status tags keep their colour on dark cards */
+.dark .chip.urgent, .teal .chip.urgent, .noir .chip.urgent { background: var(--saffron); color: var(--dusk); }
+.dark .chip.late, .teal .chip.late, .noir .chip.late { background: var(--danger); color: #fff; }
+.tiles.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }

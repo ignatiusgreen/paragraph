@@ -111,7 +111,7 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
           {stack.map((c) => (
             <section className={`col todo-col${c.tone ? ` ${c.tone}` : ""}`} key={c.key} aria-label={`${c.title}: ${c.todos.length} to-do${c.todos.length === 1 ? "" : "s"}`}>
               <div className="col-head">
-                <span>{c.title}{c.note ? <span className="col-note"> · {c.note}</span> : null}</span>
+                <span>{c.tone?.startsWith("kind-") ? <Link href={`/projects/${c.key}`} title="Open this project's page">{c.title}</Link> : c.title}{c.note ? <span className="col-note"> · {c.note}</span> : null}</span>
                 <span>{c.todos.length}</span>
               </div>
               {[...c.todos].sort(byDeadline).map((x) => (

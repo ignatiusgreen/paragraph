@@ -1,6 +1,7 @@
 "use server";
 import { createHash, randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { cookies, headers } from "next/headers";
 import { after } from "next/server";
 import { db } from "@/lib/supabase/server";
@@ -94,6 +95,9 @@ export async function deleteRow(f: FormData) {
   if (table === "notes") notebookSoon();
   if (error) await flash(`Couldn't delete: ${error}`);
   refresh();
+  // A page that just deleted the thing it was showing says where to go next.
+  const next = String(f.get("_after_delete") ?? "");
+  if (!error && next.startsWith("/") && !next.startsWith("//")) redirect(next);
 }
 
 export async function toggleTodo(id: string, done: boolean) {
