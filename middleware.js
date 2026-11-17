@@ -525,6 +525,7 @@ function page(body, status, cookies = []) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@400;500;600;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/archive.css">
+<link rel="stylesheet" href="/screening.css">
 </head>
 <body>
 <header>
@@ -532,6 +533,7 @@ function page(body, status, cookies = []) {
   <nav><a href="${SITE}film-tv.html">Film &amp; TV</a><a href="${SITE}branded.html">Branded</a><a href="${SITE}about.html">About</a></nav>
 </header>
 <main>${body}</main>
+<script src="/screening.js"></script>
 </body></html>`;
   const headers = new Headers({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
   cookies.forEach((c) => headers.append('Set-Cookie', c));
@@ -635,28 +637,16 @@ function builderBody(selected, link) {
 
 function reelBody(ids) {
   const list = ids.map((id) => BY_VIDEO[id]);
-  const data = JSON.stringify(list.map((v) => ({ project: v.project, title: v.title, src: v.src }))).replace(/</g, '\\u003c');
   const first = list[0];
-  const tiles = list.length > 1 ? `<div class="grid">${list.map((v, i) =>
-    `<button type="button" class="tile" data-i="${i}" aria-pressed="${i === 0}" aria-label="Play ${esc(v.title || v.project)}"><img src="${esc(v.thumb)}" alt="" loading="lazy"><span>${esc(v.project)}<small>${esc(v.title && v.title !== v.project ? v.title : '')}</small></span></button>`).join('')}</div>` : '';
+  const attrs = (v) => `data-lb data-src="${esc(v.src)}" data-title="${esc(v.title || v.project)}"`;
+  const tiles = list.length > 1 ? `<div class="grid">${list.map((v) =>
+    `<button type="button" class="tile" ${attrs(v)} aria-label="Play ${esc(v.title || v.project)}"><img src="${esc(v.thumb)}" alt="" loading="lazy"><span>${esc(v.project)}<small>${esc(v.title && v.title !== v.project ? v.title : '')}</small></span></button>`).join('')}</div>` : '';
   return `<div class="card wide"><div class="rule" aria-hidden="true"></div><div class="label">Selected work</div>
     <h1>${list.length > 1 ? 'A few projects, <em>picked for you.</em>' : 'A project, <em>picked for you.</em>'}</h1>
-    <div class="player" id="player"><button type="button" class="play-cover" id="cover" aria-label="Play ${esc(first.title || first.project)}"><img src="${esc(first.thumb)}" alt=""><span class="play-icon" aria-hidden="true"><svg viewBox="0 0 66 98"><polygon points="1.5,1.5 64.5,49 1.5,96.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button></div>
-    <div class="nowbar"><div class="now" id="now">${esc(first.project)}${first.title && first.title !== first.project ? `<small>${esc(first.title)}</small>` : ''}</div></div>
+    <div class="player" id="player"><button type="button" class="play-cover" id="cover" ${attrs(first)} aria-label="Play ${esc(first.title || first.project)}"><img src="${esc(first.thumb)}" alt=""><span class="play-icon" aria-hidden="true"><svg viewBox="0 0 66 98"><polygon points="1.5,1.5 64.5,49 1.5,96.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button></div>
+    ${list.length === 1 ? `<div class="nowbar"><div class="now" id="now">${esc(first.project)}${first.title && first.title !== first.project ? `<small>${esc(first.title)}</small>` : ''}</div></div>` : '<div style="margin-bottom:56px"></div>'}
     ${tiles}
-    <a class="back" href="${SITE}index.html">← Back to Paragraph</a></div>
-  <script>(function(){
-    var V=${data},player=document.getElementById('player'),now=document.getElementById('now');
-    function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
-    function play(v){var f=document.createElement('iframe');f.src=v.src+(v.src.indexOf('?')<0?'?':'&')+'autoplay=1';f.title=v.title||v.project;
-      f.allow='autoplay; fullscreen; picture-in-picture; encrypted-media';f.setAttribute('allowfullscreen','');player.innerHTML='';player.appendChild(f);}
-    document.getElementById('cover').addEventListener('click',function(){play(V[0]);});
-    [].forEach.call(document.querySelectorAll('button.tile'),function(t){t.addEventListener('click',function(){
-      var i=+t.dataset.i,v=V[i];play(v);
-      now.innerHTML=esc(v.project)+(v.title&&v.title!==v.project?'<small>'+esc(v.title)+'</small>':'');
-      [].forEach.call(document.querySelectorAll('button.tile'),function(x){x.setAttribute('aria-pressed',String(x===t));});
-      document.getElementById('player').scrollIntoView({behavior:'smooth',block:'start'});});});
-  })();</script>`;
+    <a class="back" href="${SITE}index.html">← Back to Paragraph</a></div>`;
 }
 
 // ---------- Social Machines: private pitch microsite ----------

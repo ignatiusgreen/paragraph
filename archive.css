@@ -123,15 +123,3 @@ label.pick input:focus-visible + .tile img{outline:2px solid var(--fg);outline-o
 .grid.dense.vgrid .tile>span{font-size:15px}
 .grid.dense.vgrid .tile>span small{font-size:16px;line-height:1.15}
 @media(hover:none){.vt .pi{opacity:.9;transform:none}}
-
-/* video player overlay */
-.vm{position:fixed;inset:0;z-index:100;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:clamp(16px,4vw,48px);opacity:0;transition:opacity .25s ease}
-.vm.on{opacity:1}.vm[hidden]{display:none}
-.vm-frame{width:min(92vw,calc((100vh - 170px) * 16 / 9));aspect-ratio:16/9;background:#000}
-.vm-frame iframe{width:100%;height:100%;border:0;display:block}
-.vm-cap{width:min(92vw,calc((100vh - 170px) * 16 / 9));font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
-.vm-cap small{display:block;margin-top:4px;font-family:"Instrument Serif",Georgia,serif;font-weight:400;text-transform:none;letter-spacing:0;font-size:20px;color:var(--muted)}
-.vm-x{position:absolute;top:clamp(12px,2vw,28px);right:clamp(12px,2vw,28px);width:48px;height:48px;display:grid;place-items:center;color:var(--fg);background:none;border:0;cursor:pointer;opacity:.85}
-.vm-x:hover,.vm-x:focus-visible{opacity:1;outline:none}
-.vm-x svg{width:26px;height:26px}
-html.vm-open{overflow:hidden}
