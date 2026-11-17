@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { loadPrivacy } from "@/lib/privacy";
 import { Card, Empty, EventFields, eventWhen, PageHead, ProjectFields, RowForm, TodoItem } from "@/components/ui";
-import { AutoSelect, Modal } from "@/components/client";
+import { AutoSelect, Modal, ScrollList, Submit } from "@/components/client";
 import { Gantt } from "@/components/Gantt";
 import { saveRow } from "@/app/(app)/actions";
 import { db } from "@/lib/supabase/server";
@@ -62,6 +62,41 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       </PageHead>
 
       <div className="grid stretch">
+        <Card className="s8" title={`To-dos · ${open.length} open`}>
+          <form action={saveRow} className="quick">
+            <input type="hidden" name="_table" value="todos" />
+            <input type="hidden" name="_bools" value="urgent" />
+            <input type="hidden" name="project_id" value={project.id} />
+            <div className="field wide"><label htmlFor="p-todo">Add a to-do for this project</label><input id="p-todo" name="title" required placeholder="What needs doing?" /></div>
+            <div className="field"><label htmlFor="p-due">Deadline</label><input id="p-due" name="due_date" type="date" /></div>
+            <label className="check"><input type="checkbox" name="urgent" />Urgent</label>
+            <Submit>Add</Submit>
+          </form>
+          {open.length ? (
+            <ScrollList show={6} label={`Open to-dos for ${project.title}`}>
+              {open.map((x) => <TodoItem key={x.id} todo={x} projects={projects} hideProject today={t} synced={!!google} />)}
+            </ScrollList>
+          ) : <Empty>No open to-dos for this project yet. Add the first one above.</Empty>}
+          {open.length > 6 ? <p className="tiny muted" style={{ marginTop: -6 }}>Scroll for {open.length - 6} more</p> : null}
+          {done.length ? (
+            <details>
+              <summary className="small">Done · {done.length}</summary>
+              <div className="list" style={{ marginTop: 10 }}>
+                {done.slice(0, 30).map((x) => <TodoItem key={x.id} todo={x} projects={projects} hideProject today={t} />)}
+              </div>
+            </details>
+          ) : null}
+        </Card>
+
+        <Card tone="dark" className="s4" title="Next steps">
+          {open.length ? (
+            <div className="list">
+              {open.slice(0, 3).map((x) => <TodoItem key={x.id} todo={x} projects={projects} hideProject today={t} />)}
+            </div>
+          ) : <p className="small muted">Nothing queued. Add a to-do to set the next step.</p>}
+          {open.length > 3 ? <p className="tiny muted">{open.length - 3} more in the to-do panel</p> : null}
+        </Card>
+
         <Card className="s12" title="Timeline" actions={
           <form action={saveRow} className="row" style={{ gap: 8, flexWrap: "nowrap" }}>
             <input type="hidden" name="_table" value="projects" />
@@ -90,37 +125,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           ) : null}
         </Card>
 
-        <Card tone="dark" className="s4" title="Next steps">
-          {open.length ? (
-            <div className="list">
-              {open.slice(0, 3).map((x) => <TodoItem key={x.id} todo={x} projects={projects} hideProject today={t} />)}
-            </div>
-          ) : <p className="small muted">Nothing queued. Add a to-do to set the next step.</p>}
-          {open.length > 3 ? <p className="tiny muted">{open.length - 3} more below</p> : null}
-        </Card>
-
-        <Card className="s4" title={`To-dos · ${open.length} open`}>
-          <div className="list">
-            {open.map((x) => <TodoItem key={x.id} todo={x} projects={projects} hideProject today={t} synced={!!google} />)}
-          </div>
-          {!open.length ? <Empty>No open to-dos for this project.</Empty> : null}
-          <form action={saveRow} className="todo-add">
-            <input type="hidden" name="_table" value="todos" />
-            <input type="hidden" name="_bools" value="urgent" />
-            <input type="hidden" name="project_id" value={project.id} />
-            <input name="title" required placeholder="+ Add task" aria-label={`Add a to-do to ${project.title}`} />
-          </form>
-          {done.length ? (
-            <details>
-              <summary className="small">Done · {done.length}</summary>
-              <div className="list" style={{ marginTop: 10 }}>
-                {done.slice(0, 30).map((x) => <TodoItem key={x.id} todo={x} projects={projects} hideProject today={t} />)}
-              </div>
-            </details>
-          ) : null}
-        </Card>
-
-        <Card className="s4" title="Schedule + deadlines" actions={
+        <Card className={hasMoney ? "s4" : "s6"} title="Schedule + deadlines" actions={
           <Modal label="+ Event" title={`New event for ${project.title}`} className="btn sm">
             <RowForm table="events" submit="Add event"><EventFields projects={projects} date={t} event={{ project_id: project.id } as never} /></RowForm>
           </Modal>
@@ -144,7 +149,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         </Card>
 
         {hasMoney ? (
-          <Card tone="teal" className="s6" title="Money">
+          <Card tone="teal" className="s4" title="Money">
             <div className="tiles two">
               <div className="tile"><span className="tile-label">{project.kind === "client" ? "Budget" : "Expected revenue"}</span><span className="tile-value">{money(project.budget, { compact: true })}</span></div>
               <div className="tile"><span className="tile-label">Hard costs</span><span className="tile-value">{money(project.hard_costs, { compact: true })}</span></div>
@@ -155,7 +160,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           </Card>
         ) : null}
 
-        <Card className={hasMoney ? "s6" : "s12"} title={`Notebook · ${linkedNotes.length}`} more="/notebook">
+        <Card className={hasMoney ? "s4" : "s6"} title={`Notebook · ${linkedNotes.length}`} more="/notebook">
           {linkedNotes.length ? (
             <div className="list">
               {linkedNotes.slice(0, 6).map((n) => (
