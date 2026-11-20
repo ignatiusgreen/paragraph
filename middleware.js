@@ -438,7 +438,8 @@ const VIDEOS = PROJECTS.flatMap((p) => (p.videos || []).map((v) => {
 })).filter((v) => v.id);
 const BY_VIDEO = Object.fromEntries(VIDEOS.map((v) => [v.id, v]));
 const ORDER = Object.fromEntries(VIDEOS.map((v, i) => [v.id, i]));
-const cleanVideos = (s) => [...new Set(String(s || '').split(',').map((x) => x.trim()).filter((x) => BY_VIDEO[x]))].sort((a, b) => ORDER[a] - ORDER[b]);
+// Keeps the order given (the order is part of the signed link)
+const cleanVideos = (s) => [...new Set(String(s || '').split(',').map((x) => x.trim()).filter((x) => BY_VIDEO[x]))];
 
 const enc = new TextEncoder();
 const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -642,25 +643,49 @@ function builderBody(selected, link) {
     : '';
   const groups = `<div class="grid dense">${VIDEOS.map((v) =>
       `<label class="pick"><input type="checkbox" name="pick" value="${v.id}"${selected.includes(v.id) ? ' checked' : ''}><span class="tile"><img src="${esc(v.thumb)}" alt="" loading="lazy"><span>${esc(v.project)}${v.dur ? ` <i>${mmss(v.dur)}</i>` : ''}<small>${esc(v.title && v.title !== v.project ? v.title : '')}</small></span></span></label>`).join('')}</div>`;
+  const info = Object.fromEntries(VIDEOS.map((v) => [v.id, [v.thumb, v.title || v.project]]));
   return `<form class="card wide" method="get">
     <div class="rule" aria-hidden="true"></div><div class="label">Custom reel</div>
-    <h1>Pick the videos. <em>Send the link.</em></h1>
-    <p class="note">Choose any videos from the archive. Your client gets a private reel page with just those videos, nothing else.</p>
+    <h1>Pick the videos. <em>Set the order.</em></h1>
+    <p class="note">Choose any videos from the archive, then drag them (or use the arrows) into the order you want. Your client gets a private reel page with just those videos, in that order.</p>
     ${box}
+    <div class="order" id="order" hidden><div class="label">Your reel, in order</div><ol id="olist"></ol></div>
     ${groups}
     <input type="hidden" name="v" id="v">
     <div class="bar"><button type="submit" class="enter">Make link</button><button type="button" class="enter ghost" id="clear">Clear</button><span class="muted" id="count"></span>
       <a class="back" style="margin:0 0 0 auto" href="/archive">Full archive</a><a class="back" style="margin:0" href="/archive-logout">Sign out</a></div>
   </form>
   <script>(function(){
-    var f=document.querySelector('form'),v=document.getElementById('v'),c=document.getElementById('count');
-    function picks(){return f.querySelectorAll('input[name=pick]:checked');}
-    function n(){var k=picks().length;c.textContent=k?k+' video'+(k>1?'s':'')+' selected':'';}
-    f.addEventListener('change',n);n();
-    document.getElementById('clear').addEventListener('click',function(){[].forEach.call(picks(),function(x){x.checked=false;});n();});
-    f.addEventListener('submit',function(e){var ids=[].map.call(picks(),function(x){return x.value});
-      if(!ids.length){e.preventDefault();c.textContent='Pick at least one video';return;}
-      v.value=ids.join(',');f.querySelectorAll('input[name=pick]').forEach(function(x){x.disabled=true;});});
+    var INFO=${JSON.stringify(info).replace(/</g, '\\u003c')};
+    var f=document.querySelector('form'),v=document.getElementById('v'),c=document.getElementById('count'),box=document.getElementById('order'),ol=document.getElementById('olist');
+    var seq=${JSON.stringify(selected)};
+    var boxes={};[].forEach.call(f.querySelectorAll('input[name=pick]'),function(x){boxes[x.value]=x;});
+    function sync(){
+      seq=seq.filter(function(id){return boxes[id]&&boxes[id].checked;});
+      Object.keys(boxes).forEach(function(id){if(boxes[id].checked&&seq.indexOf(id)<0)seq.push(id);});
+      Object.keys(boxes).forEach(function(id){var t=boxes[id].parentNode.querySelector('.num');if(!t){t=document.createElement('b');t.className='num';boxes[id].nextSibling.appendChild(t);}
+        var i=seq.indexOf(id);t.textContent=i<0?'':i+1;});
+      box.hidden=!seq.length;ol.innerHTML='';
+      seq.forEach(function(id,i){
+        var li=document.createElement('li');li.draggable=true;li.dataset.id=id;
+        li.innerHTML='<span class="n">'+(i+1)+'</span><img alt="" src="'+INFO[id][0]+'"><span class="t"></span><span class="mv"><button type="button" data-d="-1" aria-label="Move earlier">←</button><button type="button" data-d="1" aria-label="Move later">→</button><button type="button" data-d="x" aria-label="Remove">×</button></span>';
+        li.querySelector('.t').textContent=INFO[id][1];ol.appendChild(li);});
+      var k=seq.length;c.textContent=k?k+' video'+(k>1?'s':'')+' selected':'';
+    }
+    function move(id,to){var i=seq.indexOf(id);if(i<0)return;seq.splice(i,1);seq.splice(Math.max(0,Math.min(seq.length,to)),0,id);sync();}
+    ol.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var id=b.closest('li').dataset.id,d=b.dataset.d;
+      if(d==='x'){boxes[id].checked=false;sync();}else move(id,seq.indexOf(id)+ +d);});
+    var drag=null;
+    ol.addEventListener('dragstart',function(e){drag=e.target.closest('li');if(drag){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',drag.dataset.id);drag.classList.add('drag');}});
+    ol.addEventListener('dragend',function(){if(drag)drag.classList.remove('drag');drag=null;});
+    ol.addEventListener('dragover',function(e){e.preventDefault();var li=e.target.closest('li');if(!li||!drag||li===drag)return;
+      var r=li.getBoundingClientRect(),after=(e.clientX-r.left)>r.width/2;ol.insertBefore(drag,after?li.nextSibling:li);});
+    ol.addEventListener('drop',function(e){e.preventDefault();seq=[].map.call(ol.children,function(li){return li.dataset.id;});sync();});
+    f.addEventListener('change',sync);sync();
+    document.getElementById('clear').addEventListener('click',function(){seq=[];Object.keys(boxes).forEach(function(id){boxes[id].checked=false;});sync();});
+    f.addEventListener('submit',function(e){
+      if(!seq.length){e.preventDefault();c.textContent='Pick at least one video';return;}
+      v.value=seq.join(',');f.querySelectorAll('input[name=pick]').forEach(function(x){x.disabled=true;});});
     var b=document.getElementById('copy');if(b)b.addEventListener('click',function(){var i=document.getElementById('share');i.select();
       (navigator.clipboard?navigator.clipboard.writeText(i.value):Promise.resolve(document.execCommand('copy'))).then(function(){document.getElementById('copied').textContent='Copied';});});
   })();</script>`;

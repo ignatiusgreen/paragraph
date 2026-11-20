@@ -123,3 +123,18 @@ label.pick input:focus-visible + .tile img{outline:2px solid var(--fg);outline-o
 .grid.dense.vgrid .tile>span{font-size:15px}
 .grid.dense.vgrid .tile>span small{font-size:16px;line-height:1.15}
 @media(hover:none){.vt .pi{opacity:.9;transform:none}}
+
+/* Custom reel: ordering tray */
+.order{margin:26px 0 8px;padding:18px 0 4px;border-top:1px solid var(--line)}
+.order ol{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:12px}
+.order li{width:190px;position:relative;background:#141414;border:1px solid var(--line);cursor:grab}
+.order li.drag{opacity:.35}
+.order li img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.order li .n{position:absolute;top:6px;left:6px;min-width:24px;height:24px;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:13px;font-weight:800}
+.order li .t{display:block;padding:8px 10px 4px;font-size:12px;line-height:1.3;min-height:3.2em}
+.order li .mv{display:flex;gap:4px;padding:0 8px 8px}
+.order li .mv button{flex:1;background:none;border:1px solid var(--line);color:var(--fg);padding:5px 0;cursor:pointer;font:inherit;font-size:14px}
+.order li .mv button:hover{border-color:var(--fg)}
+label.pick .num{position:absolute;top:8px;left:8px;z-index:1;min-width:28px;height:28px;display:grid;place-items:center;background:#000;color:#fff;font-size:14px;font-weight:800}
+label.pick .num:empty{display:none}
+@media(max-width:600px){.order li{width:calc(50% - 6px)}}
