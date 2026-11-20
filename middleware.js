@@ -480,12 +480,28 @@ export default async function middleware(request) {
   }
 
   // Shared link: /archive/share?p=nike,panini&k=SIGNATURE
+  // Download one video of a shared reel: /archive/dl?v=<ids>&k=<sig>&id=<video id>  (needs VIMEO_TOKEN in Vercel)
+  if (path === '/archive/dl') {
+    const ids = cleanVideos(url.searchParams.get('v'));
+    const id = url.searchParams.get('id') || '';
+    const expected = (await sign(password, 'reel:' + ids.join(','))).slice(0, 20);
+    if (!ids.length || !ids.includes(id) || (url.searchParams.get('k') || '') !== expected) return page(messageBody('This link isn’t valid', 'It may have been mistyped or switched off. Please ask Paragraph for a new link.'), 404);
+    const token = process.env.VIMEO_TOKEN;
+    if (!token) return page(messageBody('Downloads aren’t set up yet', 'Please ask Paragraph to send the files directly.'), 503);
+    try {
+      const r = await fetch('https://api.vimeo.com/videos/' + id + '?fields=download', { headers: { Authorization: 'bearer ' + token, Accept: 'application/vnd.vimeo.*+json;version=3.4' } });
+      const files = r.ok ? ((await r.json()).download || []) : [];
+      const best = files.filter((f) => f.link).sort((a, b) => (b.quality === 'source') - (a.quality === 'source') || (b.size || 0) - (a.size || 0))[0];
+      if (best) return redirect(best.link, []);
+    } catch (e) {}
+    return page(messageBody('This video can’t be downloaded', 'Please ask Paragraph to send this file directly.'), 404);
+  }
   if (path === '/archive/share' && url.searchParams.has('v')) {
     const ids = cleanVideos(url.searchParams.get('v'));
     const k = url.searchParams.get('k') || '';
     const expected = (await sign(password, 'reel:' + ids.join(','))).slice(0, 20);
     if (!ids.length || k !== expected) return page(messageBody('This link isn’t valid', 'It may have been mistyped or switched off. Please ask Paragraph for a new link.'), 404);
-    return page(reelBody(ids), 200);
+    return page(reelBody(ids, k, !!process.env.VIMEO_TOKEN), 200);
   }
   if (path === '/archive/share') {
     const slugs = cleanList(url.searchParams.get('p'));
@@ -691,7 +707,7 @@ function builderBody(selected, link) {
   })();</script>`;
 }
 
-function reelBody(ids) {
+function reelBody(ids, k, canDownload) {
   const list = ids.map((id) => BY_VIDEO[id]);
   const first = list[0];
   const attrs = (v) => `data-lb data-src="${esc(v.src)}" data-title="${esc(v.title || v.project)}"`;
@@ -702,6 +718,11 @@ function reelBody(ids) {
     <div class="player" id="player"><button type="button" class="play-cover" id="cover" ${attrs(first)} aria-label="Play ${esc(first.title || first.project)}"><img src="${esc(first.thumb)}" alt=""><span class="play-icon" aria-hidden="true"><svg viewBox="0 0 66 98"><polygon points="1.5,1.5 64.5,49 1.5,96.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button></div>
     ${list.length === 1 ? `<div class="nowbar"><div class="now" id="now">${esc(first.project)}${first.title && first.title !== first.project ? `<small>${esc(first.title)}</small>` : ''}</div></div>` : '<div style="margin-bottom:56px"></div>'}
     ${tiles}
+    ${canDownload ? `<div class="dlbar"><button type="button" class="enter" id="dlall">Download all (${list.length})</button><span class="muted" id="dlnote">Files download one after another. Allow multiple downloads if your browser asks.</span>
+      <div class="dllist">${list.map((v) => `<a href="/archive/dl?v=${ids.join(',')}&k=${k}&id=${v.id}">↓ ${esc(v.title || v.project)}</a>`).join('')}</div></div>` : ''}
+    ${canDownload ? `<script>(function(){var base=${JSON.stringify('/archive/dl?v=' + ids.join(',') + '&k=' + k + '&id=')},ids=${JSON.stringify(ids)};
+      document.getElementById('dlall').addEventListener('click',function(){var i=0;(function next(){if(i>=ids.length)return;var f=document.createElement('iframe');f.style.display='none';f.src=base+ids[i++];document.body.appendChild(f);setTimeout(next,2500);})();});
+    })();</script>` : ''}
     <a class="back" href="${SITE}index.html">← Back to Paragraph</a></div>`;
 }
 
