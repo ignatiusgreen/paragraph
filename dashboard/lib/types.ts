@@ -5,7 +5,7 @@ export type Client = { id: string; name: string; qbo_id: string | null; email: s
 export type Project = {
   id: string; kind: Kind; title: string; client_id: string | null; stage: string; logline: string | null; notes: string | null;
   image_url: string | null; links: LinkItem[]; budget: number | null; hard_costs: number | null; invoiced: number | null;
-  probability: number | null; expected_on: string | null; archived: boolean; created_at: string;
+  probability: number | null; expected_on: string | null; archived: boolean; created_at: string; mood_folder_id?: string | null;
 };
 export type Todo = {
   id: string; title: string; notes: string | null; project_id: string | null; note_id: string | null; urgent: boolean; category: TodoCategory | null; lead_id: string | null;
@@ -36,6 +36,10 @@ export type Gear = {
 };
 export type IndustryEvent = { id: string; title: string; org: string | null; kind: "deadline" | "event"; date: string | null; end_date: string | null; url: string | null; notes: string | null };
 export type TimelineItem = { id: string; project_id: string | null; scope: string | null; todo_id: string | null; kind: "task" | "milestone"; title: string; group_name: string | null; start_date: string; end_date: string | null };
+export type MoodItem = {
+  id: string; project_id: string; kind: "image" | "link"; image_url: string | null; source_url: string | null; title: string | null;
+  x: number; y: number; w: number; z: number; drive_file_id: string | null;
+};
 export type Pin = { id: string; image_url: string; caption: string | null; source_url: string | null };
 /** Row in `sections` holding the background shared by every page. */
 export const GLOBAL_SECTION = "_global";

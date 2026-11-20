@@ -275,3 +275,61 @@ export async function syncNotebook(): Promise<string | null> {
   }
   return docId!;
 }
+
+// ---------------- Mood boards → Google Drive ----------------
+const DRIVE = "https://www.googleapis.com/drive/v3/files";
+const FOLDER = "application/vnd.google-apps.folder";
+export const driveFolderUrl = (id: string) => `https://drive.google.com/drive/folders/${id}`;
+
+async function createFolder(name: string, parent?: string) {
+  return (await g<{ id: string }>(DRIVE, { method: "POST", body: { name, mimeType: FOLDER, ...(parent ? { parents: [parent] } : {}) } })).id;
+}
+const stillThere = async (id: string) => {
+  try { const f = await g<{ trashed?: boolean }>(`${DRIVE}/${id}?fields=id,trashed`); return !f.trashed; } catch { return false; }
+};
+
+/** The Drive folder for a project's mood board ("Paragraph Mood Boards / <project>"), created on first use. Null when Google isn't connected. */
+export async function moodFolder(projectId: string): Promise<string | null> {
+  const auth = await getGoogle();
+  if (!auth) return null;
+  const sb = adminDb();
+  const { data: project } = await sb.from("projects").select("title,mood_folder_id").eq("id", projectId).maybeSingle();
+  if (!project) return null;
+  if (project.mood_folder_id && (await stillThere(project.mood_folder_id))) return project.mood_folder_id;
+  let root = (auth as { mood_root_id?: string }).mood_root_id;
+  if (!root || !(await stillThere(root))) {
+    root = await createFolder("Paragraph Mood Boards");
+    await setIntegration("google", { ...(await getIntegration("google")), mood_root_id: root });
+  }
+  const id = await createFolder(project.title, root);
+  await sb.from("projects").update({ mood_folder_id: id }).eq("id", projectId);
+  return id;
+}
+
+/** Copy an image (fetched from its address) into a Drive folder. Returns the new file's id. */
+export async function driveUploadFromUrl(folderId: string, name: string, url: string, description?: string): Promise<string> {
+  const token = await accessToken();
+  if (!token) throw new Error("Google isn't connected");
+  const src = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(20000) });
+  if (!src.ok) throw new Error(`Couldn't fetch the image (HTTP ${src.status})`);
+  const type = src.headers.get("content-type")?.split(";")[0] || "image/jpeg";
+  const bytes = Buffer.from(await src.arrayBuffer());
+  const boundary = `mood${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+  const body = Buffer.concat([
+    Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name, parents: [folderId], description })}\r\n--${boundary}\r\nContent-Type: ${type}\r\n\r\n`),
+    bytes,
+    Buffer.from(`\r\n--${boundary}--`),
+  ]);
+  const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id", {
+    method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": `multipart/related; boundary=${boundary}` }, body, cache: "no-store",
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json?.error?.message ?? `Google Drive ${res.status}`);
+  return json.id as string;
+}
+
+/** Move a Drive file to the trash (best effort). */
+export async function driveTrash(fileId: string | null) {
+  if (!fileId || !(await getGoogle())) return;
+  try { await g(`${DRIVE}/${fileId}`, { method: "PATCH", body: { trashed: true } }); } catch { /* already gone */ }
+}

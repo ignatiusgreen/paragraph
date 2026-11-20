@@ -4,12 +4,13 @@ import { loadPrivacy } from "@/lib/privacy";
 import { Card, Empty, EventFields, eventWhen, PageHead, ProjectFields, RowForm, TodoItem } from "@/components/ui";
 import { AutoSelect, Modal, ScrollList, Submit } from "@/components/client";
 import { Gantt } from "@/components/Gantt";
+import { MoodBoard } from "@/components/MoodBoard";
 import { saveRow } from "@/app/(app)/actions";
 import { db } from "@/lib/supabase/server";
 import { getClients, getEvents, getNotes, getProjects, getTodos, getTz } from "@/lib/data";
-import { getGoogle } from "@/lib/google";
+import { driveFolderUrl, getGoogle } from "@/lib/google";
 import { addDays, fmtDate, money, relDay, today } from "@/lib/format";
-import { KIND_LABEL, KIND_PATH, STAGES, stageLabel, type Project, type TimelineItem, type Todo } from "@/lib/types";
+import { KIND_LABEL, KIND_PATH, STAGES, stageLabel, type MoodItem, type Project, type TimelineItem, type Todo } from "@/lib/types";
 
 const SECTION = { client: "clients", documentary: "documentary", narrative: "narrative" } as const;
 /** Urgent first, then soonest deadline, then oldest. */
@@ -23,9 +24,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const tz = await getTz();
   const t = today(tz);
   const supabase = await db();
-  const [{ data }, { data: timelineRows }, clients, todos, events, notes, projects, google] = await Promise.all([
+  const [{ data }, { data: timelineRows }, { data: moodRows }, clients, todos, events, notes, projects, google] = await Promise.all([
     supabase.from("projects").select("*").eq("id", id).maybeSingle(),
     supabase.from("timeline_items").select("*").eq("project_id", id).order("start_date"),
+    supabase.from("mood_items").select("*").eq("project_id", id).order("created_at"),
     getClients(), getTodos(), getEvents(addDays(t, -1), addDays(t, 365)), getNotes(), getProjects(), getGoogle(),
   ]);
   const project = data as Project | null;
@@ -123,6 +125,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
               {project.links.map((l, i) => <a key={i} className="chip sky" href={l.url} target="_blank" rel="noreferrer">{l.label || "Link"} ↗</a>)}
             </div>
           ) : null}
+        </Card>
+
+        <Card className="s12" title="Mood board">
+          <MoodBoard projectId={project.id} initial={(moodRows ?? []) as MoodItem[]} google={!!google}
+            driveUrl={project.mood_folder_id ? driveFolderUrl(project.mood_folder_id) : null} />
         </Card>
 
         <Card className={hasMoney ? "s4" : "s6"} title="Schedule + deadlines" actions={
