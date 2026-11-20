@@ -140,7 +140,7 @@ label.pick .num:empty{display:none}
 @media(max-width:600px){.order li{width:calc(50% - 6px)}}
 
 /* Reel downloads */
-.dlbar{margin:8px 0 36px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.dlbar{margin:56px 0 36px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 .dlbar .enter{margin-top:0}
 .dllist{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px 22px;font-size:13px}
 .dllist a{color:var(--muted,#9a9a9a);text-decoration:none;border-bottom:1px solid var(--line)}
