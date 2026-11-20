@@ -6,6 +6,7 @@ import { adminDb } from "@/lib/supabase/admin";
 import { getMe } from "@/lib/data";
 import { hasServiceKey } from "@/lib/integrations";
 import { driveTrash, driveUploadFromUrl, getGoogle, moodFolder } from "@/lib/google";
+import { BROWSER_UA, linkPreview, publicUrl } from "@/lib/link-preview";
 import type { MoodItem } from "@/lib/types";
 
 async function guard() {
@@ -39,8 +40,8 @@ async function keepCopy(projectId: string, url: string): Promise<string> {
   if (!hasServiceKey()) return url;
   try {
     const u = new URL(url);
-    if (!/^https?:$/.test(u.protocol) || (PRIVATE_HOST.test(u.hostname) && !process.env.MOOD_ALLOW_LOCAL)) return url;
-    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(12000), headers: { "user-agent": UA, accept: "image/*" } });
+    if (!publicUrl(u)) return url;
+    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(12000), headers: { "user-agent": BROWSER_UA, accept: "image/*" } });
     const type = res.headers.get("content-type")?.split(";")[0] ?? "";
     if (!res.ok || !type.startsWith("image/")) return url;
     const bytes = Buffer.from(await res.arrayBuffer());
@@ -71,40 +72,16 @@ export async function addMoodImage(projectId: string, imageUrl: string, title: s
   return { item: data as MoodItem };
 }
 
-const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15";
-const PRIVATE_HOST = /^(localhost|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|0\.|\[?::1\]?$)|\.(internal|local)$/i;
-const attr = (tag: string, name: string) => tag.match(new RegExp(`\\s${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i"))?.slice(1).find((v) => v !== undefined) ?? "";
-const decode = (s: string) => s.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#0?39;|&rsquo;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\s+/g, " ").trim();
-
 /** A pasted or typed link: an image address goes straight on the board; a web page is shown by its preview image and title. */
 export async function addMoodLink(projectId: string, rawUrl: string, place: Place): Promise<{ item?: MoodItem; error?: string }> {
   const supabase = await guard();
   let url: URL;
   try { url = new URL(rawUrl.trim()); } catch { return { error: "That doesn't look like a web address." }; }
-  if (!/^https?:$/.test(url.protocol) || (PRIVATE_HOST.test(url.hostname) && !process.env.MOOD_ALLOW_LOCAL)) return { error: "That address can't be used." };
+  if (!publicUrl(url)) return { error: "That address can't be used." };
 
-  let image: string | null = null, title: string | null = null, kind: "image" | "link" = "link";
-  if (/\.(jpe?g|png|gif|webp|avif)(\?|$)/i.test(url.pathname)) { image = url.href; kind = "image"; }
-  else {
-    try {
-      const res = await fetch(url.href, {
-        cache: "no-store", signal: AbortSignal.timeout(8000),
-        headers: { "user-agent": UA, accept: "text/html,image/*;q=0.9,*/*;q=0.8" },
-      });
-      const type = res.headers.get("content-type") ?? "";
-      if (res.ok && type.startsWith("image/")) { image = url.href; kind = "image"; }
-      else if (res.ok) {
-        const html = (await res.text()).slice(0, 400_000);
-        const meta = (prop: string) => {
-          const tag = html.match(new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]*>`, "i"))?.[0];
-          return tag ? decode(attr(tag, "content")) : "";
-        };
-        const found = meta("og:image") || meta("og:image:secure_url") || meta("twitter:image") || meta("twitter:image:src");
-        if (found) { try { image = new URL(found, url.href).href; } catch { /* ignore a bad address */ } }
-        title = meta("og:title") || decode(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? "") || null;
-      }
-    } catch { /* the page couldn't be read: keep it as a plain link card */ }
-  }
+  const found = await linkPreview(url);
+  const { kind, title } = found;
+  let image = found.image;
   if (image) image = await keepCopy(projectId, image);
   const { data: rows, error } = await supabase.from("mood_items").insert({
     project_id: projectId, kind, image_url: image, source_url: kind === "link" ? url.href : null, title: title?.slice(0, 200) ?? null,
@@ -153,4 +130,24 @@ export async function syncMoodFolder(projectId: string): Promise<{ url?: string;
   } catch (e) {
     return { error: `Google Drive: ${(e as Error).message}` };
   }
+}
+
+/** Look again for a link's poster image and title (for cards that were added without one). */
+export async function refreshMoodLink(id: string, projectId: string): Promise<{ item?: MoodItem; error?: string }> {
+  const supabase = await guard();
+  const { data: before } = await supabase.from("mood_items").select("*").eq("id", id).maybeSingle();
+  const item = before as MoodItem | null;
+  if (!item?.source_url) return { error: "That item isn't a link." };
+  let url: URL;
+  try { url = new URL(item.source_url); } catch { return { error: "That link isn't valid." }; }
+  if (!publicUrl(url)) return { error: "That address can't be used." };
+  const found = await linkPreview(url);
+  if (!found.image) return { error: "That site doesn't share a preview image. Paste a screenshot instead." };
+  const image = await keepCopy(projectId, found.image);
+  const { data: rows, error } = await supabase.from("mood_items").update({ image_url: image, title: found.title?.slice(0, 200) ?? item.title }).eq("id", id).select();
+  const data = rows?.[0] as MoodItem | undefined;
+  if (error || !data) return { error: error?.message ?? "Couldn't update the link." };
+  if (!item.drive_file_id) mirrorToDrive(data);
+  refresh(projectId);
+  return { item: data };
 }

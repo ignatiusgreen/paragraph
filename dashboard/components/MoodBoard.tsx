@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { browserDb } from "@/lib/supabase/browser";
-import { addMoodImage, addMoodLink, deleteMoodItem, placeMoodItem, syncMoodFolder } from "@/app/(app)/mood-actions";
+import { addMoodImage, addMoodLink, deleteMoodItem, placeMoodItem, refreshMoodLink, syncMoodFolder } from "@/app/(app)/mood-actions";
 import type { MoodItem } from "@/lib/types";
 
 // The board is 1000 units wide whatever the screen, so an arrangement looks the same on every device.
@@ -88,6 +88,12 @@ export function MoodBoard({ projectId, initial, driveUrl, google }: { projectId:
     return () => document.removeEventListener("paste", onPaste);
   }, [addFiles, addLink]);
 
+  const refetch = async (i: MoodItem) => {
+    setWorking((n) => n + 1); setMsg("");
+    const res = await refreshMoodLink(i.id, projectId).catch((e) => ({ error: (e as Error).message, item: undefined }));
+    if (res.item) patch(i.id, { image_url: res.item.image_url, title: res.item.title }); else setMsg(res.error ?? "Couldn't find a preview.");
+    setWorking((n) => n - 1);
+  };
   const patch = (id: string, p: Partial<MoodItem>) => setItems((list) => list.map((i) => (i.id === id ? { ...i, ...p } : i)));
   const save = (id: string) => { const i = live.current.find((x) => x.id === id); if (i) placeMoodItem(id, { x: i.x, y: i.y, w: i.w, z: i.z }).catch(() => setMsg("Couldn't save that move. Check your connection.")); };
   const remove = (i: MoodItem) => { setItems((list) => list.filter((x) => x.id !== i.id)); deleteMoodItem(i.id, projectId).catch(() => setMsg("Couldn't remove that.")); };
@@ -176,6 +182,7 @@ export function MoodBoard({ projectId, initial, driveUrl, google }: { projectId:
                 : <div className="mood-noimg">{where || "Link"}</div>}
               {i.kind === "link" ? <div className="mood-cap"><strong>{label}</strong><span>{where}</span></div> : null}
               <div className="mood-tools" onPointerDown={(e) => e.stopPropagation()}>
+                {i.kind === "link" && !i.image_url ? <button type="button" onClick={() => refetch(i)} aria-label={`Look again for a preview image for ${label}`} title="Get preview image">↻</button> : null}
                 <a href={i.source_url ?? i.image_url ?? "#"} target="_blank" rel="noreferrer" aria-label={i.kind === "link" ? `Open ${where}` : "Open full size"} title={i.kind === "link" ? "Open link" : "Open full size"}>↗</a>
                 <button type="button" onClick={() => remove(i)} aria-label={`Remove ${label}`} title="Remove">×</button>
               </div>
