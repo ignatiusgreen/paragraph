@@ -334,7 +334,7 @@ export default async function Dashboard() {
           ) : <p className="small muted">None of the image sources returned anything just now. Check them in Settings, or pin your own with “+ Pin image”.</p>}
           <div className="row between" style={{ alignItems: "flex-start", flexWrap: "nowrap" }}>
             <p className="tiny muted grow">
-              No image repeats on the same day. Now showing: {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 6).join(", ") || "your pins"}.{startedOver ? " Everything has been shown once today, so the rotation started over." : ""}{silent.length ? ` ${silent.length} of ${sourceStatus.length} sources returned nothing (see Settings).` : ""} <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
+              Now showing: {[...new Set(inspiration.map((i) => i.credit.split(" · ").pop()))].slice(0, 6).join(", ") || "your pins"}.{startedOver ? " Everything has been shown once today, so the rotation started over." : ""}{silent.length ? ` ${silent.length} of ${sourceStatus.length} sources returned nothing (see Settings).` : ""} <Link href="/settings#inspiration">Choose sources</Link> · <a href="https://shotdeck.com/shots" target="_blank" rel="noreferrer">Open ShotDeck ↗</a>
             </p>
             <ShuffleButton />
           </div>
