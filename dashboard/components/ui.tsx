@@ -233,11 +233,16 @@ export function ProjectFields({ kind, project, clients, stage }: { kind: Kind; p
       <F label="Title" name="title" defaultValue={project?.title} required full={kind !== "client"} />
       {kind === "client" ? <F label="Client" name="client_id" options={clients.map((c) => ({ value: c.id, label: c.name }))} blank="Choose a client" defaultValue={project?.client_id} /> : null}
       <F label="Stage" name="stage" options={STAGES[kind]} defaultValue={project?.stage ?? stage ?? STAGES[kind][0].value} required />
-      <F label="Money expected by" name="expected_on" type="date" defaultValue={project?.expected_on} />
-      <F label={budget} name="budget" type="number" defaultValue={project?.budget} placeholder="0" />
-      <F label={costs} name="hard_costs" type="number" defaultValue={project?.hard_costs} placeholder="0" />
-      <F label="Invoiced so far" name="invoiced" type="number" defaultValue={project?.invoiced} placeholder="0" />
-      <F label="Odds of landing, % (if not booked)" name="probability" type="number" min={0} max={100} defaultValue={project?.probability} placeholder="e.g. 50" />
+      {/* Money fields are left off the new-project panel for documentary and narrative; they stay available under Edit project. */}
+      {kind === "client" || project ? (
+        <>
+          <F label="Money expected by" name="expected_on" type="date" defaultValue={project?.expected_on} />
+          <F label={budget} name="budget" type="number" defaultValue={project?.budget} placeholder="0" />
+          <F label={costs} name="hard_costs" type="number" defaultValue={project?.hard_costs} placeholder="0" />
+          <F label="Invoiced so far" name="invoiced" type="number" defaultValue={project?.invoiced} placeholder="0" />
+          <F label="Odds of landing, % (if not booked)" name="probability" type="number" min={0} max={100} defaultValue={project?.probability} placeholder="e.g. 50" />
+        </>
+      ) : null}
       <F label={kind === "client" ? "Brief" : "Logline"} name="logline" type="textarea" defaultValue={project?.logline} full rows={2} />
       <div className="full"><LinksField defaultValue={project?.links} label="Production documents + links" /></div>
       <div className="full"><ImageField name="image_url" label={kind === "client" ? "Thumbnail" : "Key art / thumbnail"} defaultValue={project?.image_url} folder="projects" /></div>
