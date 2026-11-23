@@ -667,3 +667,13 @@ input[type="checkbox"]:disabled { opacity: 0.5; cursor: default; }
 .mood-item:hover .mood-size, .mood-item:focus-within .mood-size { opacity: 1; }
 @media (hover: none) { .mood-tools, .mood-size { opacity: 1; } }
 @media (max-width: 720px) { .mood-cap strong { font-size: 11px; -webkit-line-clamp: 1; } .mood-cap span { display: none; } .mood-cap { padding: 4px 6px; } .mood-status { margin-left: 0; } }
+
+/* To-do panels: tasks finished in the last 7 days, greyed out below the open ones */
+.todo-done { display: flex; flex-direction: column; margin-top: 4px; padding-top: 10px; border-top: 1px dashed var(--line-strong, rgba(4, 27, 33, .25)); opacity: .6; }
+.todo-done:hover, .todo-done:focus-within { opacity: .9; }
+.todo-done-head { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.todo-col .todo-done .todo-card { padding: 7px 0; border-top: 0; }
+.todo-done .rowtitle { font-size: .92em; }
+.todo-done .chip, .todo-done .item .meta { filter: grayscale(1); }
+.todo-col.personal .todo-done-head { color: rgba(255, 255, 255, .8); }
+.todo-col.personal .todo-done { border-top-color: rgba(255, 255, 255, .4); }

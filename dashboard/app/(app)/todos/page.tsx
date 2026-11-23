@@ -8,7 +8,7 @@ import { getGoogle } from "@/lib/google";
 import { addDays, today } from "@/lib/format";
 import { KIND_LABEL, NEWBIZ, OPERATIONS, PERSONAL, REMINDERS, type Kind, type Todo } from "@/lib/types";
 
-type Column = { key: string; title: string; note?: string; tone?: string; todos: Todo[]; add: Record<string, string>; isNew?: boolean };
+type Column = { key: string; title: string; note?: string; tone?: string; todos: Todo[]; add: Record<string, string>; isNew?: boolean; done?: Todo[] };
 
 /** Soonest deadline first; to-dos with no deadline last. */
 const byDeadline = (a: Todo, b: Todo) => (a.due_date ?? "9999").localeCompare(b.due_date ?? "9999") || a.created_at.localeCompare(b.created_at);
@@ -22,20 +22,26 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
   const open = todos.filter((x) => !x.done);
   const done = todos.filter((x) => x.done).sort((a, b) => (b.done_at ?? "").localeCompare(a.done_at ?? "")).slice(0, 60);
 
+  // Finished in the last seven days: shown greyed out under the open to-dos of the panel they belong to.
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const recent = todos.filter((x) => x.done && (x.done_at ?? "") >= weekAgo).sort((a, b) => (b.done_at ?? "").localeCompare(a.done_at ?? ""));
+  const recentIn = (key: string) => recent.filter((x) => (x.project_id ? x.project_id === key : key === (x.category ?? "general")));
+
   // Urgent to-dos sit in their own column on the left; everything else is filed by project, then General and Personal.
   const rest = open.filter((x) => !x.urgent);
   const kinds: Kind[] = ["client", "documentary", "narrative"];
-  const columns = ([
+  const columns: Column[] = ([
     { key: "urgent", title: "Urgent", tone: "urgent", todos: open.filter((x) => x.urgent), add: { urgent: "on" } },
     ...kinds.flatMap((kind) => projects.filter((p) => p.kind === kind).map((p) => ({
       key: p.id, title: p.title, note: KIND_LABEL[kind], tone: `kind-${kind}`, todos: rest.filter((x) => x.project_id === p.id), add: { project_id: p.id },
       isNew: pinned.includes(p.id) && p.created_at.slice(0, 10) >= addDays(t, -14),
-    }))).filter((c) => c.todos.length || c.isNew), // a project started from this page keeps its empty column for two weeks
+    }))).filter((c) => c.todos.length || c.isNew || recentIn(c.key).length), // a project started from this page keeps its empty column for two weeks
     { key: "general", title: "General", note: "No project", todos: rest.filter((x) => !x.project_id && !x.category), add: { project_id: "" } },
     { key: "newbiz", title: "New Biz", note: "Leads", tone: "newbiz", todos: rest.filter((x) => !x.project_id && x.category === "newbiz"), add: { project_id: NEWBIZ } },
     { key: "operations", title: "Operations", note: "Business", todos: rest.filter((x) => !x.project_id && x.category === "operations"), add: { project_id: OPERATIONS } },
     { key: "personal", title: "Personal", tone: "personal", todos: rest.filter((x) => !x.project_id && x.category === "personal"), add: { project_id: PERSONAL } },
-  ] as Column[]).filter((c) => c.todos.length || ["urgent", "operations", "personal"].includes(c.key) || c.isNew);
+  ] as Column[]).map((c): Column => ({ ...c, done: c.key === "urgent" ? [] : recentIn(c.key) }))
+    .filter((c) => c.todos.length || c.done?.length || ["urgent", "operations", "personal"].includes(c.key) || c.isNew);
   // To-dos tagged to a project that has since been archived or deleted still need a home.
   const placed = new Set(columns.flatMap((c) => c.todos.map((x) => x.id)));
   const stray = open.filter((x) => !placed.has(x.id));
@@ -43,7 +49,7 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
 
   // Four stacks side by side. The first holds Urgent with Personal under it; every other panel goes onto
   // whichever stack is currently shortest, so the page fills evenly instead of running off to the right.
-  const size = (c: Column) => 1.6 + c.todos.length;
+  const size = (c: Column) => 1.6 + c.todos.length + (c.done?.length ? 0.6 + c.done.length * 0.8 : 0);
   const pick = (key: string) => columns.find((c) => c.key === key);
   const stacks: Column[][] = [[pick("urgent"), pick("personal")].filter((c): c is Column => !!c), [], [], []];
   const heights = stacks.map((st) => st.reduce((n, c) => n + size(c), 0));
@@ -120,13 +126,19 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
                   <TodoItem todo={x} projects={projects} hideProject={c.key !== "urgent" && c.key !== "other"} today={t} synced={!!google} />
                 </div>
               ))}
-              {!c.todos.length ? <span className="tiny muted">{c.key === "urgent" ? "Nothing urgent." : "Nothing here yet."}</span> : null}
+              {!c.todos.length ? <span className="tiny muted">{c.key === "urgent" ? "Nothing urgent." : c.done?.length ? "Nothing open." : "Nothing here yet."}</span> : null}
               <form action={saveRow} className="todo-add">
                 <input type="hidden" name="_table" value="todos" />
                 <input type="hidden" name="_bools" value="urgent" />
                 {Object.entries(c.add).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
                 <input name="title" required placeholder="+ Add task" aria-label={`Add a to-do to ${c.title}`} />
               </form>
+              {c.done?.length ? (
+                <div className="todo-done" role="group" aria-label={`Completed in the last 7 days: ${c.done.length}`}>
+                  <span className="todo-done-head">Completed · last 7 days</span>
+                  {c.done.map((x) => <div className="todo-card" key={x.id}><TodoItem todo={x} projects={projects} hideProject today={t} synced={!!google} /></div>)}
+                </div>
+              ) : null}
             </section>
           ))}
             </div>
