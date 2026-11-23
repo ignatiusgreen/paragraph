@@ -313,14 +313,14 @@ body{display:flex;flex-direction:column;min-height:100%;height:auto}
     if(r.status==='open'){
       if(r.request_status==='pending'||sent)bar.appendChild(h('span',{class:'msg',text:'Request to make notes sent. You’ll be able to comment once it’s approved.'}));
       else if(r.request_status==='declined')bar.appendChild(h('span',{class:'msg',text:'Notes weren’t enabled on this video.'}));
-      else bar.appendChild(h('button',{class:'ask',type:'button',text:'Request to make notes on this video',onclick:askDlg}));
+      else bar.appendChild(h('button',{class:'ask',type:'button',text:'Video Feedback Mode',onclick:askDlg}));
     }
     if(r.status==='open'&&r.download_url)bar.appendChild(h('a',{class:'btn pri',href:r.download_url,rel:'noopener',download:'',text:'Download video',onclick:function(){try{sessionStorage.removeItem('pgt_download_'+token);}catch(e){}track('download');}}));
     wrap.appendChild(bar);app.appendChild(wrap);
   }
   function askDlg(){
     var n=h('input',{class:'field',placeholder:'Your name',value:store('name'),maxlength:'80'}),e=h('input',{class:'field',type:'email',placeholder:'Email',value:store('email'),maxlength:'160'}),t=h('textarea',{class:'field',placeholder:'Anything you’d like to add? (optional)',maxlength:'600'}),m=h('span',{class:'msg'});
-    var o=h('div',{class:'ov'},[h('div',{class:'md'},[h('h3',{text:'Request to make notes'}),h('p',{text:'Paragraph will approve your request, and then this page becomes a review page where you can leave timecoded notes.'}),
+    var o=h('div',{class:'ov'},[h('div',{class:'md'},[h('h3',{text:'Video Feedback Mode'}),h('p',{text:'Paragraph will approve your request, and then this page becomes a review page where you can leave timecoded notes.'}),
       h('div',{class:'stack'},[n,e,t]),
       h('div',{class:'btns'},[h('button',{class:'btn pri',type:'button',text:'Send request',onclick:function(){
         if(!n.value.trim()){m.textContent='Please add your name.';m.className='msg err';return;}
