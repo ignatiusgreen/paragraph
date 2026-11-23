@@ -11,6 +11,28 @@ module.exports = async function handler(req, res) {
     const url = new URL(req.url, 'http://x');
 
     if (req.method === 'GET') {
+      if (url.searchParams.get('analytics')) {   // views, plays and downloads for the last 30 days
+        const since = new Date(Date.now() - 30 * 86400000).toISOString();
+        const [reviews, projects, notes, views] = await Promise.all([
+          db('GET', 'reviews?select=id,title,label,kind,project_id&order=created_at.desc&limit=500'),
+          db('GET', 'review_projects?select=id,name&limit=300'),
+          db('GET', 'review_notes?select=review_id,resolved,parent_id&limit=5000'),
+          db('GET', 'review_views?select=review_id,event,created_at&created_at=gte.' + enc(since) + '&limit=20000'),
+        ]);
+        const pn = {}; projects.forEach((p) => { pn[p.id] = p.name; });
+        const by = {}; reviews.forEach((r) => { by[r.id] = { id: r.id, title: r.title, label: r.label, kind: r.kind, project: r.project_id ? pn[r.project_id] || null : null, views: 0, plays: 0, downloads: 0, open: 0 }; });
+        notes.forEach((n) => { const r = by[n.review_id]; if (r && !n.parent_id && !n.resolved) r.open++; });
+        const days = []; const idx = {};
+        for (let i = 29; i >= 0; i--) { const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10); idx[d] = days.length; days.push({ d, views: 0 }); }
+        const tot = { views: 0, plays: 0, downloads: 0 };
+        views.forEach((v) => {
+          const r = by[v.review_id]; if (!r) return;
+          if (v.event === 'view') { r.views++; tot.views++; const k = idx[String(v.created_at).slice(0, 10)]; if (k !== undefined) days[k].views++; }
+          else if (v.event === 'play') { r.plays++; tot.plays++; }
+          else if (v.event === 'download') { r.downloads++; tot.downloads++; }
+        });
+        return send(res, 200, { totals: tot, days, videos: Object.values(by).sort((x, y) => y.views - x.views || y.plays - x.plays) });
+      }
       if (url.searchParams.get('vimeo')) {   // owner-only: every video in the Vimeo library with its best download link (links expire after a few hours)
         const token = process.env.VIMEO_TOKEN;
         if (!token) return send(res, 503, { error: 'VIMEO_TOKEN isn’t set in Vercel.' });
