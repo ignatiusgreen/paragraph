@@ -26,6 +26,7 @@
       if (/flourish\.html/.test(lk.getAttribute('href'))) lab = 'View series';   // documentary series
       if (lab !== dot._lab) { dot._lab = lab; dot.firstChild.innerHTML = lab.replace(' ', '<br>'); }
     }
+    dot.classList.toggle('zoom', !!(t.closest && t.closest('.pz-trigger')));   // image that opens full screen: plus sign
     dot.classList.toggle('go', isGo);
     dot.classList.toggle('play', onMedia || vp);                       // over a film or project: open ring with a play triangle
     dot.classList.toggle('hide', !onMedia && !vp && !!(t.closest && t.closest('iframe, video[controls]')));
