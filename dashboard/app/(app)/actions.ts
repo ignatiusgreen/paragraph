@@ -42,6 +42,12 @@ export async function saveRow(f: FormData) {
 
   if (table === "todos") {
     // The project picker also offers "Operations" and "Personal": no project, but filed under that column.
+    // "+ Create Project" in the picker: make the project first, then file the to-do under it.
+    if (f.get("project_id") === "__new") {
+      const made = await createProject(supabase, String(f.get("new_project_title") ?? "").trim(), String(f.get("new_project_kind")) as Kind);
+      if (!made.id) { await flash(made.error!); return refresh(); }
+      row.project_id = made.id;
+    }
     if ("project_id" in row) {
       const list = TODO_LISTS[String(row.project_id)];
       row.category = list?.category ?? null;
@@ -233,17 +239,22 @@ export async function saveDashboardLayout(layout: { id: string; span: string }[]
 }
 
 /** "New project" on the To-dos page: a title and a type are enough; an optional first to-do goes into its column. */
-export async function createProjectFromTodos(f: FormData) {
-  const supabase = await guard();
-  const title = String(f.get("title") ?? "").trim();
-  const kind = String(f.get("kind")) as Kind;
-  if (!title || !STAGES[kind]) { await flash("Give the project a name and a type."); return refresh(); }
+/** Start a project in the first stage of its type, and remember it so its to-do column shows even while empty. */
+async function createProject(supabase: Awaited<ReturnType<typeof guard>>, title: string, kind: Kind): Promise<{ id?: string; error?: string }> {
+  if (!title || !STAGES[kind]) return { error: "Give the project a name and a type." };
   const { data, error } = await supabase.from("projects").insert({ kind, title, stage: STAGES[kind][0].value }).select("id").maybeSingle();
-  if (error || !data) { await flash(`Couldn't create the project: ${error?.message ?? "unknown error"}`); return refresh(); }
-  // Remember that this project was started from the board, so its column shows even before it has a to-do.
+  if (error || !data) return { error: `Couldn't create the project: ${error?.message ?? "unknown error"}` };
   const { data: pinned } = await supabase.from("settings").select("value").eq("key", "todo_board_projects").maybeSingle();
   const ids = [...(Array.isArray(pinned?.value) ? (pinned.value as string[]) : []), data.id].slice(-50);
   await supabase.from("settings").upsert({ key: "todo_board_projects", value: ids, updated_at: new Date().toISOString() });
+  return { id: data.id as string };
+}
+
+export async function createProjectFromTodos(f: FormData) {
+  const supabase = await guard();
+  const made = await createProject(supabase, String(f.get("title") ?? "").trim(), String(f.get("kind")) as Kind);
+  if (!made.id) { await flash(made.error!); return refresh(); }
+  const data = { id: made.id };
   const first = String(f.get("todo_title") ?? "").trim();
   if (first) {
     const r = await saveTodo(supabase, null, { title: first, project_id: data.id }, await getTz());

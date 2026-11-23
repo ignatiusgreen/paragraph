@@ -355,3 +355,49 @@ export function ScrollList({ show, label, children }: { show: number; label: str
     </div>
   );
 }
+
+/** Project pull-down for a to-do. Its first choice, "+ Create Project", reveals a name and type so a new project is made along with the to-do. */
+export function ProjectPicker({ options, defaultValue, kinds, label = "Project" }: {
+  options: { value: string; label: string; group?: string }[]; defaultValue?: string | null; kinds: { value: string; label: string }[]; label?: string;
+}) {
+  const NEW = "__new";
+  const [value, setValue] = useState(defaultValue ?? "");
+  const select = useRef<HTMLSelectElement>(null);
+  const name = useRef<HTMLInputElement>(null);
+  const groups = [...new Set(options.map((o) => o.group))];
+  // The form clears itself after saving; go back to the plain pull-down when it does.
+  useEffect(() => {
+    const form = select.current?.form;
+    const reset = () => setValue(defaultValue ?? "");
+    form?.addEventListener("reset", reset);
+    return () => form?.removeEventListener("reset", reset);
+  }, [defaultValue]);
+  useEffect(() => { if (value === NEW) name.current?.focus(); }, [value]);
+  return (
+    <>
+      <div className="field">
+        <label htmlFor="pp-project">{label}</label>
+        <select ref={select} id="pp-project" name="project_id" value={value} onChange={(e) => setValue(e.target.value)}>
+          <option value={NEW}>+ Create Project</option>
+          <option value="">No project</option>
+          {groups.map((g) => {
+            const opts = options.filter((o) => o.group === g).map((o) => <option key={o.value} value={o.value}>{o.label}</option>);
+            return g ? <optgroup key={g} label={g}>{opts}</optgroup> : opts;
+          })}
+        </select>
+      </div>
+      {value === NEW ? (
+        <>
+          <div className="field">
+            <label htmlFor="pp-name">New project name</label>
+            <input ref={name} id="pp-name" name="new_project_title" required placeholder="Project name" />
+          </div>
+          <div className="field">
+            <label htmlFor="pp-kind">Type</label>
+            <select id="pp-kind" name="new_project_kind" defaultValue="narrative">{kinds.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}</select>
+          </div>
+        </>
+      ) : null}
+    </>
+  );
+}

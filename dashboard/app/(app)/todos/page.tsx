@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { loadPrivacy } from "@/lib/privacy";
 import { Card, Check, Empty, F, PageHead, TodoItem, todoProjectOptions } from "@/components/ui";
-import { Modal, Submit } from "@/components/client";
+import { Modal, ProjectPicker, Submit } from "@/components/client";
 import { createProjectFromTodos, saveRow } from "@/app/(app)/actions";
 import { getProjects, getSettings, getTodos, getTz } from "@/lib/data";
 import { getGoogle } from "@/lib/google";
@@ -73,7 +73,7 @@ export default async function Todos({ searchParams }: { searchParams: Promise<{ 
           <input type="hidden" name="_table" value="todos" />
           <input type="hidden" name="_bools" value="urgent" />
           <div className="field wide"><label htmlFor="q-title">To-do</label><input id="q-title" name="title" required placeholder="What needs doing?" /></div>
-          <F label="Project" name="project_id" options={todoProjectOptions(projects)} blank="No project" />
+          <ProjectPicker options={todoProjectOptions(projects)} kinds={(["client", "documentary", "narrative"] as Kind[]).map((k) => ({ value: k, label: KIND_LABEL[k] }))} />
           <F label="Deadline" name="due_date" type="date" />
           <F label="Time" name="due_time" type="time" />
           <F label="Reminder" name="remind_minutes" options={REMINDERS} blank="None" />
