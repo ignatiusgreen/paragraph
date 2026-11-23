@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Review — Paragraph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@400;500;600;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/archive.css">
+<style>
+main.rv{display:block;padding:clamp(28px,4vw,56px) clamp(16px,3vw,40px) 80px;max-width:1500px;width:100%;margin:0 auto}
+.rv .top{margin-bottom:26px}
+.rv h1{margin:10px 0 0;font-size:clamp(30px,3.4vw,52px);text-align:left}
+.rv .sub{color:var(--muted);margin-top:6px}
+.rv .cols{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr);gap:clamp(20px,3vw,44px);align-items:start}
+.stage video{display:block;width:100%;background:#000;aspect-ratio:16/9;outline:none}
+.strip{position:relative;height:22px;margin-top:10px;background:#161513;border:1px solid var(--line);cursor:pointer}
+.strip i{position:absolute;top:3px;bottom:3px;width:4px;margin-left:-2px;background:var(--accent);cursor:pointer}
+.strip i.done{background:#5a5750}
+.strip .head{position:absolute;top:0;bottom:0;width:1px;background:var(--fg);pointer-events:none}
+.strip-note{font-size:14px;color:var(--muted);margin-top:6px}
+.compose{margin-top:26px;border-top:1px solid var(--line);padding-top:22px}
+.who{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.who input,.compose textarea,.reply textarea{background:#121110;border:1px solid var(--line);color:var(--fg);font:inherit;font-size:17px;padding:11px 13px;outline:none;border-radius:0;width:100%}
+.who input{flex:1 1 200px;width:auto}
+.who input:focus,.compose textarea:focus,.reply textarea:focus{border-color:#6a665f}
+.compose textarea{min-height:104px;resize:vertical;line-height:1.35}
+.crow{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:12px}
+.crow .enter{margin-top:0}
+.crow label{font-size:15px;color:var(--muted);display:flex;gap:8px;align-items:center;cursor:pointer}
+.msg{font-size:15px;color:var(--muted)}
+.msg.err{color:var(--error)}
+.closed{border:1px solid var(--line);padding:14px 16px;color:var(--muted);margin-top:22px}
+.notes h2{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;justify-content:space-between}
+.nlist{display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 150px);overflow:auto;padding-right:4px}
+.note{border:1px solid var(--line);padding:14px 16px;background:#0e0d0c}
+.note.done{opacity:.55}
+.note.cur{border-color:var(--accent)}
+.nh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:15px}
+.tc{background:var(--accent);color:#fff;border:0;font:inherit;font-size:13px;font-weight:800;letter-spacing:.06em;padding:3px 8px;cursor:pointer}
+.tc.gen{background:#2a2927;color:var(--muted);cursor:default}
+.nh b{font-weight:800}
+.nh .when{color:var(--muted);font-size:14px}
+.team{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);padding:1px 6px}
+.res{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:1px 6px}
+.nb{margin-top:8px;white-space:pre-wrap;word-wrap:break-word;line-height:1.35;font-size:18px}
+.replies{margin:12px 0 0 12px;padding-left:14px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.rbtn{margin-top:10px;background:none;border:0;color:var(--muted);font:inherit;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:0}
+.rbtn:hover{color:var(--fg)}
+.reply{margin-top:10px}
+.reply textarea{min-height:70px;font-size:16px}
+.reply .crow{margin-top:8px}
+.empty{color:var(--muted);padding:6px 0}
+.fail{text-align:center;padding:90px 0}
+@media(max-width:900px){.rv .cols{grid-template-columns:1fr}.nlist{max-height:none}}
+</style>
+</head>
+<body>
+<header>
+  <a class="mark" href="/index.html" aria-label="Paragraph home"><img src="https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w" alt=""></a>
+  <nav><a href="/film-tv.html">Film &amp; TV</a><a href="/branded.html">Branded</a><a href="/about.html">About</a></nav>
+</header>
+<main class="rv" id="app"><p class="muted" style="text-align:center;padding:90px 0">Loading…</p></main>
+<script>
+(function(){
+  var token=(location.pathname.match(/\/review\/r\/([^\/?#]+)/)||[])[1]||'';
+  var app=document.getElementById('app');
+  var state={review:null,notes:[],duration:0,replyOpen:null};
+  function el(t,c,txt){var e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;}
+  function mmss(s){s=Math.max(0,Math.floor(s));var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');}
+  function ago(iso){var d=(Date.now()-new Date(iso).getTime())/1000;if(d<60)return 'just now';if(d<3600)return Math.floor(d/60)+' min ago';if(d<86400)return Math.floor(d/3600)+' hr ago';return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric'});}
+  function store(k,v){try{if(v===undefined)return localStorage.getItem('pgr_'+k)||'';localStorage.setItem('pgr_'+k,v);}catch(e){return '';}}
+  function api(method,body){
+    return fetch('/api/review'+(method==='GET'?'?token='+encodeURIComponent(token):''),{method:method,headers:{'Content-Type':'application/json'},body:method==='GET'?undefined:JSON.stringify(body)})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Something went wrong.');return j;});});
+  }
+  function fail(msg){app.innerHTML='';var d=el('div','fail');d.appendChild(el('div','label','Review'));var h=el('h1',null,'This link isn’t working');h.style.textAlign='center';d.appendChild(h);d.appendChild(el('p','muted',msg));app.appendChild(d);}
+
+  var video,strip,stripNote,listEl,countEl,tcBtn,noteBox,genBox,msgEl,nameIn,emailIn;
+
+  function build(){
+    var r=state.review;document.title=r.title+' — Review — Paragraph';
+    app.innerHTML='';
+    var top=el('div','top');top.appendChild(el('div','label','Review'+(r.client?' · '+r.client:'')));top.appendChild(el('h1',null,r.title));
+    app.appendChild(top);
+    var cols=el('div','cols');app.appendChild(cols);
+    var stage=el('div','stage');cols.appendChild(stage);
+    video=document.createElement('video');video.controls=true;video.playsInline=true;video.preload='metadata';video.setAttribute('controlsList','nodownload');video.src=r.video_url;
+    stage.appendChild(video);
+    strip=el('div','strip');strip.title='Click to jump. Marks show where notes are.';stage.appendChild(strip);
+    stripNote=el('div','strip-note','');stage.appendChild(stripNote);
+    video.addEventListener('error',function(){stripNote.textContent='This video didn’t load. Try refreshing, or let Paragraph know.';stripNote.style.color='var(--error)';});
+    video.addEventListener('loadedmetadata',function(){state.duration=video.duration||0;marks();});
+    video.addEventListener('timeupdate',tick);video.addEventListener('seeked',tick);
+    strip.addEventListener('click',function(e){if(e.target.tagName==='I')return;var b=strip.getBoundingClientRect();if(state.duration)video.currentTime=state.duration*(e.clientX-b.left)/b.width;});
+
+    if(r.status!=='open'){stage.appendChild(el('div','closed','This review is closed. You can read the notes, but new notes can’t be added.'));}
+    else{
+      var c=el('div','compose');stage.appendChild(c);
+      var who=el('div','who');
+      nameIn=el('input');nameIn.placeholder='Your name';nameIn.autocomplete='name';nameIn.value=store('name');nameIn.maxLength=80;
+      emailIn=el('input');emailIn.placeholder='Email (optional)';emailIn.type='email';emailIn.autocomplete='email';emailIn.value=store('email');emailIn.maxLength=160;
+      who.appendChild(nameIn);who.appendChild(emailIn);c.appendChild(who);
+      noteBox=el('textarea');noteBox.placeholder='Write a note about the moment you’re watching…';noteBox.maxLength=3000;c.appendChild(noteBox);
+      noteBox.addEventListener('focus',function(){if(!video.paused&&!genBox.checked)video.pause();tick();});
+      noteBox.addEventListener('keydown',function(e){if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();submit();}});
+      var row=el('div','crow');
+      tcBtn=el('button','enter','Add note at 0:00');tcBtn.type='button';tcBtn.addEventListener('click',submit);row.appendChild(tcBtn);
+      var lab=el('label');genBox=el('input');genBox.type='checkbox';lab.appendChild(genBox);lab.appendChild(document.createTextNode(' General note (not tied to a time)'));row.appendChild(lab);
+      genBox.addEventListener('change',tick);
+      msgEl=el('span','msg','');row.appendChild(msgEl);c.appendChild(row);
+    }
+    var side=el('div','notes');cols.appendChild(side);
+    var h=el('h2');h.appendChild(el('span',null,'Notes'));countEl=el('span',null,'');h.appendChild(countEl);side.appendChild(h);
+    listEl=el('div','nlist');side.appendChild(listEl);
+    render();marks();tick();
+  }
+
+  function tops(){return state.notes.filter(function(n){return !n.parent_id;}).sort(function(a,b){
+    var ta=a.timecode==null,tb=b.timecode==null;if(ta!==tb)return ta?1:-1;if(!ta&&a.timecode!==b.timecode)return a.timecode-b.timecode;return new Date(a.created_at)-new Date(b.created_at);});}
+
+  function marks(){
+    if(!strip)return;strip.innerHTML='';var d=state.duration;if(!d)return;
+    tops().forEach(function(n){if(n.timecode==null)return;var i=document.createElement('i');i.style.left=Math.min(100,n.timecode/d*100)+'%';if(n.resolved)i.className='done';i.title=mmss(n.timecode)+' · '+n.author_name;
+      i.addEventListener('click',function(e){e.stopPropagation();video.currentTime=n.timecode;});strip.appendChild(i);});
+    var hd=el('div','head');hd.id='head';strip.appendChild(hd);
+  }
+
+  function tick(){
+    var t=video.currentTime||0;
+    if(tcBtn){tcBtn.textContent=genBox&&genBox.checked?'Add general note':'Add note at '+mmss(t);}
+    var hd=document.getElementById('head');if(hd&&state.duration)hd.style.left=(t/state.duration*100)+'%';
+    var cur=null;tops().forEach(function(n){if(n.timecode!=null&&n.timecode<=t&&t-n.timecode<6)cur=n.id;});
+    [].forEach.call(listEl.querySelectorAll('.note[data-id]'),function(e){e.classList.toggle('cur',e.getAttribute('data-id')===cur);});
+  }
+
+  function noteEl(n,isReply){
+    var e=el('div','note'+(n.resolved?' done':''));e.setAttribute('data-id',n.id);
+    var h=el('div','nh');
+    if(!isReply){var b=el('button','tc',n.timecode==null?'General':mmss(n.timecode));b.type='button';if(n.timecode==null){b.className='tc gen';b.disabled=true;}else b.addEventListener('click',function(){video.currentTime=n.timecode;video.scrollIntoView({block:'nearest',behavior:'smooth'});});h.appendChild(b);}
+    h.appendChild(el('b',null,n.author_name));if(n.is_team)h.appendChild(el('span','team','Paragraph'));
+    h.appendChild(el('span','when',ago(n.created_at)));if(n.resolved)h.appendChild(el('span','res','Resolved'));
+    e.appendChild(h);e.appendChild(el('div','nb',n.body));
+    if(!isReply){
+      var kids=state.notes.filter(function(k){return k.parent_id===n.id;});
+      if(kids.length){var rp=el('div','replies');kids.forEach(function(k){rp.appendChild(noteEl(k,true));});e.appendChild(rp);}
+      if(state.review.status==='open'){
+        if(state.replyOpen===n.id){
+          var f=el('div','reply');var ta=el('textarea');ta.placeholder='Reply…';ta.maxLength=3000;f.appendChild(ta);
+          var r=el('div','crow');var go=el('button','enter','Reply');go.type='button';var cx=el('button','enter ghost','Cancel');cx.type='button';var m=el('span','msg','');
+          go.addEventListener('click',function(){send({body:ta.value,parent_id:n.id},m,function(){state.replyOpen=null;});});
+          cx.addEventListener('click',function(){state.replyOpen=null;render();});
+          r.appendChild(go);r.appendChild(cx);r.appendChild(m);f.appendChild(r);e.appendChild(f);setTimeout(function(){ta.focus();},0);
+        }else{var rb=el('button','rbtn','Reply');rb.type='button';rb.addEventListener('click',function(){state.replyOpen=n.id;render();});e.appendChild(rb);}
+      }
+    }
+    return e;
+  }
+
+  function render(){
+    if(!listEl)return;var keep=listEl.scrollTop;listEl.innerHTML='';var t=tops();
+    countEl.textContent=t.length?t.length+(t.length===1?' note':' notes'):'';
+    if(!t.length)listEl.appendChild(el('div','empty','No notes yet. Pause the video where you have a thought and write it below.'));
+    t.forEach(function(n){listEl.appendChild(noteEl(n,false));});listEl.scrollTop=keep;tick();
+  }
+
+  function send(payload,msg,done){
+    var name=(nameIn.value||'').trim();
+    if(!name){msg.textContent='Please add your name first.';msg.className='msg err';nameIn.focus();return;}
+    if(!(payload.body||'').trim()){msg.textContent='Write a note first.';msg.className='msg err';return;}
+    store('name',name);store('email',(emailIn.value||'').trim());
+    msg.textContent='Sending…';msg.className='msg';
+    api('POST',Object.assign({token:token,name:name,email:(emailIn.value||'').trim()},payload)).then(function(j){
+      state.notes.push(j.note);if(done)done();msg.textContent='';render();marks();
+    }).catch(function(e){msg.textContent=e.message;msg.className='msg err';});
+  }
+
+  function submit(){
+    var gen=genBox.checked;
+    send({body:noteBox.value,timecode:gen?null:Math.round((video.currentTime||0)*10)/10},msgEl,function(){noteBox.value='';});
+  }
+
+  function poll(){
+    if(document.hidden)return;
+    api('GET').then(function(j){
+      var open=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('.reply');
+      var changed=JSON.stringify(j.notes.map(function(n){return [n.id,n.resolved];}))!==JSON.stringify(state.notes.map(function(n){return [n.id,n.resolved];}));
+      state.review=j.review;if(changed&&!open){state.notes=j.notes;render();marks();}
+    }).catch(function(){});
+  }
+
+  if(!token)return fail('The link looks incomplete. Please ask Paragraph for a new one.');
+  api('GET').then(function(j){state.review=j.review;state.notes=j.notes;build();setInterval(poll,20000);}).catch(function(e){fail(e.message);});
+})();
+</script>
+</body></html>

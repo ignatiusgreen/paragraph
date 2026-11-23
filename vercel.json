@@ -328,6 +328,14 @@
     {
       "source": "/archive/uberville",
       "destination": "/archive-uberville.html"
+    },
+    {
+      "source": "/review/admin",
+      "destination": "/review-admin.html"
+    },
+    {
+      "source": "/review/r/:token",
+      "destination": "/review.html"
     }
   ],
   "headers": [
@@ -350,6 +358,19 @@
         {
           "key": "Cache-Control",
           "value": "private, max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/review(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-cache"
         }
       ]
     }

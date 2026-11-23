@@ -7,7 +7,7 @@
 // Social Machines pitch (/social-machines) is private too, with its own sign-in.
 // Its password is SOCIAL_MACHINES_PASSWORD in Vercel; until that is set it uses ARCHIVE_PASSWORD.
 // Password for /social-machines is OFF for now. To turn it back on, add '/social-machines', '/social-machines/(.*)' to the matcher.
-export const config = { matcher: ['/archive(.*)'] };
+export const config = { matcher: ['/archive(.*)', '/review/admin', '/review/admin/(.*)', '/api/review-admin'] };
 
 const FULL = 'pg_archive';      // cookie: signed in with the password
 const GRANT = 'pg_share';       // cookie: projects opened from shared links
@@ -473,6 +473,13 @@ export default async function middleware(request) {
   const path = url.pathname;
   const fullToken = await sha('paragraph-archive:' + password);
   const isFull = readCookie(request, FULL) === fullToken;
+
+  // Review Portal owner side: needs the same password as the archive. (Reviewers use /review/r/<token>, which is not gated here.)
+  if (path === '/review/admin' || path.startsWith('/review/admin/') || path === '/api/review-admin') {
+    if (isFull) return;
+    if (path === '/api/review-admin') return new Response(JSON.stringify({ error: 'Please sign in again.' }), { status: 401, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+    return signInOr(request, url, password, fullToken);
+  }
 
   // Sign out
   if (path === '/archive-logout') {

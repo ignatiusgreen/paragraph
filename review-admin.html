@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Reviews — Paragraph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@400;500;600;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/archive.css">
+<style>
+main.ra{display:block;padding:clamp(28px,4vw,56px) clamp(16px,3vw,40px) 90px;max-width:1100px;width:100%;margin:0 auto}
+.ra h1{text-align:left;margin:10px 0 28px;font-size:clamp(32px,3.6vw,56px)}
+.ra .bar2{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:26px}
+.ra .enter{margin-top:0}
+.ra .sm{font-size:12px;padding:9px 14px}
+.form{border:1px solid var(--line);padding:20px;margin-bottom:28px;display:none;gap:12px;flex-direction:column}
+.form.on{display:flex}
+.ra input[type=text],.ra input[type=url],.ra textarea{background:#121110;border:1px solid var(--line);color:var(--fg);font:inherit;font-size:17px;padding:11px 13px;outline:none;border-radius:0;width:100%;text-align:left;letter-spacing:0}
+.ra input:focus,.ra textarea:focus{border-color:#6a665f}
+.form .hint{color:var(--muted);font-size:15px}
+.rev{border:1px solid var(--line);margin-bottom:14px;background:#0e0d0c}
+.rh{display:flex;gap:16px;align-items:center;padding:16px 18px;cursor:pointer;flex-wrap:wrap}
+.rh .t{flex:1 1 260px}
+.rh .t b{font-size:22px;font-weight:800;display:block}
+.rh .t span{color:var(--muted);font-size:15px}
+.pill{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);padding:2px 8px}
+.pill.closed{border-color:var(--line);color:var(--muted)}
+.cnt{font-size:15px;color:var(--muted)}
+.cnt b{color:var(--fg)}
+.rb{display:none;border-top:1px solid var(--line);padding:18px}
+.rev.open .rb{display:block}
+.linkrow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.linkrow input{flex:1 1 300px;width:auto}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.n{border-top:1px solid var(--line);padding:12px 0}
+.n.done .nb{opacity:.5;text-decoration:line-through}
+.nh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:15px}
+.tc{background:var(--accent);color:#fff;font-size:13px;font-weight:800;letter-spacing:.06em;padding:3px 8px}
+.tc.gen{background:#2a2927;color:var(--muted)}
+.nb{margin-top:6px;white-space:pre-wrap;word-wrap:break-word;font-size:18px;line-height:1.35}
+.ni{margin-left:22px;padding-left:12px;border-left:1px solid var(--line)}
+.na{display:flex;gap:14px;margin-top:8px}
+.na button{background:none;border:0;color:var(--muted);font:inherit;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:0}
+.na button:hover{color:var(--fg)}
+.na .del:hover{color:var(--error)}
+.rpl{display:flex;gap:10px;margin-top:10px}
+.rpl input{flex:1}
+.msg{font-size:15px;color:var(--muted)}
+.msg.err{color:var(--error)}
+.empty{color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <a class="mark" href="/index.html" aria-label="Paragraph home"><img src="https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w" alt=""></a>
+  <nav><a href="/archive">Archive</a><a href="/archive-logout">Sign out</a></nav>
+</header>
+<main class="ra">
+  <div class="label">Review portal</div>
+  <h1>Reviews, <em>and the notes on them.</em></h1>
+  <div class="bar2"><button class="enter" id="new" type="button">New review</button><span class="msg" id="top"></span></div>
+  <div class="form" id="form">
+    <input type="text" id="f-title" placeholder="Title (e.g. Nike — Cutdown v3)" maxlength="140">
+    <input type="text" id="f-client" placeholder="Client or studio (optional)" maxlength="140">
+    <input type="url" id="f-url" placeholder="Direct link to the MP4 video (https://…)">
+    <div class="hint">The link must go straight to a video file. Dropbox share links work: paste the normal share link and it’s converted for you. Dropbox is fine for a few reviewers; for bigger audiences use a host like Cloudflare R2, Bunny or Vercel Blob.</div>
+    <div class="bar2" style="margin:0"><button class="enter" id="create" type="button">Create review</button><button class="enter ghost" id="cancel" type="button">Cancel</button><span class="msg" id="fmsg"></span></div>
+  </div>
+  <div id="list"><p class="empty">Loading…</p></div>
+</main>
+<script>
+(function(){
+  var list=document.getElementById('list'),topMsg=document.getElementById('top'),openId=null,revs=[],notes={};
+  function el(t,c,txt){var e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;}
+  function mmss(s){s=Math.floor(s);var m=Math.floor(s/60);return m+':'+String(s%60).padStart(2,'0');}
+  function ago(iso){var d=(Date.now()-new Date(iso).getTime())/1000;if(d<60)return 'just now';if(d<3600)return Math.floor(d/60)+' min ago';if(d<86400)return Math.floor(d/3600)+' hr ago';return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric'});}
+  function call(method,body,q){return fetch('/api/review-admin'+(q||''),{method:method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Something went wrong.');return j;});});}
+  function linkFor(r){return location.origin+'/review/r/'+r.token;}
+  function copy(text,btn){(navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1500);}).catch(function(){window.prompt('Copy this:',text);});}
+
+  function load(){call('GET').then(function(j){revs=j.reviews;draw();}).catch(function(e){list.innerHTML='';list.appendChild(el('p','msg err',e.message));});}
+
+  function draw(){
+    list.innerHTML='';
+    if(!revs.length){list.appendChild(el('p','empty','No reviews yet. Click “New review” to make your first.'));return;}
+    revs.forEach(function(r){
+      var box=el('div','rev'+(openId===r.id?' open':''));
+      var h=el('div','rh');
+      var t=el('div','t');t.appendChild(el('b',null,r.title));t.appendChild(el('span',null,(r.client?r.client+' · ':'')+'created '+ago(r.created_at)));h.appendChild(t);
+      h.appendChild(el('span','pill'+(r.status==='open'?'':' closed'),r.status==='open'?'Open':'Closed'));
+      var c=el('span','cnt');c.innerHTML='<b></b> open · <b></b> resolved';c.children[0].textContent=r.open;c.children[1].textContent=r.done;h.appendChild(c);
+      h.addEventListener('click',function(){openId=openId===r.id?null:r.id;if(openId&&!notes[r.id])fetchNotes(r.id);draw();});
+      box.appendChild(h);
+      if(openId===r.id)box.appendChild(body(r));
+      list.appendChild(box);
+    });
+  }
+
+  function fetchNotes(id){call('GET',null,'?id='+id).then(function(j){notes[id]=j.notes;draw();}).catch(function(e){topMsg.textContent=e.message;topMsg.className='msg err';});}
+  function refresh(id){call('GET').then(function(j){revs=j.reviews;return call('GET',null,'?id='+id);}).then(function(j){notes[id]=j.notes;draw();});}
+
+  function body(r){
+    var b=el('div','rb');
+    var lr=el('div','linkrow');var inp=el('input');inp.type='text';inp.readOnly=true;inp.value=linkFor(r);inp.addEventListener('focus',function(){inp.select();});lr.appendChild(inp);
+    var cp=el('button','enter sm','Copy link');cp.type='button';cp.addEventListener('click',function(){copy(linkFor(r),cp);});lr.appendChild(cp);
+    var op=el('a','enter ghost sm','Open as reviewer');op.href=linkFor(r);op.target='_blank';op.rel='noopener';lr.appendChild(op);b.appendChild(lr);
+    var ac=el('div','acts');
+    function act(label,fn,cls){var x=el('button','enter ghost sm'+(cls||''),label);x.type='button';x.addEventListener('click',fn);ac.appendChild(x);}
+    act(r.status==='open'?'Close review':'Reopen review',function(){call('POST',{action:'update',id:r.id,status:r.status==='open'?'closed':'open'}).then(function(){refresh(r.id);});});
+    act('Copy all notes',function(e){copy(exportText(r),e.target);});
+    act('Change video link',function(){var v=window.prompt('New direct link to the video:',r.video_url);if(v&&v!==r.video_url)call('POST',{action:'update',id:r.id,video_url:v}).then(function(){refresh(r.id);}).catch(function(e){alert(e.message);});});
+    act('Rename',function(){var v=window.prompt('Title:',r.title);if(v&&v!==r.title)call('POST',{action:'update',id:r.id,title:v}).then(function(){refresh(r.id);}).catch(function(e){alert(e.message);});});
+    act('Delete review',function(){if(window.confirm('Delete “'+r.title+'” and all its notes? This can’t be undone.'))call('POST',{action:'delete',id:r.id}).then(function(){openId=null;load();});});
+    b.appendChild(ac);
+    var ns=notes[r.id];
+    if(!ns){b.appendChild(el('p','empty','Loading notes…'));return b;}
+    var tops=ns.filter(function(n){return !n.parent_id;}).sort(function(a,b){var ta=a.timecode==null,tb=b.timecode==null;if(ta!==tb)return ta?1:-1;if(!ta&&a.timecode!==b.timecode)return a.timecode-b.timecode;return new Date(a.created_at)-new Date(b.created_at);});
+    if(!tops.length)b.appendChild(el('p','empty','No notes yet.'));
+    tops.forEach(function(n){
+      b.appendChild(noteRow(r,n,false));
+      ns.filter(function(k){return k.parent_id===n.id;}).forEach(function(k){var w=el('div','ni');w.appendChild(noteRow(r,k,true));b.appendChild(w);});
+    });
+    return b;
+  }
+
+  function noteRow(r,n,isReply){
+    var d=el('div','n'+(n.resolved?' done':''));
+    var h=el('div','nh');
+    if(!isReply)h.appendChild(el('span','tc'+(n.timecode==null?' gen':''),n.timecode==null?'General':mmss(n.timecode)));
+    h.appendChild(el('b',null,n.author_name+(n.is_team?' (team)':'')));
+    if(n.author_email){var m=el('a','msg',n.author_email);m.href='mailto:'+n.author_email;h.appendChild(m);}
+    h.appendChild(el('span','msg',ago(n.created_at)));
+    d.appendChild(h);d.appendChild(el('div','nb',n.body));
+    var a=el('div','na');
+    function bt(label,fn,cls){var x=el('button',cls||'',label);x.type='button';x.addEventListener('click',fn);a.appendChild(x);}
+    if(!isReply)bt(n.resolved?'Reopen':'Resolve',function(){call('POST',{action:'resolve',note_id:n.id,resolved:!n.resolved}).then(function(){refresh(r.id);});});
+    if(!isReply)bt('Reply',function(){
+      if(d.querySelector('.rpl'))return;var f=el('div','rpl');var i=el('input');i.type='text';i.placeholder='Reply as Paragraph…';i.maxLength=3000;
+      var g=el('button','enter sm','Send');g.type='button';
+      function go(){if(!i.value.trim())return;call('POST',{action:'note',id:r.id,parent_id:n.id,body:i.value}).then(function(){refresh(r.id);}).catch(function(e){alert(e.message);});}
+      g.addEventListener('click',go);i.addEventListener('keydown',function(e){if(e.key==='Enter')go();});f.appendChild(i);f.appendChild(g);d.appendChild(f);i.focus();});
+    bt('Delete',function(){if(window.confirm('Delete this note?'))call('POST',{action:'delete_note',note_id:n.id}).then(function(){refresh(r.id);});},'del');
+    d.appendChild(a);return d;
+  }
+
+  function exportText(r){
+    var ns=notes[r.id]||[];var out=[r.title+(r.client?' ('+r.client+')':''),''];
+    var tops=ns.filter(function(n){return !n.parent_id;}).sort(function(a,b){var ta=a.timecode==null,tb=b.timecode==null;if(ta!==tb)return ta?1:-1;if(!ta&&a.timecode!==b.timecode)return a.timecode-b.timecode;return new Date(a.created_at)-new Date(b.created_at);});
+    tops.forEach(function(n){
+      out.push((n.timecode==null?'GENERAL':mmss(n.timecode))+(n.resolved?' [resolved]':'')+' — '+n.author_name+': '+n.body);
+      ns.filter(function(k){return k.parent_id===n.id;}).forEach(function(k){out.push('    ↳ '+k.author_name+': '+k.body);});
+    });
+    return out.join('\n');
+  }
+
+  var form=document.getElementById('form'),fmsg=document.getElementById('fmsg');
+  document.getElementById('new').addEventListener('click',function(){form.classList.toggle('on');document.getElementById('f-title').focus();});
+  document.getElementById('cancel').addEventListener('click',function(){form.classList.remove('on');fmsg.textContent='';});
+  document.getElementById('create').addEventListener('click',function(){
+    fmsg.className='msg';fmsg.textContent='Creating…';
+    call('POST',{action:'create',title:document.getElementById('f-title').value,client:document.getElementById('f-client').value,video_url:document.getElementById('f-url').value}).then(function(j){
+      ['f-title','f-client','f-url'].forEach(function(i){document.getElementById(i).value='';});form.classList.remove('on');fmsg.textContent='';
+      notes[j.review.id]=[];openId=j.review.id;load();
+    }).catch(function(e){fmsg.textContent=e.message;fmsg.className='msg err';});
+  });
+  load();
+})();
+</script>
+</body></html>
