@@ -50,7 +50,15 @@ module.exports = async function handler(req, res) {
           });
           next = j.paging && j.paging.next;
         }
-        return send(res, 200, { total: out.length, missing: out.filter((v) => !v.url).length, videos: out });
+        const body = { total: out.length, missing: out.filter((v) => !v.url).length, videos: out };
+        if (url.searchParams.get('file')) {   // open /api/review-admin?vimeo=1&file=1 while signed in and the list downloads as a file
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('Content-Disposition', 'attachment; filename="vimeo-manifest.json"');
+          res.setHeader('Cache-Control', 'no-store');
+          return res.end(JSON.stringify(body, null, 1));
+        }
+        return send(res, 200, body);
       }
       if (url.searchParams.get('site')) {   // Website Videos section: every video on paragraphfilms.com
         const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,sort&order=sort.asc&limit=1000');
