@@ -18,7 +18,13 @@ body{display:flex;flex-direction:column;min-height:100%;height:auto}
 .cols{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
 .cols.has-notes{grid-template-columns:minmax(0,1fr) 340px}
 .cols:not(.has-notes) .side{display:none}
-.stage video{display:block;width:100%;max-height:calc(100vh - 200px);aspect-ratio:16/9;background:#000;border-radius:var(--r);outline:none}
+.stage{width:100%;max-width:calc((100vh - 270px)*var(--ar,1.7778));margin-left:auto;margin-right:auto}
+.vbox{position:relative}
+.stage video{display:block;width:100%;aspect-ratio:var(--ar,1.7778);background:#000;border-radius:var(--r);outline:none}
+.pbig{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px 0 0 -42px;border:0;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 10px 40px rgba(0,0,0,.5);transition:transform .15s,background .15s}
+.pbig:hover{transform:scale(1.06);background:#fff17e}
+.pbig svg{width:34px;height:34px;fill:currentColor;margin-left:4px}
+.pbig[hidden]{display:none}
 .strip{position:relative;height:8px;margin:14px 6px 0;background:var(--card2);border-radius:99px;cursor:pointer}
 .strip i{position:absolute;top:-3px;width:14px;height:14px;margin-left:-7px;background:var(--accent);border:2px solid var(--bg);border-radius:50%;cursor:pointer}
 .strip i.done{background:#5b5c63}
@@ -159,7 +165,8 @@ body{display:flex;flex-direction:column;min-height:100%;height:auto}
   function player(){
     var r=S.review;var stage=h('div',{class:'stage'});
     video=h('video',{playsinline:true,preload:'metadata',src:r.video_url});
-    stage.appendChild(video);
+    var vbox=h('div',{class:'vbox'});vbox.appendChild(video);stage.appendChild(vbox);
+    video.addEventListener('loadedmetadata',function(){if(video.videoWidth&&video.videoHeight)stage.style.setProperty('--ar',(video.videoWidth/video.videoHeight).toFixed(4));});
     video.addEventListener('error',function(){if(snote){snote.textContent='This video didn’t load. Try refreshing, or let Paragraph know.';snote.style.color='var(--bad)';}});
     video.addEventListener('play',function(){track('play');});
     return stage;
@@ -297,6 +304,8 @@ body{display:flex;flex-direction:column;min-height:100%;height:auto}
   }
   function buildPresentation(){
     var r=S.review;var wrap=h('div');var st=player();wrap.appendChild(st);st.appendChild(controls(video));
+    var big=h('button',{class:'pbig',type:'button','aria-label':'Play video'});big.innerHTML=ICO.play;st.querySelector('.vbox').appendChild(big);
+    big.addEventListener('click',function(){video.play();});video.addEventListener('play',function(){big.hidden=true;});video.addEventListener('ended',function(){big.hidden=false;});
     var bar=h('div',{class:'pres'});
     bar.appendChild(h('div',null,[h('h1',{text:r.title}),h('div',{class:'sub',text:[r.client,r.project,r.label].filter(Boolean).join(' · ')})]));
     bar.appendChild(h('span',{class:'sp'}));
