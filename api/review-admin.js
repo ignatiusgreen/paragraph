@@ -17,11 +17,13 @@ module.exports = async function handler(req, res) {
         const notes = await db('GET', 'review_notes?review_id=eq.' + id + '&select=' + NOTE_COLS + '&order=created_at.asc&limit=1000');
         return send(res, 200, { notes });
       }
-      const reviews = await db('GET', 'reviews?select=id,token,title,client,video_url,status,created_at&order=created_at.desc&limit=300');
+      const REV = 'id,token,title,client,video_url,status,kind,label,project_id,request_status,requested_name,requested_email,requested_message,requested_at,created_at';
+      const projects = await db('GET', 'review_projects?select=id,name,client,created_at&order=created_at.desc&limit=300');
+      const reviews = await db('GET', 'reviews?select=' + REV + '&order=created_at.desc&limit=500');
       const notes = await db('GET', 'review_notes?select=review_id,resolved,parent_id&limit=5000');
       const stat = {};
       notes.forEach((n) => { const s = stat[n.review_id] || (stat[n.review_id] = { open: 0, done: 0 }); if (!n.parent_id) { if (n.resolved) s.done++; else s.open++; } });
-      return send(res, 200, { reviews: reviews.map((r) => Object.assign(r, { open: (stat[r.id] || {}).open || 0, done: (stat[r.id] || {}).done || 0 })) });
+      return send(res, 200, { projects, reviews: reviews.map((r) => Object.assign(r, { open: (stat[r.id] || {}).open || 0, done: (stat[r.id] || {}).done || 0 })) });
     }
 
     if (req.method === 'POST') {
@@ -33,7 +35,10 @@ module.exports = async function handler(req, res) {
         if (!title) return send(res, 400, { error: 'Give the review a title.' });
         if (!video) return send(res, 400, { error: 'The video link must be a full https:// link to an MP4 file.' });
         const token = crypto.randomBytes(18).toString('base64url');
-        const row = await db('POST', 'reviews?select=id,token,title,client,video_url,status,created_at', { token, title, client: client || null, video_url: video }, 'return=representation');
+        const kind = b.kind === 'presentation' ? 'presentation' : 'review';
+        const label = clean(b.label, 40) || null;
+        const project_id = isId(b.project_id) ? b.project_id : null;
+        const row = await db('POST', 'reviews?select=id,token,title,client,video_url,status,kind,label,project_id,created_at', { token, title, client: client || null, video_url: video, kind, label, project_id }, 'return=representation');
         return send(res, 200, { review: row[0] });
       }
       if (a === 'update') {
@@ -42,6 +47,9 @@ module.exports = async function handler(req, res) {
         if (b.status === 'open' || b.status === 'closed') patch.status = b.status;
         if (b.title !== undefined) { patch.title = clean(b.title, 140); if (!patch.title) return send(res, 400, { error: 'Title can’t be empty.' }); }
         if (b.client !== undefined) patch.client = clean(b.client, 140) || null;
+        if (b.kind === 'review' || b.kind === 'presentation') patch.kind = b.kind;
+        if (b.label !== undefined) patch.label = clean(b.label, 40) || null;
+        if (b.project_id !== undefined) patch.project_id = isId(b.project_id) ? b.project_id : null;
         if (b.video_url !== undefined) { const v = normalizeVideoUrl(b.video_url); if (!v) return send(res, 400, { error: 'The video link must be a full https:// link.' }); patch.video_url = v; }
         await db('PATCH', 'reviews?id=eq.' + b.id, patch);
         return send(res, 200, { ok: true });
@@ -74,6 +82,31 @@ module.exports = async function handler(req, res) {
         }
         const row = await db('POST', 'review_notes?select=' + NOTE_COLS, { review_id: b.id, parent_id: parent, author_name: clean(b.name, 80) || 'Paragraph', is_team: true, body }, 'return=representation');
         return send(res, 200, { note: row[0] });
+      }
+      if (a === 'request') {   // approve or decline a viewer's request to leave notes
+        if (!isId(b.id)) return send(res, 400, { error: 'Bad id' });
+        if (b.decision === 'approve') await db('PATCH', 'reviews?id=eq.' + b.id, { kind: 'review', request_status: 'approved' });
+        else await db('PATCH', 'reviews?id=eq.' + b.id, { request_status: 'declined' });
+        return send(res, 200, { ok: true });
+      }
+      if (a === 'project_create') {
+        const name = clean(b.name, 140);
+        if (!name) return send(res, 400, { error: 'Give the project a name.' });
+        const row = await db('POST', 'review_projects?select=id,name,client,created_at', { name, client: clean(b.client, 140) || null }, 'return=representation');
+        return send(res, 200, { project: row[0] });
+      }
+      if (a === 'project_update') {
+        if (!isId(b.id)) return send(res, 400, { error: 'Bad id' });
+        const patch = {};
+        if (b.name !== undefined) { patch.name = clean(b.name, 140); if (!patch.name) return send(res, 400, { error: 'Name can’t be empty.' }); }
+        if (b.client !== undefined) patch.client = clean(b.client, 140) || null;
+        await db('PATCH', 'review_projects?id=eq.' + b.id, patch);
+        return send(res, 200, { ok: true });
+      }
+      if (a === 'project_delete') {   // videos stay, they just leave the folder
+        if (!isId(b.id)) return send(res, 400, { error: 'Bad id' });
+        await db('DELETE', 'review_projects?id=eq.' + b.id);
+        return send(res, 200, { ok: true });
       }
       return send(res, 400, { error: 'Unknown action' });
     }

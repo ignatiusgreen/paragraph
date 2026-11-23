@@ -1,12 +1,12 @@
 // Public side of the Review Portal: a reviewer opens /review/r/<token>, reads the notes, adds notes.
 const crypto = require('crypto');
-const { db, enc, clean, ready, send, readBody } = require('./_db');
+const { db, enc, clean, ready, downloadUrl, send, readBody } = require('./_db');
 
 const NOTE_COLS = 'id,parent_id,author_name,is_team,timecode,body,resolved,created_at,edited_at';
 
 async function load(token) {
   if (!/^[A-Za-z0-9_-]{16,64}$/.test(token || '')) return null;
-  const rows = await db('GET', 'reviews?token=eq.' + enc(token) + '&select=id,title,client,video_url,status,created_at&limit=1');
+  const rows = await db('GET', 'reviews?token=eq.' + enc(token) + '&select=id,title,client,video_url,status,kind,label,project_id,request_status,created_at&limit=1');
   return rows && rows[0] ? rows[0] : null;
 }
 
@@ -18,8 +18,13 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET') {
       const review = await load(url.searchParams.get('token'));
       if (!review) return send(res, 404, { error: 'This review link isn’t valid.' });
-      const notes = await db('GET', 'review_notes?review_id=eq.' + review.id + '&select=' + NOTE_COLS + '&order=created_at.asc&limit=1000');
-      const { id, ...pub } = review;
+      const isReview = review.kind === 'review';
+      const notes = isReview ? await db('GET', 'review_notes?review_id=eq.' + review.id + '&select=' + NOTE_COLS + '&order=created_at.asc&limit=1000') : [];
+      let project = null;
+      if (review.project_id) { const p = await db('GET', 'review_projects?id=eq.' + review.project_id + '&select=name&limit=1'); project = p && p[0] ? p[0].name : null; }
+      const { id, project_id, ...pub } = review;
+      pub.project = project;
+      if (!isReview) pub.download_url = downloadUrl(review.video_url);
       return send(res, 200, { review: pub, notes });
     }
 
@@ -27,6 +32,16 @@ module.exports = async function handler(req, res) {
       const b = await readBody(req);
       const review = await load(b.token);
       if (!review) return send(res, 404, { error: 'This review link isn’t valid.' });
+      if (b.action === 'request_notes') {   // a viewer of a presentation asks to be allowed to leave notes
+        if (review.kind !== 'presentation') return send(res, 400, { error: 'Notes are already open on this video.' });
+        if (review.request_status === 'pending') return send(res, 200, { request_status: 'pending' });
+        if (review.request_status === 'declined') return send(res, 403, { error: 'Notes weren’t enabled on this video.' });
+        const name = clean(b.name, 80), email = clean(b.email, 160), message = clean(b.message, 600);
+        if (!name) return send(res, 400, { error: 'Please add your name.' });
+        await db('PATCH', 'reviews?id=eq.' + review.id, { request_status: 'pending', requested_name: name, requested_email: email || null, requested_message: message || null, requested_at: new Date().toISOString() });
+        return send(res, 200, { request_status: 'pending' });
+      }
+      if (review.kind !== 'review') return send(res, 403, { error: 'Notes aren’t enabled on this video.' });
       if (review.status !== 'open') return send(res, 403, { error: 'This review is closed, so notes can’t be added.' });
       if (b.action === 'edit') {   // a reviewer changes their own note; the secret edit_key from when they wrote it proves it is theirs
         const text = clean(b.body, 3000);

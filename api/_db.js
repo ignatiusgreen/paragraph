@@ -27,6 +27,14 @@ function normalizeVideoUrl(u) {
   return x.toString();
 }
 
+function downloadUrl(u) {
+  try {
+    const x = new URL(u);
+    if (/(^|\.)dropbox\.com$/.test(x.hostname)) { x.searchParams.delete('raw'); x.searchParams.set('dl', '1'); }
+    return x.toString();
+  } catch (e) { return u; }
+}
+
 function send(res, status, obj) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -41,4 +49,4 @@ async function readBody(req) {
   try { return JSON.parse(raw || '{}'); } catch (e) { return {}; }
 }
 
-module.exports = { db, enc, clean, ready, normalizeVideoUrl, send, readBody };
+module.exports = { db, enc, clean, ready, normalizeVideoUrl, downloadUrl, send, readBody };
