@@ -8,7 +8,6 @@ import { Card, Empty, eventWhen, PageHead, RowForm, TodoFields, TodoItem, F } fr
 import { Clock, ImageField, Modal, ScrollList, ShuffleButton, Weather } from "@/components/client";
 import { WidgetGrid } from "@/components/WidgetGrid";
 import { getEvents, getNotes, getProjects, getSettings, getTodos, getTz, rows } from "@/lib/data";
-import { financeSummary, months } from "@/lib/finance-data";
 import { DEFAULT_FEEDS, getNews } from "@/lib/feeds";
 import { getInspiration, readSources, shuffle } from "@/lib/inspiration";
 import { getFeedEvents } from "@/lib/industry";
@@ -51,11 +50,16 @@ export default async function Dashboard() {
     : null;
   const t = today(tz), ym = t.slice(0, 7);
   const grid = monthGrid(ym);
-  const [todos, projects, events, notes, leads, gear, pins, settings, fin] = await Promise.all([
+  const [todos, projects, events, notes, leads, gear, pins, settings] = await Promise.all([
     getTodos(), getProjects(), getEvents(grid[0][0], addDays(t, 45)), getNotes(), rows<Lead>("leads"), rows<Gear>("gear"),
-    rows<Pin>("pins", "created_at", false), getSettings(), financeSummary(),
+    rows<Pin>("pins", "created_at", false), getSettings(),
   ]);
   const va = await videoAnalytics();
+  // Video analytics took over the Finance panel's place: in a saved arrangement it sits where Finance was.
+  const stored = Array.isArray(settings.dashboard_layout) ? (settings.dashboard_layout as { id: string; span: string }[]) : null;
+  const savedLayout = stored?.some((w) => w.id === "finance")
+    ? stored.filter((w) => w.id !== "video").map((w) => (w.id === "finance" ? { id: "video", span: w.span } : w))
+    : stored;
   // The Projects panel: active work only. Narrative ideas still in Ideation are left out.
   const activeProjects = projects.filter((p) => (p.kind === "client" ? p.stage !== "delivered" : p.kind === "narrative" ? ["in_development", "writing"].includes(p.stage) : true));
   const timelineItems = await rows<TimelineItem>("timeline_items", "start_date");
@@ -136,7 +140,7 @@ export default async function Dashboard() {
         </Modal>
       </PageHead>
 
-      <WidgetGrid saved={Array.isArray(settings.dashboard_layout) ? (settings.dashboard_layout as { id: string; span: string }[]) : null} items={[
+      <WidgetGrid saved={savedLayout} items={[
         { id: "now", href: "/schedule", label: "Now", span: "s4", node: (
         <Card tone="dark" title="Now" more="/schedule">
           <Clock />
@@ -195,24 +199,7 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "finance", href: "/finance", label: "Finance", span: "s4", node: (
-        <Card tone="teal" title="Finance" more="/finance">
-          <div>
-            <div className="big">{months(fin.monthsBooked)}<small>months of runway</small></div>
-            <div className="small muted" style={{ marginTop: 8 }}>
-              {fin.known ? `Cash, receivables and booked work against ${money(fin.burn.total)} a month.` : "Add your cash position and monthly overhead in Finance to see runway."}
-            </div>
-          </div>
-          <div className="tiles">
-            <div className="tile"><span className="tile-label">Overhead</span><span className="tile-value">{money(fin.burn.total, { compact: true })}</span><span className="tile-note">a month</span></div>
-            <div className="tile"><span className="tile-label">Cash</span><span className="tile-value">{money(fin.cash, { compact: true })}</span></div>
-            <div className="tile"><span className="tile-label">Booked</span><span className="tile-value">{money(fin.booked, { compact: true })}</span></div>
-            <div className="tile"><span className="tile-label">Pitched</span><span className="tile-value">{money(fin.pitched, { compact: true })}</span><span className="tile-note">weighted by odds</span></div>
-          </div>
-        </Card>
-        ) },
-
-        { id: "video", label: "Video analytics", span: "s6", node: (
+        { id: "video", label: "Video analytics", span: "s4", node: (
         <Card tone="pearl" title="Video analytics" actions={<a className="chip sun" href={REVIEW_PORTAL_URL} target="_blank" rel="noreferrer">Open Review Portal ↗</a>}>
           {!va.ok ? <Empty>{va.reason ?? "No data yet."}</Empty> : (
             <>
