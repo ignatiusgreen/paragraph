@@ -163,6 +163,7 @@
       side.appendChild(h('div',{class:'sh'},[h('span',{text:'On Dropbox'}),h('span',{text:done+' / '+tot})]));
       side.appendChild(h('div',{style:'padding:0 12px'},[h('div',{class:'prog'},[h('i',{style:'width:'+(tot?done/tot*100:0)+'%'})])]));
       side.appendChild(h('div',{class:'spacer'}));
+      side.appendChild(h('button',{class:'nv',type:'button',onclick:vimeoManifest},[h('span',{html:ICON.archive,style:'display:flex'}),h('span',{class:'t',text:'Vimeo download list'})]));
       side.appendChild(h('a',{class:'nv',href:'/archive'},[h('span',{html:ICON.archive,style:'display:flex'}),h('span',{class:'t',text:'Archive'})]));
       side.appendChild(h('a',{class:'nv',href:'/archive-logout'},[h('span',{html:ICON.out,style:'display:flex'}),h('span',{class:'t',text:'Sign out'})]));
       return;
@@ -232,6 +233,15 @@
   }
   function draw(){drawSide();drawMain();}
 
+
+
+  function vimeoManifest(){
+    var b=this;var o=b.querySelector('.t').textContent;b.querySelector('.t').textContent='Asking Vimeo…';
+    call('GET',null,'?vimeo=1').then(function(j){
+      var blob=new Blob([JSON.stringify(j,null,1)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='vimeo-manifest.json';document.body.appendChild(a);a.click();a.remove();
+      b.querySelector('.t').textContent=j.total+' videos saved'+(j.missing?' ('+j.missing+' without a link)':'');setTimeout(function(){b.querySelector('.t').textContent=o;},6000);
+    }).catch(function(e){b.querySelector('.t').textContent=o;alert(e.message);});
+  }
 
   /* ---------- Website Videos ---------- */
   function siteMatches(v){if(!S.q)return true;return (v.title+' '+v.grp).toLowerCase().indexOf(S.q.toLowerCase())>=0;}

@@ -11,6 +11,25 @@ module.exports = async function handler(req, res) {
     const url = new URL(req.url, 'http://x');
 
     if (req.method === 'GET') {
+      if (url.searchParams.get('vimeo')) {   // owner-only: every video in the Vimeo library with its best download link (links expire after a few hours)
+        const token = process.env.VIMEO_TOKEN;
+        if (!token) return send(res, 503, { error: 'VIMEO_TOKEN isn’t set in Vercel.' });
+        const out = [];
+        let next = '/me/videos?per_page=100&fields=uri,name,download.link,download.quality,download.size,download.type,download.width,download.height';
+        for (let i = 0; next && i < 10; i++) {
+          const r = await fetch('https://api.vimeo.com' + next, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.vimeo.*+json;version=3.4' } });
+          if (!r.ok) return send(res, 502, { error: 'Vimeo said ' + r.status + '. The token needs the video_files scope.' });
+          const j = await r.json();
+          (j.data || []).forEach((v) => {
+            const id = String(v.uri || '').split('/').pop();
+            const files = (v.download || []).filter((d) => d.link).sort((a, b) => (b.size || 0) - (a.size || 0));
+            const best = files.find((d) => d.quality === 'source') || files[0];
+            out.push({ id, name: v.name, size: best ? best.size : null, quality: best ? best.quality : null, url: best ? best.link : null });
+          });
+          next = j.paging && j.paging.next;
+        }
+        return send(res, 200, { total: out.length, missing: out.filter((v) => !v.url).length, videos: out });
+      }
       if (url.searchParams.get('site')) {   // Website Videos section: every video on paragraphfilms.com
         const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,sort&order=sort.asc&limit=1000');
         return send(res, 200, { videos });
