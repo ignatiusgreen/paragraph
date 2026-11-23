@@ -3,10 +3,11 @@ import { loadPrivacy } from "@/lib/privacy";
 import { Card, Empty, EventFields, eventWhen, PageHead, RowForm, TodoFields } from "@/components/ui";
 import { Modal, Submit } from "@/components/client";
 import { syncCalendarNow } from "@/app/(app)/actions";
-import { getEvents, getProjects, getTodos, getTz } from "@/lib/data";
+import { PortfolioGantt } from "@/components/PortfolioGantt";
+import { getEvents, getProjects, getTodos, getTz, rows } from "@/lib/data";
 import { getGoogle, googleConfigured, pullCalendar } from "@/lib/google";
 import { addDays, addMonths, fmtDate, fmtTime, monthGrid, relDay, today } from "@/lib/format";
-import type { Event } from "@/lib/types";
+import type { Event, TimelineItem } from "@/lib/types";
 
 export default async function Schedule({ searchParams }: { searchParams: Promise<{ m?: string }> }) {
   await loadPrivacy();
@@ -23,7 +24,11 @@ export default async function Schedule({ searchParams }: { searchParams: Promise
   if (google && (!google.last_pull || Date.now() - +new Date(google.last_pull) > 600_000)) {
     try { await pullCalendar(tz); } catch (e) { stale = (e as Error).message; }
   }
-  const [events, agenda, todos, projects] = await Promise.all([getEvents(addDays(first, -31), last), getEvents(t, addDays(t, 30)), getTodos(), getProjects()]);
+  const [events, agenda, todos, projects, timelineItems] = await Promise.all([
+    getEvents(addDays(first, -31), last), getEvents(t, addDays(t, 30)), getTodos(), getProjects(), rows<TimelineItem>("timeline_items", "start_date"),
+  ]);
+  // Same set as the dashboard: branded work not yet delivered, every documentary, narrative in development or being written.
+  const activeProjects = projects.filter((p) => (p.kind === "client" ? p.stage !== "delivered" : p.kind === "narrative" ? ["in_development", "writing"].includes(p.stage) : true));
   const dueTodos = todos.filter((x) => !x.done && x.due_date);
   const onDay = (d: string) => events.filter((e) => e.date <= d && (e.end_date ?? e.date) >= d);
   const edit = (e: Event) => (
@@ -43,6 +48,17 @@ export default async function Schedule({ searchParams }: { searchParams: Promise
       {stale ? <div className="notice warn">Couldn’t refresh from Google Calendar: {stale}</div> : null}
 
       <div className="grid">
+        <Card className="s12" title={`Active projects · ${activeProjects.length}`}>
+          <PortfolioGantt projects={activeProjects} items={timelineItems} today={t} />
+          <div className="legend">
+            <span><i style={{ background: "var(--sky)" }} />Branded</span>
+            <span><i style={{ background: "var(--leaf)" }} />Documentary</span>
+            <span><i style={{ background: "var(--dusk)" }} />Narrative</span>
+            <span><i style={{ background: "var(--dusk)", transform: "rotate(45deg) scale(.8)" }} />Milestone</span>
+            <span className="muted">Each bar spans the project’s own timeline. Click one to open the project.</span>
+          </div>
+        </Card>
+
         <Card className="s9">
           <div className="card-head">
             <h2 className="card-title">{fmtDate(ym, "month")}</h2>
