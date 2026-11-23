@@ -336,6 +336,10 @@
     {
       "source": "/review/r/:token",
       "destination": "/review.html"
+    },
+    {
+      "source": "/reel/:token",
+      "destination": "/reel.html"
     }
   ],
   "headers": [
@@ -362,7 +366,7 @@
       ]
     },
     {
-      "source": "/review(.*)",
+      "source": "/(review|reel)(.*)",
       "headers": [
         {
           "key": "X-Robots-Tag",

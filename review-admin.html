@@ -120,6 +120,26 @@
 .atable tr{cursor:pointer}.atable tbody tr:hover{background:var(--panel)}
 .atable .n{text-align:right;font-variant-numeric:tabular-nums}
 .atable small{display:block;color:var(--muted);font-size:12px}
+
+.rlist{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.rrow{display:flex;gap:8px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.rrow:last-child{border-bottom:0}
+.rrow b{font-size:15px;font-weight:600;display:block}
+.rrow small{color:var(--muted);font-size:13px}
+.rform{display:grid;grid-template-columns:2fr 1fr auto;gap:12px;align-items:center;margin-bottom:14px;max-width:820px}
+.chk{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted);white-space:nowrap}
+.rorder{list-style:none;max-width:820px;display:flex;flex-direction:column;gap:6px}
+.rorder li{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r2);padding:8px 12px;cursor:grab}
+.rorder li.drag{opacity:.4}
+.rorder .n{width:22px;color:var(--accent);font-weight:700;font-size:13px}
+.rorder .t{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rorder .mv{display:flex;gap:4px}
+.rorder .mv button{background:var(--card2);border:0;border-radius:5px;width:26px;height:26px;font-size:14px}
+.rorder .mv button:hover{background:#31323a}
+.sv.sel{border-color:var(--accent)}
+.vid-thumb{position:relative}
+.vid-thumb .pick{position:absolute;top:8px;left:8px;min-width:24px;height:24px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-size:13px;font-weight:700;display:grid;place-items:center;padding:0 6px}
+@media(max-width:700px){.rform{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -139,6 +159,7 @@
     bell:'<svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>',
     folder:'<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
     search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+    reel:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>',
     archive:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4"/></svg>',
     chart:'<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
     out:'<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>'};
@@ -151,12 +172,12 @@
   function copy(text,btn){var o=btn.textContent;(navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1500);}).catch(function(){window.prompt('Copy this:',text);});}
 
   /* ---------- state ---------- */
-  var S={projects:[],reviews:[],view:'all',q:'',notes:{},section:'review',site:[],menu:false};
+  var S={projects:[],reviews:[],view:'all',q:'',notes:{},section:'review',site:[],reels:[],rsel:{id:null,title:'',client:'',ids:[],dl:true},rq:'',menu:false};
   var side=document.getElementById('side'),main=document.getElementById('main');
   function projOf(id){return S.projects.filter(function(p){return p.id===id;})[0];}
   function inProj(id){return S.reviews.filter(function(r){return r.project_id===id;});}
   function pending(){return S.reviews.filter(function(r){return r.request_status==='pending';});}
-  function load(){return Promise.all([call('GET'),call('GET',null,'?site=1').catch(function(){return {videos:[]};})]).then(function(r){S.projects=r[0].projects;S.reviews=r[0].reviews;S.site=r[1].videos||[];draw();}).catch(function(e){main.innerHTML='';main.appendChild(h('p',{class:'msg err',text:e.message}));});}
+  function load(){return Promise.all([call('GET'),call('GET',null,'?site=1').catch(function(){return {videos:[]};}),call('GET',null,'?reels=1').catch(function(){return {reels:[]};})]).then(function(r){S.projects=r[0].projects;S.reviews=r[0].reviews;S.site=r[1].videos||[];S.reels=r[2].reels||[];draw();}).catch(function(e){main.innerHTML='';main.appendChild(h('p',{class:'msg err',text:e.message}));});}
 
   /* ---------- sidebar ---------- */
   function nav(id,icon,label,count,dot){
@@ -173,6 +194,7 @@
       side.appendChild(nav('site:all',ICON.grid,'All videos',tot));
       side.appendChild(nav('site:Films',ICON.folder,'Films',S.site.filter(function(v){return v.area==='Films';}).length));
       side.appendChild(nav('site:Brands',ICON.folder,'Brands + archive',S.site.filter(function(v){return v.area==='Brands';}).length));
+      side.appendChild(nav('site:reels',ICON.reel,'Reel Builder',S.reels.length));
       side.appendChild(nav('site:todo',ICON.bell,'Still on Vimeo',null,tot-done));
       side.appendChild(h('div',{class:'sh'},[h('span',{text:'On Dropbox'}),h('span',{text:done+' / '+tot})]));
       side.appendChild(h('div',{style:'padding:0 12px'},[h('div',{class:'prog'},[h('i',{style:'width:'+(tot?done/tot*100:0)+'%'})])]));
@@ -284,6 +306,7 @@
     return h('div',{class:'sv',onclick:function(){editSite(v);}},[t,h('b',{text:v.title}),h('div',{class:'row'},[h('span',{class:'pill',text:v.grp})]),h('small',{text:where})]);
   }
   function drawSiteMain(){
+    if(S.view==='site:reels')return drawReels();
     var f=S.view.replace('site:','');
     var list=S.site.filter(function(v){return f==='all'||(f==='todo'?!v.video_url:v.area===f);}).filter(siteMatches);
     var s=h('input',{class:'field',placeholder:'Search by name, project or client…',value:S.q,'aria-label':'Search'});
@@ -293,6 +316,71 @@
     if(!list.length){main.appendChild(h('div',{class:'empty',text:S.q?'Nothing matches.':'Nothing here.'}));return;}
     main.appendChild(h('div',{class:'sec'},[h('h2',{text:'Videos'}),h('span',{text:list.length+(list.length===1?' video':' videos')})]));
     var gr=h('div',{class:'sgrid'});list.forEach(function(v){gr.appendChild(sitecard(v));});main.appendChild(gr);
+  }
+
+  /* ---------- Reel Builder ---------- */
+  function reelLink(r){return location.origin+'/reel/'+r.token;}
+  function siteById(id){return S.site.filter(function(v){return v.vimeo_id===id;})[0];}
+  function resetReel(){S.rsel={id:null,title:'',client:'',ids:[],dl:true};}
+  function drawReels(){
+    var R=S.rsel;
+    main.appendChild(h('div',{class:'top'},[h('span',{style:'flex:1 1 360px'}),h('button',{class:'btn pri',type:'button',text:'+ New reel',onclick:function(){resetReel();drawMain();window.scrollTo(0,0);}})]));
+    main.appendChild(h('div',{class:'hint',style:'margin-bottom:22px',text:'Make a private page with just the videos you choose, in the order you set, for one client or pitch. Each reel gets its own link. It plays the Dropbox file where one is set (otherwise Vimeo) and can offer downloads.'}));
+    if(S.reels.length){
+      main.appendChild(h('div',{class:'sec'},[h('h2',{text:'Saved reels'}),h('span',{text:String(S.reels.length)})]));
+      var t=h('div',{class:'rlist'});
+      S.reels.forEach(function(r){
+        var cp=h('button',{class:'btn sm',type:'button',text:'Copy link',onclick:function(){copy(reelLink(r),cp);}});
+        t.appendChild(h('div',{class:'rrow'},[h('div',{style:'flex:1;min-width:0'},[h('b',{text:r.title}),h('small',{text:[r.client,r.vimeo_ids.length+' videos','made '+ago(r.created_at)].filter(Boolean).join(' · ')})]),
+          cp,h('a',{class:'btn sm ghost',href:reelLink(r),target:'_blank',rel:'noopener',text:'Open'}),
+          h('button',{class:'btn sm ghost',type:'button',text:'Edit',onclick:function(){S.rsel={id:r.id,title:r.title,client:r.client||'',ids:r.vimeo_ids.slice(),dl:r.allow_download};drawMain();window.scrollTo(0,0);}}),
+          h('button',{class:'btn sm ghost bad',type:'button',text:'Delete',onclick:function(){if(confirm('Delete the reel “'+r.title+'”? Its link stops working.'))call('POST',{action:'reel_delete',id:r.id}).then(function(){if(R.id===r.id)resetReel();return load();});}})]));
+      });
+      main.appendChild(t);
+    }
+    main.appendChild(h('div',{class:'sec',style:'margin-top:30px'},[h('h2',{text:R.id?'Editing reel':'New reel'}),h('span',{text:R.ids.length?R.ids.length+' selected':''})]));
+    var ti=h('input',{class:'field',placeholder:'Reel name (e.g. Sizzles for Hilton)',value:R.title,maxlength:'140'}),ci=h('input',{class:'field',placeholder:'Client (optional)',value:R.client,maxlength:'140'});
+    ti.addEventListener('input',function(){R.title=ti.value;});ci.addEventListener('input',function(){R.client=ci.value;});
+    var dl=h('input',{type:'checkbox'});dl.checked=R.dl;dl.addEventListener('change',function(){R.dl=dl.checked;});
+    main.appendChild(h('div',{class:'rform'},[ti,ci,h('label',{class:'chk'},[dl,h('span',{text:'Allow downloads'})])]));
+    var ol=h('ol',{class:'rorder'});
+    function drawOrder(){
+      ol.innerHTML='';
+      if(!R.ids.length){ol.appendChild(h('li',{class:'hint',text:'Pick videos below. Then drag them, or use the arrows, to set the order.'}));return;}
+      R.ids.forEach(function(id,i){var v=siteById(id);
+        var li=h('li',{draggable:'true','data-id':id},[h('span',{class:'n',text:String(i+1)}),h('span',{class:'t',text:v?v.title:id}),
+          h('span',{class:'mv'},[h('button',{type:'button',text:'↑','aria-label':'Move earlier',onclick:function(){mv(id,-1);}}),h('button',{type:'button',text:'↓','aria-label':'Move later',onclick:function(){mv(id,1);}}),h('button',{type:'button',text:'×','aria-label':'Remove',onclick:function(){R.ids=R.ids.filter(function(x){return x!==id;});drawMain();}})])]);
+        ol.appendChild(li);});
+    }
+    function mv(id,d){var i=R.ids.indexOf(id),j=i+d;if(j<0||j>=R.ids.length)return;R.ids.splice(i,1);R.ids.splice(j,0,id);drawMain();}
+    var drag=null;
+    ol.addEventListener('dragstart',function(e){drag=e.target.closest('li');if(drag){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',drag.dataset.id);drag.classList.add('drag');}});
+    ol.addEventListener('dragend',function(){if(drag)drag.classList.remove('drag');drag=null;});
+    ol.addEventListener('dragover',function(e){e.preventDefault();var li=e.target.closest('li');if(!li||!drag||li===drag)return;var r=li.getBoundingClientRect();ol.insertBefore(drag,(e.clientY-r.top)>r.height/2?li.nextSibling:li);});
+    ol.addEventListener('drop',function(e){e.preventDefault();R.ids=[].map.call(ol.querySelectorAll('li[data-id]'),function(li){return li.dataset.id;});drawMain();});
+    drawOrder();main.appendChild(ol);
+    var msg=h('span',{class:'msg'});
+    var save=h('button',{class:'btn pri',type:'button',text:R.id?'Save changes':'Save reel & copy link',onclick:function(){
+      msg.textContent='Saving…';msg.className='msg';
+      call('POST',{action:'reel_save',id:R.id,title:R.title,client:R.client,vimeo_ids:R.ids,allow_download:R.dl}).then(function(j){
+        var link=reelLink(j.reel);try{navigator.clipboard.writeText(link).catch(function(){});}catch(e){}
+        resetReel();return load().then(function(){var m=h('div',{class:'req'},[h('b',{text:'Saved. Link copied:'}),h('a',{href:link,target:'_blank',rel:'noopener',text:link,style:'text-decoration:underline;word-break:break-all'})]);main.insertBefore(m,main.children[2]);window.scrollTo(0,0);});
+      }).catch(function(e){msg.textContent=e.message;msg.className='msg err';});}});
+    main.appendChild(h('div',{class:'btns',style:'display:flex;gap:10px;align-items:center;margin:14px 0 26px'},[save,R.ids.length?h('button',{class:'btn ghost',type:'button',text:'Clear',onclick:function(){R.ids=[];drawMain();}}):null,R.id?h('button',{class:'btn ghost',type:'button',text:'Cancel edit',onclick:function(){resetReel();drawMain();}}):null,msg]));
+    // picker
+    var s=h('input',{class:'field',placeholder:'Search by name, project or client…',value:S.rq,'aria-label':'Search'});
+    s.addEventListener('input',function(){S.rq=s.value;var pos=s.selectionStart;drawMain();var i=document.querySelector('.rsearch input');if(i){i.focus();i.setSelectionRange(pos,pos);}});
+    main.appendChild(h('div',{class:'sec'},[h('h2',{text:'Choose videos'}),h('div',{class:'search rsearch',html:ICON.search,style:'margin-left:auto'},[s])]));
+    var list=S.site.filter(function(v){return !S.rq||(v.title+' '+v.grp).toLowerCase().indexOf(S.rq.toLowerCase())>=0;});
+    var gr=h('div',{class:'sgrid'});
+    list.forEach(function(v){
+      var n=R.ids.indexOf(v.vimeo_id)+1;
+      var t=h('div',{class:'vid-thumb'});
+      if(v.video_url){var vd=h('video',{src:v.video_url+(v.video_url.indexOf('#')<0?'#t=0.8':''),preload:'metadata',muted:true,playsinline:true});vd.muted=true;t.appendChild(vd);}else t.appendChild(h('div',{class:'ph',text:'Vimeo '+v.vimeo_id}));
+      if(n)t.appendChild(h('span',{class:'pick',text:String(n)}));
+      gr.appendChild(h('div',{class:'sv'+(n?' sel':''),onclick:function(){var i=R.ids.indexOf(v.vimeo_id);if(i<0)R.ids.push(v.vimeo_id);else R.ids.splice(i,1);var y=main.scrollTop;drawMain();main.scrollTop=y;}},[t,h('b',{text:v.title}),h('div',{class:'row'},[h('span',{class:'pill',text:v.grp})])]));
+    });
+    main.appendChild(list.length?gr:h('div',{class:'empty',text:'Nothing matches.'}));
   }
   function editSite(v){
     var t=h('input',{class:'field',value:v.title,maxlength:'160'}),g=h('input',{class:'field',value:v.grp,maxlength:'80'}),u=h('input',{class:'field',type:'url',placeholder:'Direct link to the video file (https://…)',value:v.video_url?v.video_url.replace(/([?&])raw=1/,'$1dl=0'):''}),m=h('span',{class:'msg'});

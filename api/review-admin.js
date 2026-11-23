@@ -60,6 +60,10 @@ module.exports = async function handler(req, res) {
         }
         return send(res, 200, body);
       }
+      if (url.searchParams.get('reels')) {   // saved custom reels
+        const reels = await db('GET', 'reels?select=id,token,title,client,vimeo_ids,allow_download,created_at&order=created_at.desc&limit=300');
+        return send(res, 200, { reels });
+      }
       if (url.searchParams.get('site')) {   // Website Videos section: every video on paragraphfilms.com
         const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,sort&order=sort.asc&limit=1000');
         return send(res, 200, { videos });
@@ -172,6 +176,28 @@ module.exports = async function handler(req, res) {
         if (b.grp !== undefined) { patch.grp = clean(b.grp, 80); if (!patch.grp) return send(res, 400, { error: 'Group can’t be empty.' }); }
         const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,sort', patch, 'return=representation');
         return send(res, 200, { video: row && row[0] });
+      }
+      if (a === 'reel_save') {   // create or update a custom reel: title, client, ordered list of site video ids
+        const ids = [...new Set((Array.isArray(b.vimeo_ids) ? b.vimeo_ids : []).map((x) => String(x).replace(/\D/g, '')).filter(Boolean))].slice(0, 100);
+        const title = clean(b.title, 140);
+        if (!title) return send(res, 400, { error: 'Give the reel a name.' });
+        if (!ids.length) return send(res, 400, { error: 'Pick at least one video.' });
+        const row = { title, client: clean(b.client, 140) || null, vimeo_ids: ids, allow_download: b.allow_download !== false, updated_at: new Date().toISOString() };
+        const cols = 'id,token,title,client,vimeo_ids,allow_download,created_at';
+        let out;
+        if (b.id) {
+          if (!isId(b.id)) return send(res, 400, { error: 'Bad id' });
+          out = await db('PATCH', 'reels?id=eq.' + b.id + '&select=' + cols, row, 'return=representation');
+        } else {
+          row.token = crypto.randomBytes(12).toString('hex');
+          out = await db('POST', 'reels?select=' + cols, row, 'return=representation');
+        }
+        return send(res, 200, { reel: out && out[0] });
+      }
+      if (a === 'reel_delete') {
+        if (!isId(b.id)) return send(res, 400, { error: 'Bad id' });
+        await db('DELETE', 'reels?id=eq.' + b.id);
+        return send(res, 200, { ok: true });
       }
       return send(res, 400, { error: 'Unknown action' });
     }
