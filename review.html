@@ -146,7 +146,7 @@ body{display:flex;flex-direction:column;min-height:100%;height:auto}
     var cr=document.getElementById('crumb'),sp=document.getElementById('sep'),tt=document.getElementById('ttl');
     cr.textContent=r.project||'';sp.hidden=!r.project;tt.innerHTML='';
     var vs=r.versions||[];
-    if(r.project&&vs.length>1){
+    if(r.kind==='review'&&r.project&&vs.length>1){
       var btn=h('button',{class:'vsw',type:'button','aria-haspopup':'true'},[h('span',{text:vname(r)}),h('span',{class:'chev',html:'<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>'})]);
       var menu=h('div',{class:'vmenu',hidden:true});
       vs.forEach(function(v){menu.appendChild(h('a',{class:v.current?'on':'',href:'/review/r/'+v.token,text:v.label&&v.title&&v.label!==v.title?v.label+' · '+v.title:vname(v)}));});
