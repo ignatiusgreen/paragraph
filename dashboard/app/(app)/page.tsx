@@ -7,7 +7,8 @@ import { hasServiceKey, setSetting } from "@/lib/integrations";
 import { Card, Empty, eventWhen, PageHead, RowForm, TodoFields, TodoItem, F } from "@/components/ui";
 import { Clock, ImageField, Modal, ScrollList, ShuffleButton, Weather } from "@/components/client";
 import { WidgetGrid } from "@/components/WidgetGrid";
-import { getEvents, getNotes, getProjects, getSettings, getTodos, getTz, rows } from "@/lib/data";
+import { getEvents, getProjects, getSettings, getTodos, getTz, rows } from "@/lib/data";
+import { financeSummary, months } from "@/lib/finance-data";
 import { DEFAULT_FEEDS, getNews } from "@/lib/feeds";
 import { getInspiration, readSources, shuffle } from "@/lib/inspiration";
 import { getFeedEvents } from "@/lib/industry";
@@ -15,7 +16,7 @@ import { PortfolioGantt } from "@/components/PortfolioGantt";
 import { Spark } from "@/components/charts";
 import { REVIEW_PORTAL_URL, videoAnalytics } from "@/lib/video-analytics";
 import { addDays, fmtDate, money, monthGrid, nowTime, relDay, today } from "@/lib/format";
-import { type IndustryEvent, type TimelineItem, KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
+import { type IndustryEvent, type TimelineItem, KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Kind, type Lead, type Pin } from "@/lib/types";
 
 const EVENT_KINDS = [{ value: "deadline", label: "Submission deadline" }, { value: "event", label: "Event" }];
 function IndustryFields({ event }: { event?: IndustryEvent }) {
@@ -50,16 +51,12 @@ export default async function Dashboard() {
     : null;
   const t = today(tz), ym = t.slice(0, 7);
   const grid = monthGrid(ym);
-  const [todos, projects, events, notes, leads, gear, pins, settings] = await Promise.all([
-    getTodos(), getProjects(), getEvents(grid[0][0], addDays(t, 45)), getNotes(), rows<Lead>("leads"), rows<Gear>("gear"),
-    rows<Pin>("pins", "created_at", false), getSettings(),
+  const [todos, projects, events, leads, pins, settings, fin] = await Promise.all([
+    getTodos(), getProjects(), getEvents(grid[0][0], addDays(t, 45)), rows<Lead>("leads"),
+    rows<Pin>("pins", "created_at", false), getSettings(), financeSummary(),
   ]);
   const va = await videoAnalytics();
-  // Video analytics took over the Finance panel's place: in a saved arrangement it sits where Finance was.
-  const stored = Array.isArray(settings.dashboard_layout) ? (settings.dashboard_layout as { id: string; span: string }[]) : null;
-  const savedLayout = stored?.some((w) => w.id === "finance")
-    ? stored.filter((w) => w.id !== "video").map((w) => (w.id === "finance" ? { id: "video", span: w.span } : w))
-    : stored;
+  const savedLayout = Array.isArray(settings.dashboard_layout) ? (settings.dashboard_layout as { id: string; span: string }[]) : null;
   // The Projects panel: active work only. Narrative ideas still in Ideation are left out.
   const activeProjects = projects.filter((p) => (p.kind === "client" ? p.stage !== "delivered" : p.kind === "narrative" ? ["in_development", "writing"].includes(p.stage) : true));
   const timelineItems = await rows<TimelineItem>("timeline_items", "start_date");
@@ -128,8 +125,6 @@ export default async function Dashboard() {
     const ids = [...new Set([...shown, ...images.map((i) => imageId(i.image))])].slice(-4000);
     await setSetting("inspiration_seen", { date: t, ids }).catch(() => {});
   }
-  const selling = gear.filter((g) => g.list === "sell" && g.sell_status !== "sold");
-  const buying = gear.filter((g) => g.list === "buy");
 
   return (
     <>
@@ -199,6 +194,20 @@ export default async function Dashboard() {
         </Card>
         ) },
 
+        { id: "bizdev", href: "/bizdev", label: "New Biz", span: "s4", node: (
+        <Card tone="pearl" title="New Biz" more="/bizdev">
+          <div className="row" style={{ gap: 18 }}>
+            <div><div className="big">{openLeads.length}</div><div className="small muted">open leads</div></div>
+            <div><div className="mid">{money(openLeads.reduce((s, l) => s + Number(l.est_value ?? 0), 0), { compact: true })}</div><div className="small muted">estimated value</div></div>
+          </div>
+          <div className="list">
+            {openLeads.filter((l) => l.next_step).slice(0, 3).map((l) => (
+              <div className="item" key={l.id}><div className="grow"><div className="rowtitle">{l.next_step}</div><div className="meta">{l.name}{l.company ? `, ${l.company}` : ""}{l.next_on ? ` · ${relDay(l.next_on, t)}` : ""}</div></div></div>
+            ))}
+          </div>
+        </Card>
+        ) },
+
         { id: "video", label: "Video analytics", span: "s4", node: (
         <Card tone="pearl" title="Video analytics" actions={<a className="chip sun" href={REVIEW_PORTAL_URL} target="_blank" rel="noreferrer">Open Review Portal ↗</a>}>
           {!va.ok ? <Empty>{va.reason ?? "No data yet."}</Empty> : (
@@ -227,34 +236,20 @@ export default async function Dashboard() {
         </Card>
         ) },
 
-        { id: "bizdev", href: "/bizdev", label: "New Biz", span: "s4", node: (
-        <Card tone="pearl" title="New Biz" more="/bizdev">
-          <div className="row" style={{ gap: 18 }}>
-            <div><div className="big">{openLeads.length}</div><div className="small muted">open leads</div></div>
-            <div><div className="mid">{money(openLeads.reduce((s, l) => s + Number(l.est_value ?? 0), 0), { compact: true })}</div><div className="small muted">estimated value</div></div>
+        { id: "finance", href: "/finance", label: "Finance", span: "s4", node: (
+        <Card tone="teal" title="Finance" more="/finance">
+          <div>
+            <div className="big">{months(fin.monthsBooked)}<small>months of runway</small></div>
+            <div className="small muted" style={{ marginTop: 8 }}>
+              {fin.known ? `Cash, receivables and booked work against ${money(fin.burn.total)} a month.` : "Add your cash position and monthly overhead in Finance to see runway."}
+            </div>
           </div>
-          <div className="list">
-            {openLeads.filter((l) => l.next_step).slice(0, 3).map((l) => (
-              <div className="item" key={l.id}><div className="grow"><div className="rowtitle">{l.next_step}</div><div className="meta">{l.name}{l.company ? `, ${l.company}` : ""}{l.next_on ? ` · ${relDay(l.next_on, t)}` : ""}</div></div></div>
-            ))}
+          <div className="tiles">
+            <div className="tile"><span className="tile-label">Overhead</span><span className="tile-value">{money(fin.burn.total, { compact: true })}</span><span className="tile-note">a month</span></div>
+            <div className="tile"><span className="tile-label">Cash</span><span className="tile-value">{money(fin.cash, { compact: true })}</span></div>
+            <div className="tile"><span className="tile-label">Booked</span><span className="tile-value">{money(fin.booked, { compact: true })}</span></div>
+            <div className="tile"><span className="tile-label">Pitched</span><span className="tile-value">{money(fin.pitched, { compact: true })}</span><span className="tile-note">weighted by odds</span></div>
           </div>
-        </Card>
-        ) },
-
-        { id: "notebook", href: "/notebook", label: "Notebook + gear", span: "s4", node: (
-        <Card title="Notebook + gear" more="/notebook">
-          <div className="list">
-            {notes.slice(0, 3).map((n) => (
-              <div className="item" key={n.id}><div className="grow"><div className="rowtitle">{n.title}</div><div className="meta">{fmtDate(n.noted_on)}{n.tags.map((tag) => <span key={tag} className="chip">{tag}</span>)}</div></div></div>
-            ))}
-            {!notes.length ? <p className="small muted">No notes yet.</p> : null}
-          </div>
-          <hr className="rule" />
-          <Link href="/gear" className="tiles" style={{ textDecoration: "none", gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
-            <span className="tile"><span className="tile-label">Gear owned</span><span className="tile-value">{gear.filter((g) => g.list === "inventory").length}</span></span>
-            <span className="tile"><span className="tile-label">For sale</span><span className="tile-value">{selling.length}</span></span>
-            <span className="tile"><span className="tile-label">To buy</span><span className="tile-value">{buying.length}</span><span className="tile-note">{money(buying.reduce((s, g) => s + Number(g.est_cost ?? 0), 0), { compact: true })}</span></span>
-          </Link>
         </Card>
         ) },
 
