@@ -466,6 +466,9 @@ export default async function middleware(request) {
   const where = new URL(request.url).pathname;
   if (where === '/social-machines' || where.startsWith('/social-machines/')) return pitchGate(request);
 
+  // The sign-in page needs its stylesheet before anyone is signed in
+  if (where === '/archive.css') return;
+
   const password = process.env.ARCHIVE_PASSWORD;
   if (!password) return new Response('The archive is locked until a password is set.', { status: 503 });
 
