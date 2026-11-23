@@ -303,7 +303,7 @@
     var seg=h('div',{class:'seg'});
     function segDraw(){seg.innerHTML='';[['review','Review link'],['presentation','Presentation link']].forEach(function(k){seg.appendChild(h('button',{type:'button',class:kind===k[0]?'on':'',text:k[1],onclick:function(){kind=k[0];segDraw();kd.textContent=kind==='review'?'Reviewers can watch and leave timecoded notes.':'Viewers can watch and download. Notes are off until you approve a request.';}}));});}
     var kd=h('div',{class:'hint',text:'Reviewers can watch and leave timecoded notes.'});segDraw();
-    var t=h('input',{class:'field',placeholder:'Title (e.g. Hilton Spark — Proposed Final)',maxlength:'140'}),c=h('input',{class:'field',placeholder:'Client or studio (optional)',maxlength:'140'}),u=h('input',{class:'field',type:'url',placeholder:'Direct link to the MP4 (https://…)'});
+    var t=h('input',{class:'field',placeholder:'Title (e.g. Sizzle - Proposed Final)',maxlength:'140'}),c=h('input',{class:'field',placeholder:'Client or studio (optional)',maxlength:'140'}),u=h('input',{class:'field',type:'url',placeholder:'Direct link to the MP4 (https://…)'});
     var ps=projectSelect(projectId),lb=h('input',{class:'field',placeholder:'Version label (e.g. v2)',maxlength:'40'}),m=h('span',{class:'msg'});
     function sugg(){var n=ps.value?inProj(ps.value).length+1:0;lb.placeholder=n?'Version label (leave blank for v'+n+')':'Version label (optional)';}
     ps.addEventListener('change',sugg);sugg();
