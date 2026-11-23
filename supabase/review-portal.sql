@@ -46,3 +46,14 @@ alter table public.reviews
   add column if not exists requested_message text,
   add column if not exists requested_at timestamptz;
 create index if not exists reviews_project_idx on public.reviews(project_id);
+
+-- 2026-11-23: view analytics (views, plays, downloads) for the dashboard panel
+create table if not exists public.review_views (
+  id uuid primary key default gen_random_uuid(),
+  review_id uuid not null references public.reviews(id) on delete cascade,
+  event text not null check (event in ('view','play','download')),
+  created_at timestamptz not null default now()
+);
+alter table public.review_views enable row level security;
+create index if not exists review_views_review_idx on public.review_views(review_id, created_at);
+create index if not exists review_views_created_idx on public.review_views(created_at);

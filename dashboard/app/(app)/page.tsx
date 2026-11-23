@@ -13,6 +13,8 @@ import { DEFAULT_FEEDS, getNews } from "@/lib/feeds";
 import { getInspiration, readSources, shuffle } from "@/lib/inspiration";
 import { getFeedEvents } from "@/lib/industry";
 import { PortfolioGantt } from "@/components/PortfolioGantt";
+import { Spark } from "@/components/charts";
+import { REVIEW_PORTAL_URL, videoAnalytics } from "@/lib/video-analytics";
 import { addDays, fmtDate, money, monthGrid, nowTime, relDay, today } from "@/lib/format";
 import { type IndustryEvent, type TimelineItem, KIND_LABEL, KIND_PATH, stageLabel, STAGES, type Gear, type Kind, type Lead, type Pin } from "@/lib/types";
 
@@ -53,6 +55,7 @@ export default async function Dashboard() {
     getTodos(), getProjects(), getEvents(grid[0][0], addDays(t, 45)), getNotes(), rows<Lead>("leads"), rows<Gear>("gear"),
     rows<Pin>("pins", "created_at", false), getSettings(), financeSummary(),
   ]);
+  const va = await videoAnalytics();
   // The Projects panel: active work only. Narrative ideas still in Ideation are left out.
   const activeProjects = projects.filter((p) => (p.kind === "client" ? p.stage !== "delivered" : p.kind === "narrative" ? ["in_development", "writing"].includes(p.stage) : true));
   const timelineItems = await rows<TimelineItem>("timeline_items", "start_date");
@@ -206,6 +209,34 @@ export default async function Dashboard() {
             <div className="tile"><span className="tile-label">Booked</span><span className="tile-value">{money(fin.booked, { compact: true })}</span></div>
             <div className="tile"><span className="tile-label">Pitched</span><span className="tile-value">{money(fin.pitched, { compact: true })}</span><span className="tile-note">weighted by odds</span></div>
           </div>
+        </Card>
+        ) },
+
+        { id: "video", label: "Video analytics", span: "s6", node: (
+        <Card tone="pearl" title="Video analytics" actions={<a className="chip sun" href={REVIEW_PORTAL_URL} target="_blank" rel="noreferrer">Open Review Portal ↗</a>}>
+          {!va.ok ? <Empty>{va.reason ?? "No data yet."}</Empty> : (
+            <>
+              <div className="row" style={{ gap: 18, alignItems: "flex-end" }}>
+                <div><div className="big">{va.views}</div><div className="small muted">views, last 30 days</div></div>
+                <div style={{ flex: 1, minWidth: 80 }}><Spark values={va.daily} color="var(--teal)" /></div>
+              </div>
+              <div className="tiles">
+                <div className="tile"><span className="tile-label">Plays</span><span className="tile-value">{va.plays}</span></div>
+                <div className="tile"><span className="tile-label">Downloads</span><span className="tile-value">{va.downloads}</span></div>
+                <div className="tile"><span className="tile-label">Open notes</span><span className="tile-value">{va.openNotes}</span></div>
+                <div className="tile"><span className="tile-label">Note requests</span><span className="tile-value">{va.pending}</span><span className="tile-note">waiting on you</span></div>
+              </div>
+              <div className="list">
+                {va.rows.length ? va.rows.map((r) => (
+                  <a className="item" key={r.id} href={REVIEW_PORTAL_URL} target="_blank" rel="noreferrer">
+                    <div className="grow"><div className="rowtitle">{r.title}{r.label ? ` · ${r.label}` : ""}</div>
+                      <div className="meta">{[r.project, r.kind === "presentation" ? "Presentation" : "Review"].filter(Boolean).join(" · ")}{r.pending ? " · wants to leave notes" : ""}</div></div>
+                    <div className="meta">{r.views} views · {r.plays} plays{r.openNotes ? ` · ${r.openNotes} open` : ""}</div>
+                  </a>
+                )) : <div className="small muted">{va.videos ? "No views yet. Counts start with the next visit to a review or presentation link." : "No videos in the Review Portal yet."}</div>}
+              </div>
+            </>
+          )}
         </Card>
         ) },
 

@@ -32,6 +32,11 @@ module.exports = async function handler(req, res) {
       const b = await readBody(req);
       const review = await load(b.token);
       if (!review) return send(res, 404, { error: 'This review link isn’t valid.' });
+      if (b.action === 'track') {   // anonymous counters only: view, play, download. No personal data is stored.
+        if (!['view', 'play', 'download'].includes(b.event)) return send(res, 400, { error: 'Unknown event' });
+        await db('POST', 'review_views', { review_id: review.id, event: b.event }, 'return=minimal').catch(() => {});
+        return send(res, 200, { ok: true });
+      }
       if (b.action === 'request_notes') {   // a viewer of a presentation asks to be allowed to leave notes
         if (review.kind !== 'presentation') return send(res, 400, { error: 'Notes are already open on this video.' });
         if (review.request_status === 'pending') return send(res, 200, { request_status: 'pending' });
