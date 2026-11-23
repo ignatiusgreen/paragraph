@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 const { db, enc, clean, ready, normalizeVideoUrl, send, readBody } = require('./_db');
 
-const NOTE_COLS = 'id,review_id,parent_id,author_name,author_email,is_team,timecode,body,resolved,created_at';
+const NOTE_COLS = 'id,review_id,parent_id,author_name,author_email,is_team,timecode,body,resolved,created_at,edited_at';
 const isId = (s) => /^[0-9a-f-]{36}$/i.test(String(s || ''));
 
 module.exports = async function handler(req, res) {

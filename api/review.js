@@ -1,7 +1,8 @@
 // Public side of the Review Portal: a reviewer opens /review/r/<token>, reads the notes, adds notes.
+const crypto = require('crypto');
 const { db, enc, clean, ready, send, readBody } = require('./_db');
 
-const NOTE_COLS = 'id,parent_id,author_name,is_team,timecode,body,resolved,created_at';
+const NOTE_COLS = 'id,parent_id,author_name,is_team,timecode,body,resolved,created_at,edited_at';
 
 async function load(token) {
   if (!/^[A-Za-z0-9_-]{16,64}$/.test(token || '')) return null;
@@ -27,6 +28,17 @@ module.exports = async function handler(req, res) {
       const review = await load(b.token);
       if (!review) return send(res, 404, { error: 'This review link isn’t valid.' });
       if (review.status !== 'open') return send(res, 403, { error: 'This review is closed, so notes can’t be added.' });
+      if (b.action === 'edit') {   // a reviewer changes their own note; the secret edit_key from when they wrote it proves it is theirs
+        const text = clean(b.body, 3000);
+        if (!text) return send(res, 400, { error: 'A note can’t be empty.' });
+        const found = await db('GET', 'review_notes?id=eq.' + enc(String(b.note_id || '')) + '&review_id=eq.' + review.id + '&select=id,edit_key&limit=1');
+        const key = found && found[0] && found[0].edit_key;
+        const given = String(b.edit_key || '');
+        const same = key && given.length === key.length && crypto.timingSafeEqual(Buffer.from(key), Buffer.from(given));
+        if (!same) return send(res, 403, { error: 'You can only edit notes you wrote on this device.' });
+        const upd = await db('PATCH', 'review_notes?id=eq.' + found[0].id + '&select=' + NOTE_COLS, { body: text, edited_at: new Date().toISOString() }, 'return=representation');
+        return send(res, 200, { note: upd[0] });
+      }
       const name = clean(b.name, 80), email = clean(b.email, 160), body = clean(b.body, 3000);
       if (!name) return send(res, 400, { error: 'Please add your name.' });
       if (!body) return send(res, 400, { error: 'Please write a note.' });
@@ -41,8 +53,9 @@ module.exports = async function handler(req, res) {
       }
       const count = await db('GET', 'review_notes?review_id=eq.' + review.id + '&select=id&limit=600');
       if (count.length >= 500) return send(res, 429, { error: 'This review has reached its note limit.' });
-      const row = await db('POST', 'review_notes?select=' + NOTE_COLS, { review_id: review.id, parent_id: parent, author_name: name, author_email: email || null, timecode: tc, body }, 'return=representation');
-      return send(res, 200, { note: row[0] });
+      const editKey = crypto.randomBytes(18).toString('base64url');
+      const row = await db('POST', 'review_notes?select=' + NOTE_COLS, { review_id: review.id, parent_id: parent, author_name: name, author_email: email || null, timecode: tc, body, edit_key: editKey }, 'return=representation');
+      return send(res, 200, { note: row[0], edit_key: editKey });
     }
 
     res.setHeader('Allow', 'GET, POST');

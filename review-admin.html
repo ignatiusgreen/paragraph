@@ -128,7 +128,7 @@ main.ra{display:block;padding:clamp(28px,4vw,56px) clamp(16px,3vw,40px) 90px;max
     if(!isReply)h.appendChild(el('span','tc'+(n.timecode==null?' gen':''),n.timecode==null?'General':mmss(n.timecode)));
     h.appendChild(el('b',null,n.author_name+(n.is_team?' (team)':'')));
     if(n.author_email){var m=el('a','msg',n.author_email);m.href='mailto:'+n.author_email;h.appendChild(m);}
-    h.appendChild(el('span','msg',ago(n.created_at)));
+    h.appendChild(el('span','msg',ago(n.created_at)+(n.edited_at?' · edited':'')));
     d.appendChild(h);d.appendChild(el('div','nb',n.body));
     var a=el('div','na');
     function bt(label,fn,cls){var x=el('button',cls||'',label);x.type='button';x.addEventListener('click',fn);a.appendChild(x);}
