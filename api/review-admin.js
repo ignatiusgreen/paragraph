@@ -11,6 +11,10 @@ module.exports = async function handler(req, res) {
     const url = new URL(req.url, 'http://x');
 
     if (req.method === 'GET') {
+      if (url.searchParams.get('site')) {   // Website Videos section: every video on paragraphfilms.com
+        const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,sort&order=sort.asc&limit=1000');
+        return send(res, 200, { videos });
+      }
       const id = url.searchParams.get('id');
       if (id) {
         if (!isId(id)) return send(res, 400, { error: 'Bad id' });
@@ -107,6 +111,18 @@ module.exports = async function handler(req, res) {
         if (!isId(b.id)) return send(res, 400, { error: 'Bad id' });
         await db('DELETE', 'review_projects?id=eq.' + b.id);
         return send(res, 200, { ok: true });
+      }
+      if (a === 'site_update') {   // set or clear the Dropbox (or other direct) link for a site video, rename, regroup
+        if (!isId(b.id)) return send(res, 400, { error: 'Bad id' });
+        const patch = { updated_at: new Date().toISOString() };
+        if (b.video_url !== undefined) {
+          if (String(b.video_url).trim() === '') patch.video_url = null;
+          else { const v = normalizeVideoUrl(b.video_url); if (!v) return send(res, 400, { error: 'The link must be a full https:// link to a video file.' }); patch.video_url = v; }
+        }
+        if (b.title !== undefined) { patch.title = clean(b.title, 160); if (!patch.title) return send(res, 400, { error: 'Title can’t be empty.' }); }
+        if (b.grp !== undefined) { patch.grp = clean(b.grp, 80); if (!patch.grp) return send(res, 400, { error: 'Group can’t be empty.' }); }
+        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,sort', patch, 'return=representation');
+        return send(res, 200, { video: row && row[0] });
       }
       return send(res, 400, { error: 'Unknown action' });
     }

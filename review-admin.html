@@ -87,6 +87,26 @@
 .rpl{display:flex;gap:8px;margin-top:10px}
 .rpl input{flex:1}
 @media(max-width:860px){.shell{grid-template-columns:1fr;height:auto}.side{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}.sh{display:none}.main{overflow:visible}.dh{flex-direction:column}.dh .vid-thumb{width:100%}}
+
+.sw{position:relative;margin-bottom:10px}
+.swb{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:6px 8px;border-radius:8px;text-align:left}
+.swb:hover{background:var(--card2)}
+.swb img{height:24px;width:auto;filter:brightness(1.25)}
+.swb b{font-size:15px;font-weight:600;flex:1}
+.swb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;opacity:.6}
+.swm{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:5px;z-index:30;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+.swm button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;padding:8px 10px;border-radius:7px;text-align:left;font-size:14px}
+.swm button:hover{background:var(--card2)}
+.swm button.on:after{content:'✓';margin-left:auto;color:var(--accent)}
+.prog{height:6px;background:var(--card2);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.prog i{display:block;height:100%;background:var(--accent)}
+.sv{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
+.sv:hover{border-color:#55565e}
+.sv b{font-size:14px;font-weight:600;line-height:1.25}
+.sv small{color:var(--muted);font-size:12px}
+.sv .vid-thumb{margin-bottom:4px}
+.sv .ph{display:grid;place-items:center;height:100%;color:var(--muted);font-size:12px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:26px}
 </style>
 </head>
 <body>
@@ -117,12 +137,12 @@
   function copy(text,btn){var o=btn.textContent;(navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1500);}).catch(function(){window.prompt('Copy this:',text);});}
 
   /* ---------- state ---------- */
-  var S={projects:[],reviews:[],view:'all',q:'',notes:{}};
+  var S={projects:[],reviews:[],view:'all',q:'',notes:{},section:'review',site:[],menu:false};
   var side=document.getElementById('side'),main=document.getElementById('main');
   function projOf(id){return S.projects.filter(function(p){return p.id===id;})[0];}
   function inProj(id){return S.reviews.filter(function(r){return r.project_id===id;});}
   function pending(){return S.reviews.filter(function(r){return r.request_status==='pending';});}
-  function load(){return call('GET').then(function(j){S.projects=j.projects;S.reviews=j.reviews;draw();}).catch(function(e){main.innerHTML='';main.appendChild(h('p',{class:'msg err',text:e.message}));});}
+  function load(){return Promise.all([call('GET'),call('GET',null,'?site=1').catch(function(){return {videos:[]};})]).then(function(r){S.projects=r[0].projects;S.reviews=r[0].reviews;S.site=r[1].videos||[];draw();}).catch(function(e){main.innerHTML='';main.appendChild(h('p',{class:'msg err',text:e.message}));});}
 
   /* ---------- sidebar ---------- */
   function nav(id,icon,label,count,dot){
@@ -130,7 +150,23 @@
   }
   function drawSide(){
     side.innerHTML='';
-    side.appendChild(h('div',{class:'brand'},[h('img',{src:'https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w',alt:''}),h('b',{text:'Review Portal'})]));
+    var names={review:'Review Portal',site:'Website Videos'};
+    var sw=h('div',{class:'sw'},[h('button',{class:'swb',type:'button','aria-haspopup':'true',onclick:function(e){e.stopPropagation();S.menu=!S.menu;drawSide();}},[h('img',{src:'https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w',alt:''}),h('b',{text:names[S.section]}),h('span',{html:'<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',style:'display:flex'})])]);
+    if(S.menu){var mm=h('div',{class:'swm'});['review','site'].forEach(function(k){mm.appendChild(h('button',{type:'button',class:S.section===k?'on':'',text:names[k],onclick:function(){S.section=k;S.menu=false;S.q='';S.view=k==='site'?'site:all':'all';draw();}}));});sw.appendChild(mm);}
+    side.appendChild(sw);
+    if(S.section==='site'){
+      var done=S.site.filter(function(v){return v.video_url;}).length,tot=S.site.length;
+      side.appendChild(nav('site:all',ICON.grid,'All videos',tot));
+      side.appendChild(nav('site:Films',ICON.folder,'Films',S.site.filter(function(v){return v.area==='Films';}).length));
+      side.appendChild(nav('site:Brands',ICON.folder,'Brands + archive',S.site.filter(function(v){return v.area==='Brands';}).length));
+      side.appendChild(nav('site:todo',ICON.bell,'Still on Vimeo',null,tot-done));
+      side.appendChild(h('div',{class:'sh'},[h('span',{text:'On Dropbox'}),h('span',{text:done+' / '+tot})]));
+      side.appendChild(h('div',{style:'padding:0 12px'},[h('div',{class:'prog'},[h('i',{style:'width:'+(tot?done/tot*100:0)+'%'})])]));
+      side.appendChild(h('div',{class:'spacer'}));
+      side.appendChild(h('a',{class:'nv',href:'/archive'},[h('span',{html:ICON.archive,style:'display:flex'}),h('span',{class:'t',text:'Archive'})]));
+      side.appendChild(h('a',{class:'nv',href:'/archive-logout'},[h('span',{html:ICON.out,style:'display:flex'}),h('span',{class:'t',text:'Sign out'})]));
+      return;
+    }
     side.appendChild(nav('all',ICON.grid,'All videos',S.reviews.length));
     side.appendChild(nav('requests',ICON.bell,'Note requests',null,pending().length||0));
     side.appendChild(h('div',{class:'sh'},[h('span',{text:'Projects'}),h('button',{type:'button',title:'New project','aria-label':'New project',text:'+',onclick:newProject})]));
@@ -165,10 +201,11 @@
   function topbar(title,extra){
     var s=h('input',{class:'field',placeholder:'Search videos…',value:S.q,'aria-label':'Search'});
     s.addEventListener('input',function(){S.q=s.value;var pos=s.selectionStart;drawMain();var i=document.querySelector('.search input');if(i){i.focus();i.setSelectionRange(pos,pos);}});
-    return h('div',{class:'top'},[h('h1',{text:title}),h('div',{class:'search',html:ICON.search},[s]),extra||null,h('button',{class:'btn pri',type:'button',onclick:function(){newVideo(S.view!=='all'&&S.view!=='requests'?S.view:null);},text:'+ New video'})]);
+    return h('div',{class:'top'},[title?h('h1',{text:title}):h('span',{style:'flex:1 1 360px'}),h('div',{class:'search',html:ICON.search},[s]),extra||null,h('button',{class:'btn pri',type:'button',onclick:function(){newVideo(S.view!=='all'&&S.view!=='requests'?S.view:null);},text:'+ New video'})]);
   }
   function drawMain(){
     main.innerHTML='';
+    if(S.section==='site')return drawSiteMain();
     if(S.view==='requests'){
       main.appendChild(topbar('Note requests'));
       var ps=pending();
@@ -183,7 +220,7 @@
       if(!items.length)main.appendChild(h('div',{class:'empty',text:S.q?'Nothing matches.':'This project is empty. Click “New video” to add the first draft.'}));
       var gr=h('div',{class:'grid'});items.forEach(function(r){gr.appendChild(vcard(r));});main.appendChild(gr);return;
     }
-    main.appendChild(topbar('Review Portal'));
+    main.appendChild(topbar(null));
     if(S.projects.length&&!S.q){
       main.appendChild(h('div',{class:'sec'},[h('h2',{text:'Projects'}),h('span',{text:S.projects.length+' folders'})]));
       var f=h('div',{class:'folders'});S.projects.forEach(function(p){f.appendChild(fcard(p));});main.appendChild(f);
@@ -195,12 +232,50 @@
   }
   function draw(){drawSide();drawMain();}
 
+
+  /* ---------- Website Videos ---------- */
+  function siteMatches(v){if(!S.q)return true;return (v.title+' '+v.grp).toLowerCase().indexOf(S.q.toLowerCase())>=0;}
+  function sitecard(v){
+    var t=h('div',{class:'vid-thumb'});
+    if(v.video_url){var vd=h('video',{src:v.video_url+(v.video_url.indexOf('#')<0?'#t=0.8':''),preload:'metadata',muted:true,playsinline:true});vd.muted=true;t.appendChild(vd);}
+    else t.appendChild(h('div',{class:'ph',text:'Vimeo '+v.vimeo_id}));
+    t.appendChild(h('span',{class:'tag pill '+(v.video_url?'y':''),text:v.video_url?'Dropbox':'Vimeo'}));
+    var where=(v.pages||[]).map(function(p){return p==='archive'?'Archive':p==='home'?'Home':p.replace(/^(films|brands|social-machines)\//,'').replace('.html','');}).join(', ');
+    return h('div',{class:'sv',onclick:function(){editSite(v);}},[t,h('b',{text:v.title}),h('small',{text:where})]);
+  }
+  function drawSiteMain(){
+    var f=S.view.replace('site:','');
+    var list=S.site.filter(function(v){return f==='all'||(f==='todo'?!v.video_url:v.area===f);}).filter(siteMatches);
+    var s=h('input',{class:'field',placeholder:'Search videos…',value:S.q,'aria-label':'Search'});
+    s.addEventListener('input',function(){S.q=s.value;var pos=s.selectionStart;drawMain();var i=document.querySelector('.search input');if(i){i.focus();i.setSelectionRange(pos,pos);}});
+    main.appendChild(h('div',{class:'top'},[h('span',{style:'flex:1 1 360px'}),h('div',{class:'search',html:ICON.search},[s])]));
+    main.appendChild(h('div',{class:'hint',style:'margin-bottom:22px',text:'Every video on paragraphfilms.com, grouped by film or client. Paste the direct video link for a file in your Dropbox “_website videos” folder and the site plays that file instead of the Vimeo version. Clear the link to go back to Vimeo.'}));
+    if(!list.length){main.appendChild(h('div',{class:'empty',text:S.q?'Nothing matches.':'Nothing here.'}));return;}
+    var groups=[],idx={};
+    list.forEach(function(v){var k=v.area+'|'+v.grp;if(!(k in idx)){idx[k]=groups.length;groups.push({k:v.grp,items:[]});}groups[idx[k]].items.push(v);});
+    groups.forEach(function(g){
+      var d=g.items.filter(function(v){return v.video_url;}).length;
+      main.appendChild(h('div',{class:'sec'},[h('h2',{text:g.k}),h('span',{text:d+' of '+g.items.length+' on Dropbox'})]));
+      var gr=h('div',{class:'sgrid'});g.items.forEach(function(v){gr.appendChild(sitecard(v));});main.appendChild(gr);
+    });
+  }
+  function editSite(v){
+    var t=h('input',{class:'field',value:v.title,maxlength:'160'}),g=h('input',{class:'field',value:v.grp,maxlength:'80'}),u=h('input',{class:'field',type:'url',placeholder:'Direct link to the video file (https://…)',value:v.video_url?v.video_url.replace(/([?&])raw=1/,'$1dl=0'):''}),m=h('span',{class:'msg'});
+    function save(clear){var body={action:'site_update',id:v.id,title:t.value,grp:g.value,video_url:clear?'':u.value};m.textContent='Saving…';m.className='msg';
+      call('POST',body).then(function(j){Object.assign(v,j.video||{});closeModal();draw();}).catch(function(e){m.textContent=e.message;m.className='msg err';});}
+    modal([h('h3',{text:v.title}),h('div',{class:'stack'},[h('div',{class:'lbl',text:'TITLE'}),t,h('div',{class:'lbl',text:'GROUP'}),g,h('div',{class:'lbl',text:'DROPBOX VIDEO LINK'}),u,
+      h('div',{class:'hint',text:'In Dropbox, right-click the file → Share → create a link anyone can view, then paste it here. It’s converted for playback. Leave empty to keep using Vimeo.'}),
+      h('div',{class:'hint'},[h('a',{href:'https://vimeo.com/'+v.vimeo_id,target:'_blank',rel:'noopener',text:'Open the Vimeo original ↗',style:'text-decoration:underline'})])]),
+      h('div',{class:'btns'},[h('button',{class:'btn pri',type:'button',text:'Save',onclick:function(){save(false);}}),v.video_url?h('button',{class:'btn ghost',type:'button',text:'Use Vimeo again',onclick:function(){save(true);}}):null,h('button',{class:'btn ghost',type:'button',text:'Cancel',onclick:closeModal}),m])]);
+  }
+
   /* ---------- modals ---------- */
   var cur=null;
   function modal(content,wide){closeModal();var m=h('div',{class:'md'+(wide?' wide':'')},content);var o=h('div',{class:'ov',onclick:function(e){if(e.target===o)closeModal();}},[m]);document.body.appendChild(o);cur=o;
     var f=m.querySelector('input,textarea');if(f)setTimeout(function(){f.focus();},30);return m;}
   function closeModal(){if(cur){cur.remove();cur=null;}}
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+  document.addEventListener('click',function(){if(S.menu){S.menu=false;drawSide();}});
 
   function newProject(){
     var n=h('input',{class:'field',placeholder:'Project name (e.g. Hilton Spark Europe)',maxlength:'140'}),c=h('input',{class:'field',placeholder:'Client (optional)',maxlength:'140'}),m=h('span',{class:'msg'});
