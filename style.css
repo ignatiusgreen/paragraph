@@ -379,7 +379,9 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 .pz-trigger{cursor:zoom-in}
 html.has-cdot .pz-trigger{cursor:none}
 /* over an image that can be enlarged: the circle cursor gets a plus in the middle (no system magnifier) */
-.cdot.zoom::after{width:18px;height:18px;margin:-9px 0 0 -9px;clip-path:none;filter:none;background:linear-gradient(#000,#000) center/18px 2px no-repeat,linear-gradient(#000,#000) center/2px 18px no-repeat;opacity:1;transform:scale(1)}
+.cdot.zoom::after,.cdot.zoomout::after{width:18px;height:18px;margin:-9px 0 0 -9px;clip-path:none;filter:none;background:linear-gradient(#000,#000) center/18px 2px no-repeat,linear-gradient(#000,#000) center/2px 18px no-repeat;opacity:1;transform:scale(1)}
+/* enlarged image: same circle, minus sign */
+.cdot.zoomout::after{background:linear-gradient(#000,#000) center/18px 2px no-repeat}
 .pz{position:fixed;inset:0;z-index:300;background:#0a0a0a;display:flex;align-items:center;justify-content:center;padding:clamp(16px,4vw,56px);opacity:0;transition:opacity .35s ease;cursor:zoom-out}
 .pz.on{opacity:1}
 .pz[hidden]{display:none}
@@ -388,8 +390,7 @@ html.has-cdot .pz-trigger{cursor:none}
 .pz-x{position:absolute;top:18px;right:clamp(16px,3vw,40px);width:44px;height:44px;display:grid;place-items:center;color:#f2efe9;background:none;border:0;cursor:pointer}
 .pz-x svg{width:22px;height:22px}
 html.pz-open{overflow:hidden}
-html.pz-open.has-cdot,html.pz-open.has-cdot *{cursor:zoom-out!important}
-html.pz-open .cdot{opacity:0!important}
+html.pz-open.has-cdot,html.pz-open.has-cdot *{cursor:none!important}
 html.pz-open header{opacity:0;pointer-events:none}
 
 /* Flourish: partner logos, white on transparent, in the right column */

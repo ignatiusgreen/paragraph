@@ -27,6 +27,7 @@
       if (lab !== dot._lab) { dot._lab = lab; dot.firstChild.innerHTML = lab.replace(' ', '<br>'); }
     }
     dot.classList.toggle('zoom', !!(t.closest && t.closest('.pz-trigger')));   // image that opens full screen: plus sign
+    dot.classList.toggle('zoomout', root.classList.contains('pz-open') && !!(t.closest && t.closest('.pz')));   // poster enlarged: minus sign
     dot.classList.toggle('go', isGo);
     dot.classList.toggle('play', onMedia || vp);                       // over a film or project: open ring with a play triangle
     dot.classList.toggle('hide', !onMedia && !vp && !!(t.closest && t.closest('iframe, video[controls]')));
@@ -43,6 +44,11 @@
   addEventListener('blur', release);
   addEventListener('pagehide', release);
   document.addEventListener('visibilitychange', function () { if (document.hidden) release(); });
+  // open/close of the full-screen poster changes the cursor straight away, without waiting for the next mouse move
+  new MutationObserver(function () {
+    var o = root.classList.contains('pz-open');
+    dot.classList.toggle('zoomout', o); dot.classList.toggle('zoom', !o && dot.classList.contains('on'));
+  }).observe(root, { attributes: true, attributeFilter: ['class'] });
   addEventListener('mousedown', function () { dot.classList.add('press'); });
   addEventListener('mouseup', function () { dot.classList.remove('press'); });
 })();
