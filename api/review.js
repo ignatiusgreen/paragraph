@@ -24,6 +24,12 @@ module.exports = async function handler(req, res) {
       if (review.project_id) { const p = await db('GET', 'review_projects?id=eq.' + review.project_id + '&select=name&limit=1'); project = p && p[0] ? p[0].name : null; }
       const { id, project_id, ...pub } = review;
       pub.project = project;
+      // other versions in the same project, so a viewer can switch between drafts from the top bar
+      pub.versions = [];
+      if (review.project_id) {
+        const sib = await db('GET', 'reviews?project_id=eq.' + review.project_id + '&select=token,title,label,kind,created_at&order=created_at.asc&limit=50');
+        pub.versions = (sib || []).map((v) => ({ token: v.token, label: v.label, title: v.title, kind: v.kind, current: v.token === url.searchParams.get('token') }));
+      }
       if (!isReview) pub.download_url = downloadUrl(review.video_url);
       return send(res, 200, { review: pub, notes });
     }
