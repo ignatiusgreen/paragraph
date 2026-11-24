@@ -143,7 +143,7 @@
 .vid-thumb .pick{position:absolute;top:8px;left:8px;min-width:24px;height:24px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-size:13px;font-weight:700;display:grid;place-items:center;padding:0 6px}
 @media(max-width:700px){.rform{grid-template-columns:1fr}}
 </style>
-</head>
+<script src="/hls-play.js"></script></head>
 <body>
 <div class="shell">
   <aside class="side" id="side"></aside>
@@ -414,7 +414,8 @@
     var box=h('div',{class:'fp'}),msg=h('span',{class:'msg'});
     var cur=h('img',{class:'fp-cur',src:thumbSrc(v),alt:'Current thumbnail'});
     cur.addEventListener('error',function(){cur.style.visibility='hidden';});
-    var vd=h('video',{controls:true,playsinline:true,preload:'auto',src:'/review/admin/video?id='+v.id+'#t=1'});
+    var vd=h('video',{controls:true,playsinline:true,preload:'auto'});
+    if(v.stream_url&&window.pgAttach){vd.crossOrigin='anonymous';pgAttach(vd,v.stream_url,'',{best:true});}else vd.src='/review/admin/video?id='+v.id+'#t=1';
     function step(d){vd.pause();vd.currentTime=Math.max(0,Math.min(vd.duration||1e9,vd.currentTime+d));}
     function post(body){msg.textContent='Saving…';msg.className='msg';
       return call('POST',Object.assign({action:'site_thumb',id:v.id},body)).then(function(j){Object.assign(v,j.video||{});cur.style.visibility='';cur.src=thumbSrc(v)+(v.thumb_url&&v.thumb_url.indexOf('?')<0?'?r='+Date.now():'');msg.textContent='Thumbnail saved.';drawMain();});}

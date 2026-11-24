@@ -26,7 +26,7 @@ h1{font-family:"Darker Grotesque","Helvetica Neue",Arial,sans-serif;font-size:cl
 .row .t small{color:var(--muted);font-size:13px}
 .fail{text-align:center;padding:90px 0}
 .row .th{width:96px;aspect-ratio:16/9;object-fit:cover;border-radius:4px;background:#111;flex:none}
-</style></head>
+</style><script src="/hls-play.js"></script></head>
 <body><div class="wrap" id="app"></div>
 <script>
 (function(){
@@ -48,7 +48,8 @@ function show(r){
   var dlAny=vs.some(function(v){return v.download;});
   function play(i,auto){
     cur=i;var v=vs[i];stage.innerHTML='';stage.style.removeProperty('--ar');
-    if(v.src){var m=h('video',{controls:true,playsinline:true,preload:'metadata',poster:v.thumb||'',src:v.src+(auto?'':'#t=0.8')});
+    if(v.src){var m=h('video',{controls:true,playsinline:true,preload:'metadata',poster:v.thumb||''});
+      if(window.pgAttach)pgAttach(m,v.src,v.fallback);else m.src=v.src;
       m.addEventListener('loadedmetadata',function(){if(m.videoWidth)stage.style.setProperty('--ar',m.videoWidth/m.videoHeight);});
       stage.appendChild(m);if(auto)m.play().catch(function(){});}
     else stage.appendChild(h('iframe',{src:v.embed+(v.embed.indexOf('?')<0?'?':'&')+'autoplay='+(auto?1:0),allow:'autoplay; fullscreen; picture-in-picture',allowfullscreen:true,title:v.title}));

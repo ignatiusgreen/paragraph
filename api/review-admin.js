@@ -1,6 +1,6 @@
 // Owner side of the Review Portal. Reached only through middleware.js, which requires the archive password.
 const crypto = require('crypto');
-const { db, enc, clean, ready, normalizeVideoUrl, downloadUrl, send, readBody } = require('./_db');
+const { db, enc, clean, ready, normalizeVideoUrl, downloadUrl, send, readBody, streamUrl } = require('./_db');
 
 const NOTE_COLS = 'id,review_id,parent_id,author_name,author_email,is_team,timecode,body,resolved,created_at,edited_at';
 const isId = (s) => /^[0-9a-f-]{36}$/i.test(String(s || ''));
@@ -66,6 +66,7 @@ module.exports = async function handler(req, res) {
       }
       if (url.searchParams.get('site')) {   // Website Videos section: every video on paragraphfilms.com
         const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,sort&order=sort.asc&limit=1000');
+        (videos || []).forEach((v) => { if (v.stream_uid && v.stream_status === 'ready') v.stream_url = streamUrl(v.stream_uid); });
         return send(res, 200, { videos });
       }
       const id = url.searchParams.get('id');

@@ -35,6 +35,9 @@ function downloadUrl(u) {
   } catch (e) { return u; }
 }
 
+const STREAM_HOST = () => process.env.CLOUDFLARE_STREAM_SUBDOMAIN || 'customer-huj8xg5h2triagb2.cloudflarestream.com';
+const streamUrl = (uid) => 'https://' + STREAM_HOST() + '/' + uid + '/manifest/video.m3u8';
+
 function send(res, status, obj) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -49,4 +52,4 @@ async function readBody(req) {
   try { return JSON.parse(raw || '{}'); } catch (e) { return {}; }
 }
 
-module.exports = { db, enc, clean, ready, normalizeVideoUrl, downloadUrl, send, readBody };
+module.exports = { streamUrl, db, enc, clean, ready, normalizeVideoUrl, downloadUrl, send, readBody };
