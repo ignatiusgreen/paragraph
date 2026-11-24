@@ -334,7 +334,7 @@
     s.addEventListener('input',function(){S.q=s.value;var pos=s.selectionStart;drawMain();var i=document.querySelector('.search input');if(i){i.focus();i.setSelectionRange(pos,pos);}});
     main.appendChild(h('div',{class:'top'},[h('span',{style:'flex:1 1 360px'}),h('div',{class:'search',html:ICON.search},[s])]));
     main.appendChild(h('div',{class:'hint',style:'margin-bottom:22px',text:'Every video on paragraphfilms.com, tagged by film or client. Click a video to choose its thumbnail: play it, pause on the frame you want, and use it.'}));
-    main.appendChild(streamBar());
+    // (fast-hosting bar removed: all videos are on Cloudflare; streamBar() kept for future use)
     if(!list.length){main.appendChild(h('div',{class:'empty',text:S.q?'Nothing matches.':'Nothing here.'}));return;}
     main.appendChild(h('div',{class:'sec'},[h('h2',{text:'Videos'}),h('span',{text:list.length+(list.length===1?' video':' videos')})]));
     var gr=h('div',{class:'sgrid'});list.forEach(function(v){gr.appendChild(sitecard(v));});main.appendChild(gr);
