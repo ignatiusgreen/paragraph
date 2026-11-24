@@ -16,6 +16,7 @@
     }
   });
   function load(s) {
+    return;   // the home carousel shows still posters only; trailers never play here
     if (reduce || s.dataset.loaded || !s.dataset.v) return; s.dataset.loaded = 1;
     var box = s.querySelector('.vid'), f = document.createElement('iframe');
     f.src = s.dataset.v; f.allow = 'autoplay; fullscreen'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
