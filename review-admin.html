@@ -267,7 +267,7 @@
     if(!vs.length)main.appendChild(h('div',{class:'empty',text:S.q?'Nothing matches.':'No videos yet. Click “New video” to add your first.'}));
     var gg=h('div',{class:'grid'});vs.forEach(function(r){gg.appendChild(vcard(r));});main.appendChild(gg);
   }
-  function draw(){drawSide();drawMain();}
+  function draw(){try{localStorage.setItem('pg_admin_nav',JSON.stringify({s:S.section,v:/^(all|site:[A-Za-z]+)$/.test(S.view)?S.view:'all'}));}catch(e){}drawSide();drawMain();}
 
 
 
@@ -519,6 +519,7 @@
     return h('div',{class:'nt'+(n.resolved?' done':'')+(isReply?' reply':'')},[avatar(n.author_name),body]);
   }
 
+  try{var sn=JSON.parse(localStorage.getItem('pg_admin_nav')||'null');if(sn&&(sn.s==='site'||sn.s==='review')){S.section=sn.s;S.view=(sn.s==='site'?/^site:/:/^all$/).test(sn.v)?sn.v:(sn.s==='site'?'site:all':'all');}}catch(e){}
   load();
 })();
 </script>
