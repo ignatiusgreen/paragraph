@@ -116,10 +116,12 @@ export default async function Dashboard() {
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   // A different mix on every load: up to four of your pins plus images from the sources, in random order.
   const freshPins = pins.filter((p) => !shown.has(imageId(p.image_url)));
-  const images = shuffle([
+  const pool = [
     ...shuffle(freshPins).slice(0, 4).map((p) => ({ image: p.image_url, title: p.caption ?? "", credit: "Pinned", url: p.source_url, pin: p })),
     ...inspiration.map((i) => ({ ...i, pin: null as Pin | null })),
-  ].slice(0, 11));
+  ];
+  // The grid is built from blocks of five (one large image and four small), so show a whole number of blocks: no empty corner.
+  const images = shuffle(pool.slice(0, pool.length >= 5 ? Math.min(15, Math.floor(pool.length / 5) * 5) : pool.length));
   // Remember what this load showed, before the page is sent, so the next load can't repeat it.
   if (hasServiceKey() && images.length) {
     const ids = [...new Set([...shown, ...images.map((i) => imageId(i.image))])].slice(-4000);
