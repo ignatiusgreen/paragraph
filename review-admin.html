@@ -422,8 +422,21 @@
     function use(){
       if(!vd.videoWidth){msg.textContent='Let the video load first.';msg.className='msg err';return;}
       vd.pause();
-      var sc=Math.min(1,1280/vd.videoWidth),c=document.createElement('canvas');c.width=Math.round(vd.videoWidth*sc);c.height=Math.round(vd.videoHeight*sc);
-      var data;try{c.getContext('2d').drawImage(vd,0,0,c.width,c.height);data=c.toDataURL('image/jpeg',.88);}catch(e){msg.textContent='Couldn’t read that frame. Reload and try again.';msg.className='msg err';return;}
+      var data;try{
+        var fw=vd.videoWidth,fh=vd.videoHeight,full=document.createElement('canvas');full.width=fw;full.height=fh;
+        var fx=full.getContext('2d');fx.drawImage(vd,0,0,fw,fh);
+        // trim black letterbox bars, then centre-crop to 16:9 so the thumbnail fills the tile
+        var top=0,bot=0,px=fx.getImageData(0,0,fw,fh).data;
+        function dark(y){for(var x=0;x<fw;x+=Math.max(1,fw>>6)){var i=(y*fw+x)*4;if(px[i]>24||px[i+1]>24||px[i+2]>24)return false;}return true;}
+        while(top<fh/3&&dark(top))top++;
+        while(bot<fh/3&&dark(fh-1-bot))bot++;
+        if(top<fh*0.04||bot<fh*0.04||Math.abs(top-bot)>Math.max(6,0.2*Math.max(top,bot))){top=0;bot=0;}   // real letterbox = matching bars top and bottom (not just a dark scene)
+        var ch=fh-top-bot,cw=fw,sx=0;
+        if(cw/ch>16/9){cw=Math.round(ch*16/9);sx=Math.floor((fw-cw)/2);}
+        var sc=Math.min(1,1280/cw),c=document.createElement('canvas');c.width=Math.round(cw*sc);c.height=Math.round(ch*sc);
+        c.getContext('2d').drawImage(full,sx,top,cw,ch,0,0,c.width,c.height);
+        data=c.toDataURL('image/jpeg',.88);
+      }catch(e){msg.textContent='Couldn’t read that frame. Reload and try again.';msg.className='msg err';return;}
       post({image:data}).catch(function(e){msg.textContent=e.message;msg.className='msg err';});
     }
     var err=h('div',{class:'hint',style:'display:none',text:'This video can’t be played here right now.'});
