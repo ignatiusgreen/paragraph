@@ -11,11 +11,16 @@
       [].forEach.call(w.children,function(c){if(!c.classList||!c.classList.contains('vc'))c.remove();});
       if(w.querySelector('.vc'))return;
       var b=document.createElement('button');b.type='button';b.className='vc';b.setAttribute('data-lb','');b.setAttribute('data-src',src);b.setAttribute('data-title',title);b.setAttribute('aria-label','Play '+title);
-      b.innerHTML=(t?'<img src="'+t.t+'" alt="">':'')+'<span class="vc-icon" aria-hidden="true"><svg viewBox="0 0 66 98"><polygon points="1.5,1.5 64.5,49 1.5,96.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></span>';
+      var mm=src.match(/\/video\/(\d+)/),ct=window.__pgThumbs&&mm&&window.__pgThumbs[mm[1]];b.innerHTML=(ct||t?'<img src="'+(ct||t.t)+'" alt="">':'')+'<span class="vc-icon" aria-hidden="true"><svg viewBox="0 0 66 98"><polygon points="1.5,1.5 64.5,49 1.5,96.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></span>';
       w.appendChild(b);
     }
     build();
     new MutationObserver(function(){ if(w.querySelector('iframe')||!w.querySelector('.vc'))build(); }).observe(w,{childList:true});
   }
   [].forEach.call(document.querySelectorAll('.sqs-video-wrapper[data-provider-name="Vimeo"]'),fix);
+  // a thumbnail chosen in the portal replaces the default still
+  fetch('/api/site-videos').then(function(r){return r.json();}).then(function(j){
+    if(!j||!j.thumbs)return; window.__pgThumbs=j.thumbs;
+    [].forEach.call(document.querySelectorAll('.vc[data-src]'),function(b){var m=b.getAttribute('data-src').match(/\/video\/(\d+)/),u=m&&j.thumbs[m[1]],im=b.querySelector('img');if(u&&im)im.src=u;});
+  }).catch(function(){});
 })();

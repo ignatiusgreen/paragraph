@@ -25,6 +25,7 @@ h1{font-family:"Darker Grotesque","Helvetica Neue",Arial,sans-serif;font-size:cl
 .row .t b{font-weight:600;font-size:15px;display:block}
 .row .t small{color:var(--muted);font-size:13px}
 .fail{text-align:center;padding:90px 0}
+.row .th{width:96px;aspect-ratio:16/9;object-fit:cover;border-radius:4px;background:#111;flex:none}
 </style></head>
 <body><div class="wrap" id="app"></div>
 <script>
@@ -47,7 +48,7 @@ function show(r){
   var dlAny=vs.some(function(v){return v.download;});
   function play(i,auto){
     cur=i;var v=vs[i];stage.innerHTML='';stage.style.removeProperty('--ar');
-    if(v.src){var m=h('video',{controls:true,playsinline:true,preload:'metadata',src:v.src+(auto?'':'#t=0.8')});
+    if(v.src){var m=h('video',{controls:true,playsinline:true,preload:'metadata',poster:v.thumb||'',src:v.src+(auto?'':'#t=0.8')});
       m.addEventListener('loadedmetadata',function(){if(m.videoWidth)stage.style.setProperty('--ar',m.videoWidth/m.videoHeight);});
       stage.appendChild(m);if(auto)m.play().catch(function(){});}
     else stage.appendChild(h('iframe',{src:v.embed+(v.embed.indexOf('?')<0?'?':'&')+'autoplay='+(auto?1:0),allow:'autoplay; fullscreen; picture-in-picture',allowfullscreen:true,title:v.title}));
@@ -55,7 +56,7 @@ function show(r){
     if(v.download)now.appendChild(h('a',{class:'btn',href:v.download,text:'Download'}));
     [].forEach.call(list.children,function(el,k){el.classList.toggle('on',k===i);});
   }
-  vs.forEach(function(v,i){list.appendChild(h('div',{class:'row',onclick:function(){play(i,true);window.scrollTo({top:0,behavior:'smooth'});}},[h('span',{class:'n',text:String(i+1)}),h('div',{class:'t'},[h('b',{text:v.title}),h('small',{text:v.project})]),v.download?h('a',{class:'btn sm ghost',href:v.download,text:'Download',onclick:function(e){e.stopPropagation();}}):null]));});
+  vs.forEach(function(v,i){list.appendChild(h('div',{class:'row',onclick:function(){play(i,true);window.scrollTo({top:0,behavior:'smooth'});}},[h('span',{class:'n',text:String(i+1)}),h('img',{class:'th',src:v.thumb||'',alt:'',loading:'lazy',onerror:function(){this.style.display='none';}}),h('div',{class:'t'},[h('b',{text:v.title}),h('small',{text:v.project})]),v.download?h('a',{class:'btn sm ghost',href:v.download,text:'Download',onclick:function(e){e.stopPropagation();}}):null]));});
   app.appendChild(list);
   if(dlAny&&vs.length>1){var b=h('button',{class:'btn',type:'button',style:'margin-top:22px',text:'Download all',onclick:function(){var q=vs.filter(function(v){return v.download;}),i=0;(function next(){if(i>=q.length)return;var f=h('iframe',{style:'display:none',src:q[i++].download});document.body.appendChild(f);setTimeout(next,2500);})();}});app.appendChild(b);}
   play(0,false);

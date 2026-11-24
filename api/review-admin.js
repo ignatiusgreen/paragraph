@@ -65,7 +65,7 @@ module.exports = async function handler(req, res) {
         return send(res, 200, { reels });
       }
       if (url.searchParams.get('site')) {   // Website Videos section: every video on paragraphfilms.com
-        const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,sort&order=sort.asc&limit=1000');
+        const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,sort&order=sort.asc&limit=1000');
         return send(res, 200, { videos });
       }
       const id = url.searchParams.get('id');
@@ -174,7 +174,28 @@ module.exports = async function handler(req, res) {
         }
         if (b.title !== undefined) { patch.title = clean(b.title, 160); if (!patch.title) return send(res, 400, { error: 'Title can’t be empty.' }); }
         if (b.grp !== undefined) { patch.grp = clean(b.grp, 80); if (!patch.grp) return send(res, 400, { error: 'Group can’t be empty.' }); }
-        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,sort', patch, 'return=representation');
+        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,sort', patch, 'return=representation');
+        return send(res, 200, { video: row && row[0] });
+      }
+      if (a === 'site_thumb') {   // choose a still for a site video: a JPEG captured in the portal (data URL), or { clear: true } to remove it
+        if (!isId(b.id)) return send(res, 400, { error: 'Bad id' });
+        const patch = { updated_at: new Date().toISOString() };
+        if (b.clear) patch.thumb_url = null;
+        else {
+          const m = /^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/.exec(String(b.image || ''));
+          if (!m) return send(res, 400, { error: 'That image didn’t come through. Try again.' });
+          const buf = Buffer.from(m[1], 'base64');
+          if (buf.length < 2000 || buf.length > 3 * 1024 * 1024) return send(res, 400, { error: 'That image is the wrong size.' });
+          const cur = await db('GET', 'site_videos?id=eq.' + b.id + '&select=vimeo_id&limit=1');
+          if (!cur || !cur[0]) return send(res, 404, { error: 'Video not found' });
+          const name = cur[0].vimeo_id + '-' + Date.now().toString(36) + '.jpg';
+          const base = (process.env.SUPABASE_URL || 'https://dujhgnnphqmcskfpbmll.supabase.co').replace(/\/$/, '');
+          const key = process.env.SUPABASE_SERVICE_KEY;
+          const up = await fetch(base + '/storage/v1/object/site-thumbs/' + name, { method: 'POST', headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'image/jpeg', 'x-upsert': 'true', 'Cache-Control': 'max-age=31536000' }, body: buf });
+          if (!up.ok) return send(res, 502, { error: 'Couldn’t save the image (' + up.status + ').' });
+          patch.thumb_url = base + '/storage/v1/object/public/site-thumbs/' + name;
+        }
+        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,sort', patch, 'return=representation');
         return send(res, 200, { video: row && row[0] });
       }
       if (a === 'reel_save') {   // create or update a custom reel: title, client, ordered list of site video ids

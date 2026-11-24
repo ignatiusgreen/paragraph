@@ -8,6 +8,7 @@
   try { var c = JSON.parse(localStorage.getItem(KEY) || 'null'); if (c && typeof c === 'object') map = c; } catch (e) {}
   try {
     fetch('/api/site-videos').then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.thumbs) window.__pgThumbs = j.thumbs;
       if (j && j.map) { map = j.map; try { localStorage.setItem(KEY, JSON.stringify(map)); } catch (e) {} }
     }).catch(function () {});
   } catch (e) {}
@@ -59,7 +60,7 @@
 
     var bg = q.background === '1' || q.muted === '1';
     v = document.createElement('video');
-    v.className = 'vsh'; v.src = map[id]; v.preload = 'auto'; v.playsInline = true; v.setAttribute('playsinline', '');
+    v.className = 'vsh'; v.src = map[id]; v.preload = 'auto'; if (window.__pgThumbs && window.__pgThumbs[id]) v.poster = window.__pgThumbs[id]; v.playsInline = true; v.setAttribute('playsinline', '');
     v.disablePictureInPicture = bg;
     if (bg || q.muted === '1') v.muted = true;
     if (q.loop === '1' || bg) v.loop = true;

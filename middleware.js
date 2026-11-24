@@ -462,6 +462,24 @@ function projectFor(pathname) {
   return m && BY_SLUG[m[1]] ? m[1] : null;
 }
 
+// Portal only: streams one website video through this site so the frame picker can read its pixels
+// (the file host doesn't allow that directly). Looks the file up by id; never fetches an address it was handed.
+async function adminVideo(request, url) {
+  const id = url.searchParams.get('id') || '';
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  if (!/^[0-9a-f-]{36}$/i.test(id) || !key) return new Response('Not found', { status: 404 });
+  const base = (process.env.SUPABASE_URL || 'https://dujhgnnphqmcskfpbmll.supabase.co').replace(/\/$/, '');
+  const r = await fetch(base + '/rest/v1/site_videos?id=eq.' + id + '&select=video_url&limit=1', { headers: { apikey: key, Authorization: 'Bearer ' + key } });
+  const rows = r.ok ? await r.json() : [];
+  const src = rows && rows[0] && rows[0].video_url;
+  if (!src) return new Response('Not found', { status: 404 });
+  const h = new Headers(); const range = request.headers.get('range'); if (range) h.set('range', range);
+  const up = await fetch(src, { headers: h, redirect: 'follow' });
+  const out = new Headers({ 'Content-Type': 'video/mp4', 'Accept-Ranges': 'bytes', 'Cache-Control': 'private, no-store' });
+  ['content-length', 'content-range'].forEach((k) => { const v = up.headers.get(k); if (v) out.set(k, v); });
+  return new Response(up.body, { status: up.status === 206 ? 206 : up.ok ? 200 : up.status, headers: out });
+}
+
 export default async function middleware(request) {
   const where = new URL(request.url).pathname;
   if (where === '/social-machines' || where.startsWith('/social-machines/')) return pitchGate(request);
@@ -479,6 +497,7 @@ export default async function middleware(request) {
 
   // Review Portal owner side: needs the same password as the archive. (Reviewers use /review/r/<token>, which is not gated here.)
   if (path === '/review/admin' || path.startsWith('/review/admin/') || path === '/api/review-admin') {
+    if (isFull && path === '/review/admin/video') return adminVideo(request, url);
     if (isFull) return;
     if (path === '/api/review-admin') return new Response(JSON.stringify({ error: 'Please sign in again.' }), { status: 401, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
     return signInOr(request, url, password, fullToken);

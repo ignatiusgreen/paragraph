@@ -13,13 +13,14 @@ module.exports = async function handler(req, res) {
     const r = rows && rows[0];
     if (!r) return send(res, 404, { error: 'This link isn’t valid, or it was switched off.' });
     const ids = r.vimeo_ids || [];
-    const vids = ids.length ? await db('GET', 'site_videos?vimeo_id=in.(' + ids.map(enc).join(',') + ')&select=vimeo_id,title,grp,video_url&limit=200') : [];
+    const vids = ids.length ? await db('GET', 'site_videos?vimeo_id=in.(' + ids.map(enc).join(',') + ')&select=vimeo_id,title,grp,video_url,thumb_url&limit=200') : [];
     const by = {}; (vids || []).forEach((v) => { by[v.vimeo_id] = v; });
     const videos = ids.filter((i) => by[i]).map((i) => {
       const v = by[i];
       return {
         title: v.title, project: v.grp,
         src: v.video_url || null,
+        thumb: v.thumb_url || '/img/vt/' + i + '.jpg',
         embed: v.video_url ? null : 'https://player.vimeo.com/video/' + i + (VH[i] ? '?h=' + VH[i] : ''),
         download: r.allow_download && v.video_url ? downloadUrl(v.video_url) : null,
       };

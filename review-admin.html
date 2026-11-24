@@ -105,6 +105,8 @@
 .sv b{font-size:14px;font-weight:600;line-height:1.25}
 .sv small{color:var(--muted);font-size:12px}
 .sv .vid-thumb{margin-bottom:4px}
+.fp-row{display:flex;gap:18px;align-items:flex-start}.fp-main{flex:1;min-width:0}.fp-main video{width:100%;max-height:46vh;background:#000;border-radius:8px;display:block}.fp-side{width:170px;flex:none}.fp-cur{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:#050506;margin-top:6px;display:block}.vid-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+@media(max-width:700px){.fp-row{flex-direction:column}.fp-side{width:100%}}
 .sv .ph{display:grid;place-items:center;height:100%;color:var(--muted);font-size:12px}
 .sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:26px}
 .atiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0 26px}
@@ -190,14 +192,11 @@
     if(S.menu){var mm=h('div',{class:'swm'});['review','site'].forEach(function(k){mm.appendChild(h('button',{type:'button',class:S.section===k?'on':'',text:names[k],onclick:function(){S.section=k;S.menu=false;S.q='';S.view=k==='site'?'site:all':'all';draw();}}));});sw.appendChild(mm);}
     side.appendChild(sw);
     if(S.section==='site'){
-      var done=S.site.filter(function(v){return v.video_url;}).length,tot=S.site.length;
+      var tot=S.site.length;
       side.appendChild(nav('site:all',ICON.grid,'All videos',tot));
       side.appendChild(nav('site:Films',ICON.folder,'Films',S.site.filter(function(v){return v.area==='Films';}).length));
       side.appendChild(nav('site:Brands',ICON.folder,'Brands + archive',S.site.filter(function(v){return v.area==='Brands';}).length));
       side.appendChild(nav('site:reels',ICON.reel,'Reel Builder',S.reels.length));
-      side.appendChild(nav('site:todo',ICON.bell,'Still on Vimeo',null,tot-done));
-      side.appendChild(h('div',{class:'sh'},[h('span',{text:'On Dropbox'}),h('span',{text:done+' / '+tot})]));
-      side.appendChild(h('div',{style:'padding:0 12px'},[h('div',{class:'prog'},[h('i',{style:'width:'+(tot?done/tot*100:0)+'%'})])]));
       side.appendChild(h('div',{class:'spacer'}));
       side.appendChild(h('a',{class:'nv',href:'/archive'},[h('span',{html:ICON.archive,style:'display:flex'}),h('span',{class:'t',text:'Archive'})]));
       side.appendChild(h('a',{class:'nv',href:'/archive-logout'},[h('span',{html:ICON.out,style:'display:flex'}),h('span',{class:'t',text:'Sign out'})]));
@@ -297,22 +296,28 @@
 
   /* ---------- Website Videos ---------- */
   function siteMatches(v){if(!S.q)return true;return (v.title+' '+v.grp).toLowerCase().indexOf(S.q.toLowerCase())>=0;}
-  function sitecard(v){
+  function thumbSrc(v){return v.thumb_url||'/img/vt/'+v.vimeo_id+'.jpg';}
+  function thumbEl(v){
     var t=h('div',{class:'vid-thumb'});
-    if(v.video_url){var vd=h('video',{src:v.video_url+(v.video_url.indexOf('#')<0?'#t=0.8':''),preload:'metadata',muted:true,playsinline:true});vd.muted=true;t.appendChild(vd);}
-    else t.appendChild(h('div',{class:'ph',text:'Vimeo '+v.vimeo_id}));
-    t.appendChild(h('span',{class:'tag pill '+(v.video_url?'y':''),text:v.video_url?'Dropbox':'Vimeo'}));
+    var im=h('img',{src:thumbSrc(v),alt:'',loading:'lazy'});
+    im.addEventListener('error',function(){im.remove();
+      if(v.video_url){var vd=h('video',{src:v.video_url+'#t=0.8',preload:'metadata',muted:true,playsinline:true});vd.muted=true;t.insertBefore(vd,t.firstChild);}
+      else t.insertBefore(h('div',{class:'ph',text:v.title}),t.firstChild);});
+    t.appendChild(im);return t;
+  }
+  function sitecard(v){
+    var t=thumbEl(v);
     var where=(v.pages||[]).map(function(p){return p==='archive'?'Archive':p==='home'?'Home':p.replace(/^(films|brands|social-machines)\//,'').replace('.html','');}).join(', ');
     return h('div',{class:'sv',onclick:function(){editSite(v);}},[t,h('b',{text:v.title}),h('div',{class:'row'},[h('span',{class:'pill',text:v.grp})]),h('small',{text:where})]);
   }
   function drawSiteMain(){
     if(S.view==='site:reels')return drawReels();
     var f=S.view.replace('site:','');
-    var list=S.site.filter(function(v){return f==='all'||(f==='todo'?!v.video_url:v.area===f);}).filter(siteMatches);
+    var list=S.site.filter(function(v){return f==='all'||v.area===f;}).filter(siteMatches);
     var s=h('input',{class:'field',placeholder:'Search by name, project or client…',value:S.q,'aria-label':'Search'});
     s.addEventListener('input',function(){S.q=s.value;var pos=s.selectionStart;drawMain();var i=document.querySelector('.search input');if(i){i.focus();i.setSelectionRange(pos,pos);}});
     main.appendChild(h('div',{class:'top'},[h('span',{style:'flex:1 1 360px'}),h('div',{class:'search',html:ICON.search},[s])]));
-    main.appendChild(h('div',{class:'hint',style:'margin-bottom:22px',text:'Every video on paragraphfilms.com, tagged by film or client. Paste the direct video link for a file in your Dropbox “_website videos” folder and the site plays that file instead of the Vimeo version. Clear the link to go back to Vimeo.'}));
+    main.appendChild(h('div',{class:'hint',style:'margin-bottom:22px',text:'Every video on paragraphfilms.com, tagged by film or client. Click a video to choose its thumbnail: play it, pause on the frame you want, and use it.'}));
     if(!list.length){main.appendChild(h('div',{class:'empty',text:S.q?'Nothing matches.':'Nothing here.'}));return;}
     main.appendChild(h('div',{class:'sec'},[h('h2',{text:'Videos'}),h('span',{text:list.length+(list.length===1?' video':' videos')})]));
     var gr=h('div',{class:'sgrid'});list.forEach(function(v){gr.appendChild(sitecard(v));});main.appendChild(gr);
@@ -325,7 +330,7 @@
   function drawReels(){
     var R=S.rsel;
     main.appendChild(h('div',{class:'top'},[h('span',{style:'flex:1 1 360px'}),h('button',{class:'btn pri',type:'button',text:'+ New reel',onclick:function(){resetReel();drawMain();window.scrollTo(0,0);}})]));
-    main.appendChild(h('div',{class:'hint',style:'margin-bottom:22px',text:'Make a private page with just the videos you choose, in the order you set, for one client or pitch. Each reel gets its own link. It plays the Dropbox file where one is set (otherwise Vimeo) and can offer downloads.'}));
+    main.appendChild(h('div',{class:'hint',style:'margin-bottom:22px',text:'Make a private page with just the videos you choose, in the order you set, for one client or pitch. Each reel gets its own link. It can offer downloads.'}));
     if(S.reels.length){
       main.appendChild(h('div',{class:'sec'},[h('h2',{text:'Saved reels'}),h('span',{text:String(S.reels.length)})]));
       var t=h('div',{class:'rlist'});
@@ -375,21 +380,44 @@
     var gr=h('div',{class:'sgrid'});
     list.forEach(function(v){
       var n=R.ids.indexOf(v.vimeo_id)+1;
-      var t=h('div',{class:'vid-thumb'});
-      if(v.video_url){var vd=h('video',{src:v.video_url+(v.video_url.indexOf('#')<0?'#t=0.8':''),preload:'metadata',muted:true,playsinline:true});vd.muted=true;t.appendChild(vd);}else t.appendChild(h('div',{class:'ph',text:'Vimeo '+v.vimeo_id}));
+      var t=thumbEl(v);
       if(n)t.appendChild(h('span',{class:'pick',text:String(n)}));
       gr.appendChild(h('div',{class:'sv'+(n?' sel':''),onclick:function(){var i=R.ids.indexOf(v.vimeo_id);if(i<0)R.ids.push(v.vimeo_id);else R.ids.splice(i,1);var y=main.scrollTop;drawMain();main.scrollTop=y;}},[t,h('b',{text:v.title}),h('div',{class:'row'},[h('span',{class:'pill',text:v.grp})])]));
     });
     main.appendChild(list.length?gr:h('div',{class:'empty',text:'Nothing matches.'}));
   }
   function editSite(v){
-    var t=h('input',{class:'field',value:v.title,maxlength:'160'}),g=h('input',{class:'field',value:v.grp,maxlength:'80'}),u=h('input',{class:'field',type:'url',placeholder:'Direct link to the video file (https://…)',value:v.video_url?v.video_url.replace(/([?&])raw=1/,'$1dl=0'):''}),m=h('span',{class:'msg'});
-    function save(clear){var body={action:'site_update',id:v.id,title:t.value,grp:g.value,video_url:clear?'':u.value};m.textContent='Saving…';m.className='msg';
+    var t=h('input',{class:'field',value:v.title,maxlength:'160'}),g=h('input',{class:'field',value:v.grp,maxlength:'80'}),m=h('span',{class:'msg'});
+    function save(){var body={action:'site_update',id:v.id,title:t.value,grp:g.value};m.textContent='Saving…';m.className='msg';
       call('POST',body).then(function(j){Object.assign(v,j.video||{});closeModal();draw();}).catch(function(e){m.textContent=e.message;m.className='msg err';});}
-    modal([h('h3',{text:v.title}),h('div',{class:'stack'},[h('div',{class:'lbl',text:'TITLE'}),t,h('div',{class:'lbl',text:'GROUP'}),g,h('div',{class:'lbl',text:'DROPBOX VIDEO LINK'}),u,
-      h('div',{class:'hint',text:'In Dropbox, right-click the file → Share → create a link anyone can view, then paste it here. It’s converted for playback. Leave empty to keep using Vimeo.'}),
-      h('div',{class:'hint'},[h('a',{href:'https://vimeo.com/'+v.vimeo_id,target:'_blank',rel:'noopener',text:'Open the Vimeo original ↗',style:'text-decoration:underline'})])]),
-      h('div',{class:'btns'},[h('button',{class:'btn pri',type:'button',text:'Save',onclick:function(){save(false);}}),v.video_url?h('button',{class:'btn ghost',type:'button',text:'Use Vimeo again',onclick:function(){save(true);}}):null,h('button',{class:'btn ghost',type:'button',text:'Cancel',onclick:closeModal}),m])]);
+    modal([h('h3',{text:v.title}),h('div',{class:'stack'},[h('div',{class:'lbl',text:'THUMBNAIL'}),framePicker(v),h('div',{class:'lbl',text:'TITLE'}),t,h('div',{class:'lbl',text:'GROUP'}),g]),
+      h('div',{class:'btns'},[h('button',{class:'btn pri',type:'button',text:'Save',onclick:save}),h('button',{class:'btn ghost',type:'button',text:'Close',onclick:closeModal}),m])],true);
+  }
+  function framePicker(v){
+    var box=h('div',{class:'fp'}),msg=h('span',{class:'msg'});
+    var cur=h('img',{class:'fp-cur',src:thumbSrc(v),alt:'Current thumbnail'});
+    cur.addEventListener('error',function(){cur.style.visibility='hidden';});
+    var vd=h('video',{controls:true,playsinline:true,preload:'auto',src:'/review/admin/video?id='+v.id+'#t=1'});
+    function step(d){vd.pause();vd.currentTime=Math.max(0,Math.min(vd.duration||1e9,vd.currentTime+d));}
+    function post(body){msg.textContent='Saving…';msg.className='msg';
+      return call('POST',Object.assign({action:'site_thumb',id:v.id},body)).then(function(j){Object.assign(v,j.video||{});cur.style.visibility='';cur.src=thumbSrc(v)+(v.thumb_url&&v.thumb_url.indexOf('?')<0?'?r='+Date.now():'');msg.textContent='Thumbnail saved.';drawMain();});}
+    function use(){
+      if(!vd.videoWidth){msg.textContent='Let the video load first.';msg.className='msg err';return;}
+      vd.pause();
+      var sc=Math.min(1,1280/vd.videoWidth),c=document.createElement('canvas');c.width=Math.round(vd.videoWidth*sc);c.height=Math.round(vd.videoHeight*sc);
+      var data;try{c.getContext('2d').drawImage(vd,0,0,c.width,c.height);data=c.toDataURL('image/jpeg',.88);}catch(e){msg.textContent='Couldn’t read that frame. Reload and try again.';msg.className='msg err';return;}
+      post({image:data}).catch(function(e){msg.textContent=e.message;msg.className='msg err';});
+    }
+    var err=h('div',{class:'hint',style:'display:none',text:'This video can’t be played here right now.'});
+    vd.addEventListener('error',function(){err.style.display='';});
+    box.appendChild(h('div',{class:'fp-row'},[h('div',{class:'fp-main'},[vd,err,h('div',{class:'btns',style:'margin-top:10px;flex-wrap:wrap'},[
+      h('button',{class:'btn ghost sm',type:'button',text:'◀ Frame',onclick:function(){step(-1/24);}}),
+      h('button',{class:'btn ghost sm',type:'button',text:'Frame ▶',onclick:function(){step(1/24);}}),
+      h('button',{class:'btn pri',type:'button',text:'Use this frame as the thumbnail',onclick:use}),
+      v.thumb_url&&v.thumb_url.indexOf('/storage/')>=0?h('button',{class:'btn ghost sm',type:'button',text:'Remove custom thumbnail',onclick:function(){post({clear:true}).catch(function(e){msg.textContent=e.message;msg.className='msg err';});}}):null,msg])]),
+      h('div',{class:'fp-side'},[h('div',{class:'hint',text:'Current'}),cur])]));
+    box.appendChild(h('div',{class:'hint',text:'Play the video and pause where you want the still from. Use ◀ ▶ to nudge frame by frame.'}));
+    return box;
   }
 
   /* ---------- modals ---------- */
@@ -425,7 +453,7 @@
     var ps=projectSelect(projectId),lb=h('input',{class:'field',placeholder:'Version label (e.g. v2)',maxlength:'40'}),m=h('span',{class:'msg'});
     function sugg(){var n=ps.value?inProj(ps.value).length+1:0;lb.placeholder=n?'Version label (leave blank for v'+n+')':'Version label (optional)';}
     ps.addEventListener('change',sugg);sugg();
-    modal([h('h3',{text:'New video'}),h('div',{class:'stack'},[seg,kd,t,c,u,h('div',{class:'hint',text:'The link must go straight to a video file. Dropbox share links work: paste the normal link and it’s converted. Dropbox is fine for a few viewers; for more, use Cloudflare R2, Bunny or Vercel Blob.'}),h('div',{class:'lbl',text:'PROJECT'}),ps,lb]),
+    modal([h('h3',{text:'New video'}),h('div',{class:'stack'},[seg,kd,t,c,u,h('div',{class:'hint',text:'The link must go straight to a video file (a link anyone can view).'}),h('div',{class:'lbl',text:'PROJECT'}),ps,lb]),
       h('div',{class:'btns'},[h('button',{class:'btn pri',type:'button',text:'Create link',onclick:function(){
         var label=lb.value||(ps.value?'v'+(inProj(ps.value).length+1):'');m.textContent='Creating…';m.className='msg';
         call('POST',{action:'create',kind:kind,title:t.value,client:c.value,video_url:u.value,project_id:ps.value||null,label:label}).then(function(j){closeModal();return load().then(function(){openDetail(j.review.id);});}).catch(function(e){m.textContent=e.message;m.className='msg err';});}}),
