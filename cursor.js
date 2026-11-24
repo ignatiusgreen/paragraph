@@ -6,7 +6,7 @@
   dot.innerHTML = '<span class="clabel"></span><svg class="cgo" viewBox="0 0 24 24" aria-hidden="true"><path class="sh" d="M7.6 16.4L16.7 7.3"/><path class="hd" d="M10.7 7.5H16.4V13.2"/></svg>';
   document.body.appendChild(dot);
   var root = document.documentElement;
-  var x = -100, y = -100, cx = -100, cy = -100, raf = null, shown = false;
+  var lastT = null, x = -100, y = -100, cx = -100, cy = -100, raf = null, shown = false;
   function loop() {
     cx += (x - cx) * 0.22; cy += (y - cy) * 0.22;
     dot.style.transform = 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0)';
@@ -16,7 +16,7 @@
     x = ev.clientX; y = ev.clientY;
     root.classList.add('has-cdot');   // hide the system arrow only while the pointer is over the page
     if (!shown) { shown = true; cx = x; cy = y; dot.classList.add('on'); }
-    var t = ev.target;
+    var t = ev.target; lastT = t;
     var onMedia = !!(t.closest && t.closest('[data-cursor] .wi, [data-cursor] .mi, [data-cursor] .pi, [data-cursor] .frame, .card[data-cursor] .frame, a.hframe[href]'));
     var vp = !!(t.closest && t.closest('.play-cover, .vthumb, .thumb, button.cover, #bcover'));   // a video that will play in place
     var lk = onMedia && !vp && t.closest('a[href]');                    // over an image that links to another page: magnifier
@@ -26,7 +26,7 @@
       if (/flourish\.html/.test(lk.getAttribute('href'))) lab = 'View series';   // documentary series
       if (lab !== dot._lab) { dot._lab = lab; dot.firstChild.innerHTML = lab.replace(' ', '<br>'); }
     }
-    dot.classList.toggle('zoom', !!(t.closest && t.closest('.pz-trigger')));   // image that opens full screen: plus sign
+    dot.classList.toggle('zoom', !root.classList.contains('pz-open') && !!(t.closest && t.closest('.pz-trigger')));   // image that opens full screen: plus sign
     dot.classList.toggle('zoomout', root.classList.contains('pz-open') && !!(t.closest && t.closest('.pz')));   // poster enlarged: minus sign
     dot.classList.toggle('go', isGo);
     dot.classList.toggle('play', onMedia || vp);                       // over a film or project: open ring with a play triangle
@@ -45,10 +45,13 @@
   addEventListener('pagehide', release);
   document.addEventListener('visibilitychange', function () { if (document.hidden) release(); });
   // open/close of the full-screen poster changes the cursor straight away, without waiting for the next mouse move
-  new MutationObserver(function () {
-    var o = root.classList.contains('pz-open');
-    dot.classList.toggle('zoomout', o); dot.classList.toggle('zoom', !o && dot.classList.contains('on'));
-  }).observe(root, { attributes: true, attributeFilter: ['class'] });
+  // The plus/minus follows what is under the pointer, never just "cursor visible".
+  function zsync() {
+    var o = root.classList.contains('pz-open'), t = lastT;
+    dot.classList.toggle('zoomout', o && !!(t && t.closest && t.closest('.pz')));
+    dot.classList.toggle('zoom', !o && !!(t && t.closest && t.closest('.pz-trigger')));
+  }
+  new MutationObserver(zsync).observe(root, { attributes: true, attributeFilter: ['class'] });
   addEventListener('mousedown', function () { dot.classList.add('press'); });
   addEventListener('mouseup', function () { dot.classList.remove('press'); });
 })();
