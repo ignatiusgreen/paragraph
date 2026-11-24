@@ -1,6 +1,6 @@
 // Owner side of the Review Portal. Reached only through middleware.js, which requires the archive password.
 const crypto = require('crypto');
-const { db, enc, clean, ready, normalizeVideoUrl, send, readBody } = require('./_db');
+const { db, enc, clean, ready, normalizeVideoUrl, downloadUrl, send, readBody } = require('./_db');
 
 const NOTE_COLS = 'id,review_id,parent_id,author_name,author_email,is_team,timecode,body,resolved,created_at,edited_at';
 const isId = (s) => /^[0-9a-f-]{36}$/i.test(String(s || ''));
@@ -65,7 +65,7 @@ module.exports = async function handler(req, res) {
         return send(res, 200, { reels });
       }
       if (url.searchParams.get('site')) {   // Website Videos section: every video on paragraphfilms.com
-        const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,sort&order=sort.asc&limit=1000');
+        const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,sort&order=sort.asc&limit=1000');
         return send(res, 200, { videos });
       }
       const id = url.searchParams.get('id');
@@ -174,8 +174,45 @@ module.exports = async function handler(req, res) {
         }
         if (b.title !== undefined) { patch.title = clean(b.title, 160); if (!patch.title) return send(res, 400, { error: 'Title can’t be empty.' }); }
         if (b.grp !== undefined) { patch.grp = clean(b.grp, 80); if (!patch.grp) return send(res, 400, { error: 'Group can’t be empty.' }); }
-        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,sort', patch, 'return=representation');
+        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,sort', patch, 'return=representation');
         return send(res, 200, { video: row && row[0] });
+      }
+      if (a === 'stream_move' || a === 'stream_sync') {   // copy site videos to fast hosting (Cloudflare Stream), or refresh their processing status
+        const token = process.env.CLOUDFLARE_API_TOKEN, acct = process.env.CLOUDFLARE_ACCOUNT_ID;
+        if (!token || !acct) return send(res, 400, { error: 'Fast hosting isn’t set up yet. Add the Cloudflare token in Vercel first.' });
+        const cf = async (method, path, body) => {
+          const r = await fetch('https://api.cloudflare.com/client/v4/accounts/' + acct + path, { method, headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok || j.success === false) throw new Error((j.errors && j.errors[0] && j.errors[0].message) || ('Cloudflare said ' + r.status));
+          return j.result;
+        };
+        const COLS = 'id,vimeo_id,title,video_url,stream_uid,stream_status';
+        const one = isId(b.id) ? '&id=eq.' + b.id : '';
+        const out = { started: 0, ready: 0, processing: 0, failed: [] };
+        if (a === 'stream_move') {
+          const lim = Math.max(1, Math.min(Number(b.limit) || 1, 20));
+          const rows = await db('GET', 'site_videos?video_url=not.is.null&stream_uid=is.null' + one + '&select=' + COLS + '&order=sort.asc&limit=' + lim);
+          for (const v of rows || []) {
+            try {
+              const r = await cf('POST', '/stream/copy', { url: downloadUrl(v.video_url), meta: { name: v.title, vimeo_id: v.vimeo_id }, requireSignedURLs: false });
+              await db('PATCH', 'site_videos?id=eq.' + v.id, { stream_uid: r.uid, stream_status: 'inprogress', updated_at: new Date().toISOString() });
+              out.started++;
+            } catch (e) { out.failed.push({ title: v.title, error: String(e.message || e).slice(0, 160) }); }
+          }
+        } else {
+          const rows = await db('GET', 'site_videos?stream_uid=not.is.null&stream_status=neq.ready' + one + '&select=' + COLS + '&limit=100');
+          for (const v of rows || []) {
+            try {
+              const r = await cf('GET', '/stream/' + v.stream_uid);
+              const st = r.readyToStream ? 'ready' : (r.status && r.status.state === 'error' ? 'error' : 'inprogress');
+              if (st !== v.stream_status) await db('PATCH', 'site_videos?id=eq.' + v.id, { stream_status: st, updated_at: new Date().toISOString() });
+              if (st === 'error') out.failed.push({ title: v.title, error: (r.status && (r.status.errorReasonText || r.status.errorReasonCode)) || 'Processing failed' });
+            } catch (e) { out.failed.push({ title: v.title, error: String(e.message || e).slice(0, 160) }); }
+          }
+        }
+        const all = await db('GET', 'site_videos?select=stream_uid,stream_status&limit=1000');
+        out.total = all.length; out.ready = all.filter((x) => x.stream_status === 'ready').length; out.processing = all.filter((x) => x.stream_uid && x.stream_status !== 'ready' && x.stream_status !== 'error').length;
+        return send(res, 200, out);
       }
       if (a === 'site_thumb') {   // choose a still for a site video: a JPEG captured in the portal (data URL), or { clear: true } to remove it
         if (!isId(b.id)) return send(res, 400, { error: 'Bad id' });
@@ -195,7 +232,7 @@ module.exports = async function handler(req, res) {
           if (!up.ok) return send(res, 502, { error: 'Couldn’t save the image (' + up.status + ').' });
           patch.thumb_url = base + '/storage/v1/object/public/site-thumbs/' + name;
         }
-        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,sort', patch, 'return=representation');
+        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,sort', patch, 'return=representation');
         return send(res, 200, { video: row && row[0] });
       }
       if (a === 'reel_save') {   // create or update a custom reel: title, client, ordered list of site video ids

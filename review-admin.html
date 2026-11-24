@@ -310,6 +310,22 @@
     var where=(v.pages||[]).map(function(p){return p==='archive'?'Archive':p==='home'?'Home':p.replace(/^(films|brands|social-machines)\//,'').replace('.html','');}).join(', ');
     return h('div',{class:'sv',onclick:function(){editSite(v);}},[t,h('b',{text:v.title}),h('div',{class:'row'},[h('span',{class:'pill',text:v.grp})]),h('small',{text:where})]);
   }
+  function streamBar(){
+    var n=S.site.length,rd=S.site.filter(function(v){return v.stream_status==='ready';}).length,pr=S.site.filter(function(v){return v.stream_uid&&v.stream_status!=='ready'&&v.stream_status!=='error';}).length,er=S.site.filter(function(v){return v.stream_status==='error';}).length;
+    var msg=h('span',{class:'msg'});
+    function run(body,label){msg.className='msg';msg.textContent=label;
+      return call('POST',body).then(function(j){
+        var t=(j.started?j.started+' sent. ':'')+j.ready+' of '+j.total+' ready'+(j.processing?', '+j.processing+' processing':'')+'.';
+        if(j.failed&&j.failed.length){t+=' Problem: '+j.failed[0].title+' — '+j.failed[0].error;msg.className='msg err';}
+        msg.textContent=t;return load();
+      }).catch(function(e){msg.textContent=e.message;msg.className='msg err';});
+    }
+    return h('div',{class:'hint',style:'margin:-8px 0 22px;display:flex;gap:10px;align-items:center;flex-wrap:wrap'},[
+      h('span',{text:'Fast hosting: '+rd+' of '+n+' ready'+(pr?' · '+pr+' processing':'')+(er?' · '+er+' failed':'')+'.'}),
+      h('button',{class:'btn ghost sm',type:'button',text:'Send one to test',onclick:function(){run({action:'stream_move',limit:1},'Sending…');}}),
+      h('button',{class:'btn ghost sm',type:'button',text:'Send the next 10',onclick:function(){run({action:'stream_move',limit:10},'Sending…');}}),
+      h('button',{class:'btn ghost sm',type:'button',text:'Check progress',onclick:function(){run({action:'stream_sync'},'Checking…');}}),msg]);
+  }
   function drawSiteMain(){
     if(S.view==='site:reels')return drawReels();
     var f=S.view.replace('site:','');
@@ -318,6 +334,7 @@
     s.addEventListener('input',function(){S.q=s.value;var pos=s.selectionStart;drawMain();var i=document.querySelector('.search input');if(i){i.focus();i.setSelectionRange(pos,pos);}});
     main.appendChild(h('div',{class:'top'},[h('span',{style:'flex:1 1 360px'}),h('div',{class:'search',html:ICON.search},[s])]));
     main.appendChild(h('div',{class:'hint',style:'margin-bottom:22px',text:'Every video on paragraphfilms.com, tagged by film or client. Click a video to choose its thumbnail: play it, pause on the frame you want, and use it.'}));
+    main.appendChild(streamBar());
     if(!list.length){main.appendChild(h('div',{class:'empty',text:S.q?'Nothing matches.':'Nothing here.'}));return;}
     main.appendChild(h('div',{class:'sec'},[h('h2',{text:'Videos'}),h('span',{text:list.length+(list.length===1?' video':' videos')})]));
     var gr=h('div',{class:'sgrid'});list.forEach(function(v){gr.appendChild(sitecard(v));});main.appendChild(gr);
