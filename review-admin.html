@@ -413,10 +413,10 @@
     box.appendChild(h('div',{class:'fp-row'},[h('div',{class:'fp-main'},[vd,err,h('div',{class:'btns',style:'margin-top:10px;flex-wrap:wrap'},[
       h('button',{class:'btn ghost sm',type:'button',text:'◀ Frame',onclick:function(){step(-1/24);}}),
       h('button',{class:'btn ghost sm',type:'button',text:'Frame ▶',onclick:function(){step(1/24);}}),
-      h('button',{class:'btn pri',type:'button',text:'Use this frame as the thumbnail',onclick:use}),
+      h('button',{class:'btn ghost sm',type:'button',text:'Make Thumbnail',onclick:use}),
       v.thumb_url&&v.thumb_url.indexOf('/storage/')>=0?h('button',{class:'btn ghost sm',type:'button',text:'Remove custom thumbnail',onclick:function(){post({clear:true}).catch(function(e){msg.textContent=e.message;msg.className='msg err';});}}):null,msg])]),
       h('div',{class:'fp-side'},[h('div',{class:'hint',text:'Current'}),cur])]));
-    box.appendChild(h('div',{class:'hint',text:'Play the video and pause where you want the still from. Use ◀ ▶ to nudge frame by frame.'}));
+    box.appendChild(h('div',{class:'hint',style:'margin-top:16px',text:'Play the video and pause where you want the still from. Use ◀ ▶ to nudge frame by frame.'}));
     return box;
   }
 
