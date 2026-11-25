@@ -472,8 +472,8 @@
       h('button',{class:'btn ghost bad',type:'button',text:'Delete project',onclick:function(){if(confirm('Delete the project “'+p.name+'”? The videos inside are kept and move back to All videos.'))call('POST',{action:'project_delete',id:p.id}).then(function(){closeModal();S.view='all';return load();});}}),
       h('button',{class:'btn ghost',type:'button',text:'Cancel',onclick:closeModal}),m])]);
   }
-  function projectSelect(sel){
-    var s=h('select',{class:'field'},[h('option',{value:'',text:'No project'})].concat(S.projects.map(function(p){return h('option',{value:p.id,text:p.name});})));s.value=sel||'';return s;
+  function projectSelect(sel,allowNew){
+    var s=h('select',{class:'field'},[h('option',{value:'',text:'No project'})].concat(S.projects.map(function(p){return h('option',{value:p.id,text:p.name});})).concat(allowNew?[h('option',{value:'__new',text:'+ New Project'})]:[]));s.value=sel||'';return s;
   }
   function newVideo(projectId){
     var kind='review';
@@ -481,13 +481,16 @@
     function segDraw(){seg.innerHTML='';[['review','Review link'],['presentation','Presentation link']].forEach(function(k){seg.appendChild(h('button',{type:'button',class:kind===k[0]?'on':'',text:k[1],onclick:function(){kind=k[0];segDraw();kd.textContent=kind==='review'?'Reviewers can watch and leave timecoded notes.':'Viewers can watch and download. Notes are off until you approve a request.';}}));});}
     var kd=h('div',{class:'hint',text:'Reviewers can watch and leave timecoded notes.'});segDraw();
     var t=h('input',{class:'field',placeholder:'Title (e.g. Sizzle - Proposed Final)',maxlength:'140'}),c=h('input',{class:'field',placeholder:'Client or studio (optional)',maxlength:'140'}),u=h('input',{class:'field',type:'url',placeholder:'Direct link to the MP4 (https://…)'});
-    var ps=projectSelect(projectId),lb=h('input',{class:'field',placeholder:'Version label (e.g. v2)',maxlength:'40'}),m=h('span',{class:'msg'});
-    function sugg(){var n=ps.value?inProj(ps.value).length+1:0;lb.placeholder=n?'Version label (leave blank for v'+n+')':'Version label (optional)';}
+    var ps=projectSelect(projectId,true),np=h('input',{class:'field',placeholder:'New project name (e.g. Hilton Spark Europe)',maxlength:'140',style:'display:none'}),lb=h('input',{class:'field',placeholder:'Version label (e.g. v2)',maxlength:'40'}),m=h('span',{class:'msg'});
+    function sugg(){np.style.display=ps.value==='__new'?'':'none';if(ps.value==='__new')setTimeout(function(){np.focus();},20);var n=ps.value==='__new'?1:ps.value?inProj(ps.value).length+1:0;lb.placeholder=n?'Version label (leave blank for v'+n+')':'Version label (optional)';}
     ps.addEventListener('change',sugg);sugg();
-    modal([h('h3',{text:'New video'}),h('div',{class:'stack'},[seg,kd,t,c,u,h('div',{class:'hint',text:'The link must go straight to a video file (a link anyone can view).'}),h('div',{class:'lbl',text:'PROJECT'}),ps,lb]),
+    modal([h('h3',{text:'New video'}),h('div',{class:'stack'},[seg,kd,t,c,u,h('div',{class:'hint',text:'The link must go straight to a video file (a link anyone can view).'}),h('div',{class:'lbl',text:'PROJECT'}),ps,np,lb]),
       h('div',{class:'btns'},[h('button',{class:'btn pri',type:'button',text:'Create link',onclick:function(){
-        var label=lb.value||(ps.value?'v'+(inProj(ps.value).length+1):'');m.textContent='Creating…';m.className='msg';
-        call('POST',{action:'create',kind:kind,title:t.value,client:c.value,video_url:u.value,project_id:ps.value||null,label:label}).then(function(j){closeModal();return load().then(function(){openDetail(j.review.id);});}).catch(function(e){m.textContent=e.message;m.className='msg err';});}}),
+        var isNew=ps.value==='__new';
+        if(isNew&&!np.value.trim()){m.textContent='Give the new project a name.';m.className='msg err';np.focus();return;}
+        var label=lb.value||(isNew?'v1':ps.value?'v'+(inProj(ps.value).length+1):'');m.textContent='Creating…';m.className='msg';
+        (isNew?call('POST',{action:'project_create',name:np.value,client:c.value}).then(function(j){return j.project.id;}):Promise.resolve(ps.value||null)).then(function(pid){
+          return call('POST',{action:'create',kind:kind,title:t.value,client:c.value,video_url:u.value,project_id:pid,label:label});}).then(function(j){closeModal();return load().then(function(){openDetail(j.review.id);});}).catch(function(e){m.textContent=e.message;m.className='msg err';});}}),
         h('button',{class:'btn ghost',type:'button',text:'Cancel',onclick:closeModal}),m])]);
   }
 
