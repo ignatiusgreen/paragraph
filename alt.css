@@ -708,3 +708,12 @@ a[href$="flourish.html"] img{object-position:52% 50%}
 body.home-alt header,body.home-alt header.solid{mix-blend-mode:normal;color:var(--pfg);text-shadow:0 1px 14px rgba(0,0,0,.35)}
 body.home-alt .logo img{filter:brightness(0) invert(calc(1 - var(--logo-inv,0))) drop-shadow(0 1px 10px rgba(0,0,0,.35))}
 body.home-alt #nav a{opacity:1;font-weight:800;text-shadow:0 1px 12px rgba(0,0,0,.55)}
+
+/* a lone film set beside the closing paragraph (Purina case study) */
+.a-films.two .fl{grid-template-columns:repeat(2,minmax(0,1fr))}
+.a-coda.has-film{align-items:center;column-gap:24px}
+.a-coda.has-film .film-row.cv{grid-column:1/7;display:flex;flex-direction:column;align-items:stretch;gap:0}
+.a-coda.has-film .film-row.cv .thumb{grid-column:auto;order:1}
+.a-coda.has-film .film-row.cv .ft{order:2;margin-top:14px;text-align:left}
+.a-coda.has-film p{grid-column:8/13}
+@media(max-width:800px){.a-coda.has-film .film-row.cv{grid-column:1/-1;margin-bottom:6vh}.a-coda.has-film p{grid-column:1/-1}}
