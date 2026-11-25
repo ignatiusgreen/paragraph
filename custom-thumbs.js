@@ -1,5 +1,5 @@
 // Thumbnails chosen in the portal (Website Videos → Make Thumbnail) replace the default still wherever that video appears.
-// Only portal-made thumbnails are swapped in, and only over the automatic stills. Artwork already assigned to a page
+// Only portal-chosen thumbnails (uploaded ones, or the seeded tile/hero/thumb images) are swapped in, and only over the automatic stills. Artwork already assigned to a page
 // (a film's big top image, a brand tile, the home carousel) is left alone.
 (function () {
   var thumbs = null, KEY = 'pg_ct1';
@@ -19,7 +19,7 @@
     }
   }
   function set(t) {
-    thumbs = {}; for (var k in t) if (t[k] && String(t[k]).indexOf('/storage/') >= 0) thumbs[k] = t[k];
+    thumbs = {}; for (var k in t) if (t[k] && /\/storage\/|^\/img\/vt\/(tile|hero|thumb)-/.test(String(t[k]))) thumbs[k] = t[k];
     apply();
   }
   try { var c = JSON.parse(localStorage.getItem(KEY) || 'null'); if (c && typeof c === 'object') set(c); } catch (e) {}
