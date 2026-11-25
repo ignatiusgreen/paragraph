@@ -65,7 +65,7 @@ module.exports = async function handler(req, res) {
         return send(res, 200, { reels });
       }
       if (url.searchParams.get('site')) {   // Website Videos section: every video on paragraphfilms.com
-        const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,sort&order=sort.asc&limit=1000');
+        const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,tags,sort&order=sort.asc&limit=1000');
         await streamRefresh('site_videos', videos);
         (videos || []).forEach((v) => { if (v.stream_uid && v.stream_status === 'ready') v.stream_url = streamUrl(v.stream_uid); });
         return send(res, 200, { videos });
@@ -179,9 +179,10 @@ module.exports = async function handler(req, res) {
           else { const v = normalizeVideoUrl(b.video_url); if (!v) return send(res, 400, { error: 'The link must be a full https:// link to a video file.' }); patch.video_url = v; }
         }
         if (b.title !== undefined) { patch.title = clean(b.title, 160); if (!patch.title) return send(res, 400, { error: 'Title can’t be empty.' }); }
+        if (b.tags !== undefined) patch.tags = [...new Set((Array.isArray(b.tags) ? b.tags : []).map((t) => clean(t, 24).toLowerCase()).filter(Boolean))].slice(0, 16);
         if (b.grp !== undefined) { patch.grp = clean(b.grp, 80); if (!patch.grp) return send(res, 400, { error: 'Group can’t be empty.' }); }
         if (b.video_url !== undefined) { patch.stream_uid = null; patch.stream_status = null; }
-        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,sort', patch, 'return=representation');
+        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,tags,sort', patch, 'return=representation');
         if (b.video_url !== undefined && row && row[0] && row[0].video_url) Object.assign(row[0], await streamKick('site_videos', row[0].id, row[0].video_url, row[0].title));
         return send(res, 200, { video: row && row[0] });
       }
@@ -240,7 +241,7 @@ module.exports = async function handler(req, res) {
           if (!up.ok) return send(res, 502, { error: 'Couldn’t save the image (' + up.status + ').' });
           patch.thumb_url = base + '/storage/v1/object/public/site-thumbs/' + name;
         }
-        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,sort', patch, 'return=representation');
+        const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,tags,sort', patch, 'return=representation');
         return send(res, 200, { video: row && row[0] });
       }
       if (a === 'reel_save') {   // create or update a custom reel: title, client, ordered list of site video ids
