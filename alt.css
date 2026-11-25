@@ -715,7 +715,7 @@ body.home-alt #nav a{opacity:1;font-weight:800;text-shadow:0 1px 12px rgba(0,0,0
 .a-coda.has-film .film-row.cv{grid-column:1/7;display:flex;flex-direction:column;align-items:stretch;gap:0}
 .a-coda.has-film .film-row.cv .thumb{grid-column:auto;order:1}
 .a-coda.has-film .film-row.cv .ft{order:2;margin-top:14px;text-align:left}
-.a-coda.has-film p{grid-column:8/13}
+.a-coda.has-film p{grid-column:8/13;padding:0 clamp(24px,4vw,72px)}
 @media(max-width:800px){.a-coda.has-film .film-row.cv{grid-column:1/-1;margin-bottom:6vh}.a-coda.has-film p{grid-column:1/-1}}
 .a-coda.has-film .cfig{grid-column:1/8;margin:0}
 .a-coda.has-film .cfig img{display:block;width:100%;height:auto}
