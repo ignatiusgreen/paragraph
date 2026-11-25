@@ -1,6 +1,6 @@
 // Owner side of the Review Portal. Reached only through middleware.js, which requires the archive password.
 const crypto = require('crypto');
-const { db, enc, clean, ready, normalizeVideoUrl, downloadUrl, send, readBody, streamUrl } = require('./_db');
+const { db, enc, clean, ready, normalizeVideoUrl, downloadUrl, send, readBody, streamUrl, streamKick, streamRefresh } = require('./_db');
 
 const NOTE_COLS = 'id,review_id,parent_id,author_name,author_email,is_team,timecode,body,resolved,created_at,edited_at';
 const isId = (s) => /^[0-9a-f-]{36}$/i.test(String(s || ''));
@@ -66,6 +66,7 @@ module.exports = async function handler(req, res) {
       }
       if (url.searchParams.get('site')) {   // Website Videos section: every video on paragraphfilms.com
         const videos = await db('GET', 'site_videos?select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,sort&order=sort.asc&limit=1000');
+        await streamRefresh('site_videos', videos);
         (videos || []).forEach((v) => { if (v.stream_uid && v.stream_status === 'ready') v.stream_url = streamUrl(v.stream_uid); });
         return send(res, 200, { videos });
       }
@@ -75,10 +76,11 @@ module.exports = async function handler(req, res) {
         const notes = await db('GET', 'review_notes?review_id=eq.' + id + '&select=' + NOTE_COLS + '&order=created_at.asc&limit=1000');
         return send(res, 200, { notes });
       }
-      const REV = 'id,token,title,client,video_url,status,kind,label,project_id,request_status,requested_name,requested_email,requested_message,requested_at,created_at';
+      const REV = 'id,token,stream_uid,stream_status,title,client,video_url,status,kind,label,project_id,request_status,requested_name,requested_email,requested_message,requested_at,created_at';
       const projects = await db('GET', 'review_projects?select=id,name,client,created_at&order=created_at.desc&limit=300');
       const reviews = await db('GET', 'reviews?select=' + REV + '&order=created_at.desc&limit=500');
       const notes = await db('GET', 'review_notes?select=review_id,resolved,parent_id&limit=5000');
+      await streamRefresh('reviews', reviews);
       const stat = {};
       notes.forEach((n) => { const s = stat[n.review_id] || (stat[n.review_id] = { open: 0, done: 0 }); if (!n.parent_id) { if (n.resolved) s.done++; else s.open++; } });
       return send(res, 200, { projects, reviews: reviews.map((r) => Object.assign(r, { open: (stat[r.id] || {}).open || 0, done: (stat[r.id] || {}).done || 0 })) });
@@ -97,6 +99,7 @@ module.exports = async function handler(req, res) {
         const label = clean(b.label, 40) || null;
         const project_id = isId(b.project_id) ? b.project_id : null;
         const row = await db('POST', 'reviews?select=id,token,title,client,video_url,status,kind,label,project_id,created_at', { token, title, client: client || null, video_url: video, kind, label, project_id }, 'return=representation');
+        Object.assign(row[0], await streamKick('reviews', row[0].id, video, title));   // send to fast hosting right away
         return send(res, 200, { review: row[0] });
       }
       if (a === 'update') {
@@ -109,7 +112,9 @@ module.exports = async function handler(req, res) {
         if (b.label !== undefined) patch.label = clean(b.label, 40) || null;
         if (b.project_id !== undefined) patch.project_id = isId(b.project_id) ? b.project_id : null;
         if (b.video_url !== undefined) { const v = normalizeVideoUrl(b.video_url); if (!v) return send(res, 400, { error: 'The video link must be a full https:// link.' }); patch.video_url = v; }
+        if (patch.video_url) { patch.stream_uid = null; patch.stream_status = null; }
         await db('PATCH', 'reviews?id=eq.' + b.id, patch);
+        if (patch.video_url) { const cur = await db('GET', 'reviews?id=eq.' + b.id + '&select=title&limit=1'); await streamKick('reviews', b.id, patch.video_url, cur && cur[0] && cur[0].title); }
         return send(res, 200, { ok: true });
       }
       if (a === 'delete') {
@@ -175,7 +180,9 @@ module.exports = async function handler(req, res) {
         }
         if (b.title !== undefined) { patch.title = clean(b.title, 160); if (!patch.title) return send(res, 400, { error: 'Title can’t be empty.' }); }
         if (b.grp !== undefined) { patch.grp = clean(b.grp, 80); if (!patch.grp) return send(res, 400, { error: 'Group can’t be empty.' }); }
+        if (b.video_url !== undefined) { patch.stream_uid = null; patch.stream_status = null; }
         const row = await db('PATCH', 'site_videos?id=eq.' + b.id + '&select=id,vimeo_id,title,grp,area,pages,video_url,thumb_url,stream_uid,stream_status,sort', patch, 'return=representation');
+        if (b.video_url !== undefined && row && row[0] && row[0].video_url) Object.assign(row[0], await streamKick('site_videos', row[0].id, row[0].video_url, row[0].title));
         return send(res, 200, { video: row && row[0] });
       }
       if (a === 'stream_move' || a === 'stream_sync') {   // copy site videos to fast hosting (Cloudflare Stream), or refresh their processing status

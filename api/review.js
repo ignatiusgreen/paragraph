@@ -1,12 +1,12 @@
 // Public side of the Review Portal: a reviewer opens /review/r/<token>, reads the notes, adds notes.
 const crypto = require('crypto');
-const { db, enc, clean, ready, downloadUrl, send, readBody } = require('./_db');
+const { db, enc, clean, ready, downloadUrl, send, readBody, streamUrl, streamRefresh } = require('./_db');
 
 const NOTE_COLS = 'id,parent_id,author_name,is_team,timecode,body,resolved,created_at,edited_at';
 
 async function load(token) {
   if (!/^[A-Za-z0-9_-]{16,64}$/.test(token || '')) return null;
-  const rows = await db('GET', 'reviews?token=eq.' + enc(token) + '&select=id,title,client,video_url,status,kind,label,project_id,request_status,created_at&limit=1');
+  const rows = await db('GET', 'reviews?token=eq.' + enc(token) + '&select=id,stream_uid,stream_status,title,client,video_url,status,kind,label,project_id,request_status,created_at&limit=1');
   return rows && rows[0] ? rows[0] : null;
 }
 
@@ -22,7 +22,9 @@ module.exports = async function handler(req, res) {
       const notes = isReview ? await db('GET', 'review_notes?review_id=eq.' + review.id + '&select=' + NOTE_COLS + '&order=created_at.asc&limit=1000') : [];
       let project = null;
       if (review.project_id) { const p = await db('GET', 'review_projects?id=eq.' + review.project_id + '&select=name&limit=1'); project = p && p[0] ? p[0].name : null; }
-      const { id, project_id, ...pub } = review;
+      await streamRefresh('reviews', [review]);
+      const { id, project_id, stream_uid, stream_status, ...pub } = review;
+      pub.src = stream_uid && stream_status === 'ready' ? streamUrl(stream_uid) : review.video_url;
       pub.project = project;
       // other versions in the same project, so a viewer can switch between drafts from the top bar
       pub.versions = [];

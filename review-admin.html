@@ -407,7 +407,7 @@
     var t=h('input',{class:'field',value:v.title,maxlength:'160'}),g=h('input',{class:'field',value:v.grp,maxlength:'80'}),m=h('span',{class:'msg'});
     function save(){var body={action:'site_update',id:v.id,title:t.value,grp:g.value};m.textContent='Saving…';m.className='msg';
       call('POST',body).then(function(j){Object.assign(v,j.video||{});closeModal();draw();}).catch(function(e){m.textContent=e.message;m.className='msg err';});}
-    modal([h('h3',{text:v.title}),h('div',{class:'stack'},[h('div',{class:'lbl',text:'THUMBNAIL'}),framePicker(v),h('div',{class:'lbl',text:'TITLE'}),t,h('div',{class:'lbl',text:'GROUP'}),g]),
+    modal([h('h3',{text:v.title}),h('div',{class:'stack'},[h('div',{class:'lbl',text:'THUMBNAIL'}),framePicker(v),hostLine(v)||h('span'),h('div',{class:'lbl',text:'TITLE'}),t,h('div',{class:'lbl',text:'GROUP'}),g]),
       h('div',{class:'btns'},[h('button',{class:'btn pri',type:'button',text:'Save',onclick:save}),h('button',{class:'btn ghost',type:'button',text:'Close',onclick:closeModal}),m])],true);
   }
   function framePicker(v){
@@ -495,6 +495,9 @@
   function sortTops(ns){return ns.filter(function(n){return !n.parent_id;}).sort(function(a,b){var ta=a.timecode==null,tb=b.timecode==null;if(ta!==tb)return ta?1:-1;if(!ta&&a.timecode!==b.timecode)return a.timecode-b.timecode;return new Date(a.created_at)-new Date(b.created_at);});}
   function exportText(r){var ns=S.notes[r.id]||[];var out=[r.title+(r.label?' ('+r.label+')':'')+(r.client?' — '+r.client:''),''];
     sortTops(ns).forEach(function(n){out.push((n.timecode==null?'GENERAL':mmss(n.timecode))+(n.resolved?' [resolved]':'')+' — '+n.author_name+': '+n.body);ns.filter(function(k){return k.parent_id===n.id;}).forEach(function(k){out.push('    ↳ '+k.author_name+': '+k.body);});});return out.join('\n');}
+  function hostLine(v){var st=v.stream_status;if(!st)return null;
+    var t=st==='ready'?'Fast hosting: ready.':st==='error'?'Fast hosting: this file couldn’t be prepared (often a very large master). It still plays, just slower. Export an H.264 MP4 and use Change video link.':'Fast hosting: getting this video ready… (reload in a minute).';
+    return h('div',{class:'msg'+(st==='error'?' err':''),style:'margin:6px 0 2px',text:t});}
   var openId=null;
   function openDetail(id){openId=id;var r=S.reviews.filter(function(x){return x.id===id;})[0];if(!r)return;
     if(r.kind==='review'&&!S.notes[id])call('GET',null,'?id='+id).then(function(j){S.notes[id]=j.notes;if(openId===id)renderDetail();});
@@ -519,7 +522,7 @@
     act('Change video link',function(){var v=prompt('New direct link to the video:',r.video_url);if(v&&v!==r.video_url)call('POST',{action:'update',id:r.id,video_url:v}).then(function(){return refresh(r.id);}).catch(function(e){alert(e.message);});});
     if(r.kind==='review')act('Copy all notes',function(e){copy(exportText(r),e.target);});
     act('Delete',function(){if(confirm('Delete “'+r.title+'”'+(r.kind==='review'?' and all its notes':'')+'? This can’t be undone.'))call('POST',{action:'delete',id:r.id}).then(function(){closeModal();openId=null;return load();});},'bad');
-    var kids=[head,lr,ac];
+    var kids=[head,lr,ac];var hl=hostLine(r);if(hl)kids.splice(2,0,hl);
     if(r.request_status==='pending'){
       kids.push(h('div',{class:'req'},[h('b',{text:(r.requested_name||'Someone')+' wants to leave notes'}),h('p',{text:[r.requested_email,r.requested_message&&'“'+r.requested_message+'”',r.requested_at&&ago(r.requested_at)].filter(Boolean).join(' · ')}),
         h('div',{style:'display:flex;gap:10px'},[h('button',{class:'btn pri sm',type:'button',text:'Approve — turn on notes',onclick:function(){call('POST',{action:'request',id:r.id,decision:'approve'}).then(function(){S.notes[r.id]=[];return refresh(r.id);});}}),h('button',{class:'btn ghost sm',type:'button',text:'Decline',onclick:function(){call('POST',{action:'request',id:r.id,decision:'decline'}).then(function(){return refresh(r.id);});}})])]));

@@ -109,7 +109,7 @@ body{display:flex;flex-direction:column;min-height:100%;height:auto}
 .vmenu[hidden]{display:none}
 @media(max-width:960px){.cols.has-notes{grid-template-columns:minmax(0,1fr)}.side{position:static;max-height:none}.stage video{max-height:none}.bar .crumb{display:none}}
 </style>
-</head>
+<script src="/hls-play.js"></script></head>
 <body>
 <div class="bar">
   <a href="/index.html" aria-label="Paragraph home"><img src="https://images.squarespace-cdn.com/content/v1/659dbf35c403a37668fc103f/1d1ecc1e-95c4-476b-9223-124c816f6cbd/%C2%B6_v1.png?format=300w" alt=""></a>
@@ -164,7 +164,7 @@ body{display:flex;flex-direction:column;min-height:100%;height:auto}
 
   function player(){
     var r=S.review;var stage=h('div',{class:'stage'});
-    video=h('video',{playsinline:true,preload:'metadata',src:r.video_url});
+    video=h('video',{playsinline:true,preload:'metadata'});pgAttach(video,r.src||r.video_url,r.video_url);
     var vbox=h('div',{class:'vbox'});vbox.appendChild(video);stage.appendChild(vbox);
     video.addEventListener('loadedmetadata',function(){if(video.videoWidth&&video.videoHeight)stage.style.setProperty('--ar',(video.videoWidth/video.videoHeight).toFixed(4));});
     video.addEventListener('error',function(){if(snote){snote.textContent='This video didn’t load. Try refreshing, or let Paragraph know.';snote.style.color='var(--bad)';}});
